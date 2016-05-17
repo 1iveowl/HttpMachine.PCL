@@ -1,0 +1,5 @@
+C:\Users\Jasper\Documents\Github_1iveowl\HttpMachine.PCL\src\main\HttpMachine\bin\Debug\HttpMachine.dll
+C:\Users\Jasper\Documents\Github_1iveowl\HttpMachine.PCL\src\main\HttpMachine\bin\Debug\HttpMachine.pdb
+C:\Users\Jasper\Documents\Github_1iveowl\HttpMachine.PCL\src\main\HttpMachine\obj\Debug\HttpMachine.csprojResolveAssemblyReference.cache
+C:\Users\Jasper\Documents\Github_1iveowl\HttpMachine.PCL\src\main\HttpMachine\obj\Debug\HttpMachine.dll
+C:\Users\Jasper\Documents\Github_1iveowl\HttpMachine.PCL\src\main\HttpMachine\obj\Debug\HttpMachine.pdb
