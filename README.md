@@ -1,4 +1,4 @@
-# HttpMachine.PCL.
+# HttpMachine.PCL
 
 This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
 
