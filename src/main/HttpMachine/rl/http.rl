@@ -43,7 +43,7 @@ http_request_line = (http_crlf $matched_leading_crlf)? http_request_method " " $
 http_response_line = (http_crlf $matched_leading_crlf)? http_version " " $matched_first_space %leave_first_space %/eof_leave_first_space http_response_code (" " http_response_phrase)? http_crlf >clear $buf %on_response_message;
 
 # not getting fancy with header values, just reading everything until CRLF and calling it good. 
-# thus we don't support line folding. fuck that noise.
+# thus we don't support line folding.
 http_header_value_text = (any -- ("\r" | "\n"))+;
 
 
