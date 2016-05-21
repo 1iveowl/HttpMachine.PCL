@@ -2,16 +2,16 @@
 <package >
   <metadata>
     <id>HttpMachine.PCL</id>
-    <version>0.9.1</version>
+    <version>0.9.5.1</version>
     <title>HttpMachine PCL</title>
-    <authors>Benjamin van der Veen</authors>
+    <authors>Benjamin van der Veen, (edits: Jasper H. Bojsen)</authors>
     <owners>Benjamin van der Veen</owners>
     <licenseUrl>https://github.com/bvanderveen/httpmachine/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/bvanderveen/httpmachine</projectUrl>
+    <projectUrl>https://github.com/1iveowl/HttpMachine.PCL</projectUrl>
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An HTTP parser built with Ragel.</description>
-    <releaseNotes>Sync nuget with latest code base and changed to PCL</releaseNotes>
+    <releaseNotes>Sync nuget with latest code base and changed to PCL. Extended HTTP Method character suppport</releaseNotes>
     <copyright>Copyright 2016 Benjamin van der Veen</copyright>
     <tags>http parser</tags>
   </metadata>
