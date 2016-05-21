@@ -5,9 +5,9 @@ This is a fork of the great work done by Benjamin van der Veen. [The Original Ht
 I've forked this project as Benjamin no longer is maintaining the work and I needed some updates for a project of mine.
 
 Updates:
-- I've updated the Nuget to the most recent code base provided by the original project.
-- The HttpMachine.PCL Nuget 0.9.1. is now a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
-- From Nuget ver. 0.9.5 the Http Method now accepts these additional four characters: "$ - , .".
+- Updated the Nuget to the most recent code base provided by the original project.
+- The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
+- From Nuget ver. 0.9.5.1 the Http Method now accepts these additional four characters: "$ - , .".
 
 
 #The Original Readme
