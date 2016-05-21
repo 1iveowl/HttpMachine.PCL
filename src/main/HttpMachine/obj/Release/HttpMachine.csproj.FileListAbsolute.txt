@@ -1,0 +1,5 @@
+C:\Users\Jasper\Documents\GitHub\HttpMachine.PCL\src\main\HttpMachine\bin\Release\HttpMachine.dll
+C:\Users\Jasper\Documents\GitHub\HttpMachine.PCL\src\main\HttpMachine\bin\Release\HttpMachine.pdb
+C:\Users\Jasper\Documents\GitHub\HttpMachine.PCL\src\main\HttpMachine\obj\Release\HttpMachine.csprojResolveAssemblyReference.cache
+C:\Users\Jasper\Documents\GitHub\HttpMachine.PCL\src\main\HttpMachine\obj\Release\HttpMachine.dll
+C:\Users\Jasper\Documents\GitHub\HttpMachine.PCL\src\main\HttpMachine\obj\Release\HttpMachine.pdb

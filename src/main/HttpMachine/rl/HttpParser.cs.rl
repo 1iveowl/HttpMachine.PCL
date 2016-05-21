@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+﻿using System.Diagnostics;
 
 namespace HttpMachine
 {
@@ -406,9 +407,9 @@ namespace HttpMachine
 
 			if (result != buf.Count)
 			{
-				Console.WriteLine("error on character " + p);
-				Console.WriteLine("('" + buf.Array[p] + "')");
-				Console.WriteLine("('" + (char)buf.Array[p] + "')");
+				Debug.WriteLine("error on character " + p);
+                Debug.WriteLine("('" + buf.Array[p] + "')");
+                Debug.WriteLine("('" + (char)buf.Array[p] + "')");
 			}
 
 			return p - buf.Offset;

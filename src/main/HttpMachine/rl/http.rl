@@ -3,6 +3,10 @@
 machine http;
 
 include uri "uri.rl"; # absulote_uri, authority, abs_path, query, fragment
+include httpparser "HttpParser.cs.rl";
+
+safe = ("$" | "-" | "_" | ".");
+method_string = (alpha | safe);
 
 http_crlf = "\r\n";
 http_cntrl = (cntrl | 127);
@@ -11,8 +15,8 @@ http_token = (ascii -- (http_cntrl | http_separators))+;
 
 
 # not as picky as the spec at the moment, accept any method name less than 24 chars
-http_request_method = (alpha {1,24} >clear $buf %on_method);
-#http_request_method = (alpha {1,24} >enter_method %/eof_leave_method %leave_method);
+http_request_method = (method_string {1,24} >clear $buf %on_method);
+#http_request_method = (method_string {1,24} >enter_method %/eof_leave_method %leave_method);
 
 abs_path = (uri_abs_path >clear2 $buf2 %on_abs_path);
 query_string = (uri_query >clear2 $buf2 %on_query_string);
