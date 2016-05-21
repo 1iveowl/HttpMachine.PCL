@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.Tests", "..\..\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{31AE5DCC-8EC2-46D4-9039-525579AF5E40}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\..\README.htm = ..\..\..\README.htm
+		..\..\..\README.md = ..\..\..\README.md
 	EndProjectSection
 EndProject
 Global
