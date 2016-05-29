@@ -7,8 +7,8 @@ namespace HttpMachine
     public class HttpParser
     {
         public object UserContext { get; set; }
-        public int MajorVersion { get { return versionMajor; } }
-        public int MinorVersion { get { return versionMinor; } }
+        public int MajorVersion => versionMajor;
+        public int MinorVersion => versionMinor;
 
         public bool ShouldKeepAlive
         {

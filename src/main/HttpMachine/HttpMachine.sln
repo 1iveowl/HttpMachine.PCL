@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{8D3A9272
 		nuget.cmd = nuget.cmd
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.Console.Test", "..\..\tests\HttpMachine.Console.Test\HttpMachine.Console.Test.csproj", "{321FFCE8-CACC-416F-BAF8-E8496E645709}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,11 +36,16 @@ Global
 		{593CF6FE-EB1F-4B5A-A6CE-30B7AC558D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{593CF6FE-EB1F-4B5A-A6CE-30B7AC558D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{593CF6FE-EB1F-4B5A-A6CE-30B7AC558D26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{321FFCE8-CACC-416F-BAF8-E8496E645709}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{321FFCE8-CACC-416F-BAF8-E8496E645709}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{321FFCE8-CACC-416F-BAF8-E8496E645709}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{321FFCE8-CACC-416F-BAF8-E8496E645709}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{593CF6FE-EB1F-4B5A-A6CE-30B7AC558D26} = {C16837FC-9B53-481E-BF48-95C6B17F1D79}
+		{321FFCE8-CACC-416F-BAF8-E8496E645709} = {C16837FC-9B53-481E-BF48-95C6B17F1D79}
 	EndGlobalSection
 EndGlobal
