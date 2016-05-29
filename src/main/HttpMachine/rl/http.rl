@@ -61,8 +61,8 @@ keepalive = "keep-alive"i %header_connection_keepalive;
 http_interesting_header_values = (chunked | close | keepalive);
 
 http_header_name = (http_token | http_interesting_headers) >clear $buf %on_header_name;
-#http_header_separator = (":" (" " | "\t" )*);
-http_header_separator = (":");
+http_header_separator = (":" (" " | "\t" )*);
+#http_header_separator = (":");
 http_header_value = (http_header_value_text | http_interesting_header_values) >clear $buf %on_header_value;
 http_header = http_header_name http_header_separator <: http_header_value http_crlf;
 
