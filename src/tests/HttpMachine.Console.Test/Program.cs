@@ -26,7 +26,19 @@ namespace HttpMachine.Console.Test
                 var s = "fail";
             }
 
+            // Simulate error
+            var requestHandler = new RequestParserHandler();
 
+            var parserHander2 = new HttpParser(requestHandler);
+
+            if (parserHander2.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
+            {
+                var t = "ok";
+            }
+            else
+            {
+                var s = "fail";
+            }
         }
 
 

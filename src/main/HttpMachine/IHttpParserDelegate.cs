@@ -13,6 +13,7 @@ namespace HttpMachine
         void OnHeadersEnd(HttpParser parser);
         void OnBody(HttpParser parser, ArraySegment<byte> data);
         void OnMessageEnd(HttpParser parser);
+        void OnParserError();
     }
 
 }

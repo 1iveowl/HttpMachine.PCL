@@ -388,43 +388,48 @@ namespace HttpMachine
         {
             this.del = del;
         }
-
+		
         public int Execute(ArraySegment<byte> buf)
         {
-            byte[] data = buf.Array;
-            int p = buf.Offset;
-            int pe = buf.Offset + buf.Count;
-            int eof = buf.Count == 0 ? buf.Offset : -1;
-            //int eof = pe;
-            // mark = 0;
-            
-			//if (p == pe)
-			//	Console.WriteLine("Parser executing on p == pe (EOF)");
-
-            %% write exec;
-            
-            var result = p - buf.Offset;
+			byte[] data = buf.Array;
+			int p = buf.Offset;
+			int pe = buf.Offset + buf.Count;
+			int eof = buf.Count == 0 ? buf.Offset : -1;
+			
+			try
+			{
+				%% write exec;
+			}
+			catch (Exception)
+			{
+				((IHttpParserDelegate)del).OnParserError();
+			}			
+							
+			var result = p - buf.Offset;
 
 			if (result != buf.Count)
 			{
 				Debug.WriteLine("error on character " + p);
-                Debug.WriteLine("('" + buf.Array[p] + "')");
-                Debug.WriteLine("('" + (char)buf.Array[p] + "')");
+				Debug.WriteLine("('" + buf.Array[p] + "')");
+				Debug.WriteLine("('" + (char)buf.Array[p] + "')");
 			}
-
-			return p - buf.Offset;
+			
+			return p - buf.Offset;            
         }
 
         private void EnsureRequestParser()
         {
         	if (!(del is IHttpRequestParserDelegate))
+				//((IHttpParserDelegate)del).OnParserError();
         		throw new InvalidOperationException("Processing Http request, but found response data.");
         }
 
         private void EnsureResponseParser()
         {
+			
         	if (!(del is IHttpResponseParserDelegate))
-        		throw new InvalidOperationException("Processing Http response, but found request data.");
+				//((IHttpParserDelegate)del).OnParserError();
+        	 	throw new InvalidOperationException("Processing Http response, but found request data.");
         }
 
     }

@@ -16,6 +16,8 @@ namespace HttpMachine.Console.Test.Model
 
         public MemoryStream Body { get; internal set; } = new MemoryStream();
 
+        public bool HasParserFailed { get; internal set; } = false;
+
         public IDictionary<string, string> Headers { get; internal set; } = new Dictionary<string, string>();
 
         public void OnMessageBegin(HttpParser parser)
@@ -65,6 +67,11 @@ namespace HttpMachine.Console.Test.Model
         public void OnMessageEnd(HttpParser parser)
         {
             //throw new NotImplementedException();
+        }
+
+        public void OnParserError()
+        {
+            HasParserFailed = HasParserFailed;
         }
 
         public void OnResponseCode(HttpParser parser, int statusCode, string statusReason)
