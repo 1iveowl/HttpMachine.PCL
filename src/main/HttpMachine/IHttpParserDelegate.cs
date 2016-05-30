@@ -8,12 +8,12 @@ namespace HttpMachine
     public interface IHttpParserDelegate
     {
         MessageType MessageType { get; }
-        void OnMessageBegin(HttpParser parser);
-        void OnHeaderName(HttpParser parser, string name);
-        void OnHeaderValue(HttpParser parser, string value);
-        void OnHeadersEnd(HttpParser parser);
-        void OnBody(HttpParser parser, ArraySegment<byte> data);
-        void OnMessageEnd(HttpParser parser);
+        void OnMessageBegin(HttpCombinedParser combinedParser);
+        void OnHeaderName(HttpCombinedParser combinedParser, string name);
+        void OnHeaderValue(HttpCombinedParser combinedParser, string value);
+        void OnHeadersEnd(HttpCombinedParser combinedParser);
+        void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data);
+        void OnMessageEnd(HttpCombinedParser combinedParser);
         void OnParserError();
     }
 

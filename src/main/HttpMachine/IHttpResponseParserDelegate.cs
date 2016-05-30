@@ -2,7 +2,7 @@
 {
     public interface IHttpResponseParserDelegate : IHttpParserDelegate
     {
-        void OnResponseType(HttpParser parser);
-        void OnResponseCode(HttpParser parser, int statusCode, string statusReason);
+        void OnResponseType(HttpCombinedParser combinedParser);
+        void OnResponseCode(HttpCombinedParser combinedParser, int statusCode, string statusReason);
     }
 }

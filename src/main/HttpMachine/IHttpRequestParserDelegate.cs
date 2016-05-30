@@ -3,11 +3,11 @@
     public interface IHttpRequestParserDelegate : IHttpParserDelegate
     {
 
-        void OnRequestType(HttpParser parser);
-        void OnMethod(HttpParser parser, string method);
-        void OnRequestUri(HttpParser parser, string requestUri);
-        void OnPath(HttpParser parser, string path);
-        void OnFragment(HttpParser parser, string fragment);
-        void OnQueryString(HttpParser parser, string queryString);
+        void OnRequestType(HttpCombinedParser combinedParser);
+        void OnMethod(HttpCombinedParser combinedParser, string method);
+        void OnRequestUri(HttpCombinedParser combinedParser, string requestUri);
+        void OnPath(HttpCombinedParser combinedParser, string path);
+        void OnFragment(HttpCombinedParser combinedParser, string fragment);
+        void OnQueryString(HttpCombinedParser combinedParser, string queryString);
     }
 }

@@ -11,32 +11,32 @@ namespace HttpMachine.Console.Test.Model
         public bool HasError { get; internal set; } = false;
         public MessageType MessageType { get; private set; }
 
-        public void OnMessageBegin(HttpParser parser)
+        public void OnMessageBegin(HttpCombinedParser combinedParser)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnHeaderName(HttpParser parser, string name)
+        public void OnHeaderName(HttpCombinedParser combinedParser, string name)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnHeaderValue(HttpParser parser, string value)
+        public void OnHeaderValue(HttpCombinedParser combinedParser, string value)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnHeadersEnd(HttpParser parser)
+        public void OnHeadersEnd(HttpCombinedParser combinedParser)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnBody(HttpParser parser, ArraySegment<byte> data)
+        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnMessageEnd(HttpParser parser)
+        public void OnMessageEnd(HttpCombinedParser combinedParser)
         {
             //throw new NotImplementedException();
         }
@@ -46,42 +46,42 @@ namespace HttpMachine.Console.Test.Model
             HasError = true;
         }
 
-        public void OnRequestType(HttpParser parser)
+        public void OnRequestType(HttpCombinedParser combinedParser)
         {
             MessageType = MessageType.Request;
         }
 
-        public void OnMethod(HttpParser parser, string method)
+        public void OnMethod(HttpCombinedParser combinedParser, string method)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnRequestUri(HttpParser parser, string requestUri)
+        public void OnRequestUri(HttpCombinedParser combinedParser, string requestUri)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnPath(HttpParser parser, string path)
+        public void OnPath(HttpCombinedParser combinedParser, string path)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnFragment(HttpParser parser, string fragment)
+        public void OnFragment(HttpCombinedParser combinedParser, string fragment)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnQueryString(HttpParser parser, string queryString)
+        public void OnQueryString(HttpCombinedParser combinedParser, string queryString)
         {
             //throw new NotImplementedException();
         }
 
-        public void OnResponseType(HttpParser parser)
+        public void OnResponseType(HttpCombinedParser combinedParser)
         {
             MessageType = MessageType.Response;
         }
 
-        public void OnResponseCode(HttpParser parser, int statusCode, string statusReason)
+        public void OnResponseCode(HttpCombinedParser combinedParser, int statusCode, string statusReason)
         {
             //throw new NotImplementedException();
         }

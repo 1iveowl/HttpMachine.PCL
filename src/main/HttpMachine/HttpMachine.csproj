@@ -41,7 +41,7 @@
     <None Include="rl\uri.rl" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="httpparser2.cs" />
+    <Compile Include="HttpCombinedParser.cs" />
     <Compile Include="IHttpParserCombinedDelegate.cs" />
     <Compile Include="IHttpParserDelegate.cs" />
     <Compile Include="IHttpRequestParserDelegate.cs" />

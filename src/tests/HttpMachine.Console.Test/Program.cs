@@ -15,7 +15,7 @@ namespace HttpMachine.Console.Test
             var bArray = Encoding.UTF8.GetBytes(TestReponse());
             var responseHandler = new ParserHandler();
 
-            var parserHander = new HttpParser(responseHandler);
+            var parserHander = new HttpCombinedParser(responseHandler);
 
             if (parserHander.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
             {

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace HttpMachine
 {
-    public class HttpParser
+    public class HttpCombinedParser
     {
         public int MajorVersion {get; private set;}
         public int MinorVersion {get; private set;}
@@ -600,7 +600,7 @@ const int http_parser_en_dead = 144;
 
 #line 352 "httpparser2.cs.rl"
         
-        protected HttpParser()
+        protected HttpCombinedParser()
         {
 			_stringBuilder = new StringBuilder();
             
@@ -612,7 +612,7 @@ const int http_parser_en_dead = 144;
 #line 357 "httpparser2.cs.rl"
         }
 
-        public HttpParser(IHttpParserCombinedDelegate del) : this()
+        public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
         {
             this.parserDelegate = del;
         }
