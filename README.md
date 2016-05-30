@@ -2,20 +2,12 @@
 
 This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
 
-I've forked this project as Benjamin no longer is maintaining the work and I needed some updates for a project of mine.
-
-Updates:
-- Updated the Nuget to the most recent code base provided by the original project.
-- The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
-- From Nuget ver. 0.9.5.1 the Http Method now accepts these additional four characters: "$ - , .".
-
-
-#The Original Readme
-
 HttpMachine is a C# HTTP request parser. It implements a state machine with [Adrian Thurston](http://www.complang.org/thurston/)'s excellent state machine compiler, [Ragel](http://www.complang.org/ragel/). Because Ragel supports C, D, Java, Ruby, it wouldn't be hard to port this library to those languages.
 
 HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com). HttpMachine is licensed under the 
 MIT License. See LICENSE.txt.
+
+I've forked this project as Benjamin no longer is maintaining the work and I needed some updates for a project of mine.
 
 ## Features
 
@@ -23,68 +15,156 @@ MIT License. See LICENSE.txt.
 - Supports pipelined requests
 - Tells your server if it should keep-alive
 - Extracts the length of the entity body 
-- Support for parsing responses.
+- Support for parsing responses and request in one combined parser.
 
-## Eminently-possible future features
+Updates:
+- Updated the Nuget to the most recent code base provided by the original project.
+- The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
+- From Nuget ver. 0.9.5.1 the Http Method now accepts these additional four characters: "$ - , .".
 
-- Support for decoding chunked transfers.
-- Support for protocol upgrade.
-
-## Usage
-
-HttpMachine provides HTTP data through callbacks. To receive these callbacks, implement either the `IHttpRequestParserDelegate` or the `IHttpResponseParserDelegate` interface.
-
-
-	// common interface for both requests and responses
-	public interface IHttpParserDelegate
+## How to use
+```cs
+### Implement a parser handler: 
+internal class ParserHandler : IHttpParserCombinedDelegate
     {
-        void OnMessageBegin(HttpParser parser);
-        void OnHeaderName(HttpParser parser, string name);
-        void OnHeaderValue(HttpParser parser, string value);
-        void OnHeadersEnd(HttpParser parser);
-        void OnBody(HttpParser parser, ArraySegment<byte> data);
-        void OnMessageEnd(HttpParser parser);
+        public bool HasError { get; internal set; } = false;
+        public MessageType MessageType { get; private set; }
+
+        public void OnResponseType(HttpCombinedParser combinedParser)
+        {
+            MessageType = MessageType.Response;
+        }
+
+        public void OnRequestType(HttpCombinedParser combinedParser)
+        {
+            MessageType = MessageType.Request;
+        }
+
+        public void OnMessageBegin(HttpCombinedParser combinedParser)
+        {
+        }
+
+        public void OnHeaderName(HttpCombinedParser combinedParser, string name)
+        {
+        }
+
+        public void OnHeaderValue(HttpCombinedParser combinedParser, string value)
+        {
+        }
+
+        public void OnHeadersEnd(HttpCombinedParser combinedParser)
+        {
+        }
+
+
+        
+        public void OnMethod(HttpCombinedParser combinedParser, string method)
+        {
+        }
+
+        public void OnRequestUri(HttpCombinedParser combinedParser, string requestUri)
+        {
+        }
+
+        public void OnPath(HttpCombinedParser combinedParser, string path)
+        {
+        }
+
+        public void OnFragment(HttpCombinedParser combinedParser, string fragment)
+        {
+        }
+
+        public void OnQueryString(HttpCombinedParser combinedParser, string queryString)
+        {
+        }
+
+
+
+        public void OnResponseCode(HttpCombinedParser combinedParser, int statusCode, string statusReason)
+        {
+        }
+
+        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data)
+        {
+        }
+
+        public void OnMessageEnd(HttpCombinedParser combinedParser)
+        {
+        }
+        public void OnParserError()
+        {
+            HasError = true;
+        }
     }
-    
-    public interface IHttpRequestParserDelegate : IHttpParserDelegate
+
+```
+
+### Use the parser something like this: 
+
+```cs
+class Program
     {
-        void OnMethod(HttpParser parser, string method);
-        void OnRequestUri(HttpParser parser, string requestUri);
-        void OnPath(HttpParser parser, string path);
-        void OnFragment(HttpParser parser, string fragment);
-        void OnQueryString(HttpParser parser, string queryString);
+        static void Main(string[] args)
+        {
+            var handler = new ParserHandler();
+            var parser = new HttpCombinedParser(handler);
+
+            var bArray = Encoding.UTF8.GetBytes(TestReponse());
+            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+                ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
+                : $"Response test failed");
+
+            bArray = Encoding.UTF8.GetBytes(TestRequest());
+            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+                ? $"Request test succeed. Type identified is; {handler.MessageType}"
+                : $"Request test failed");
+
+            System.Console.ReadKey();
+        }
+
+
+
+        private static string TestReponse()
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.Append("HTTP/1.1 200 OK\r\n");
+            stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
+            stringBuilder.Append("ST: upnp:rootdevice\r\n");
+
+            stringBuilder.Append("ST: upnp:rootdevice\r\n");
+            stringBuilder.Append("USN: uuid:73796E6F-6473-6D00-0000-0011322fe5f0::upnp:rootdevice\r\n");
+            stringBuilder.Append("EXT:\r\n");
+            stringBuilder.Append("SERVER: Synology/DSM/192.168.0.33\r\n");
+            stringBuilder.Append("LOCATION: http://192.168.0.33:5000/ssdp/desc-DSM-eth1.xml\r\n");
+            stringBuilder.Append("OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n");
+
+            stringBuilder.Append("01-NLS: 1\r\n");
+
+            stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
+            stringBuilder.Append("CONFIGID.UPNP.ORG: 1337\r\n");
+            stringBuilder.Append("\r\n");
+            return stringBuilder.ToString();
+        }
+
+        private static string TestRequest()
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.Append("NOTIFY * HTTP/1.1\r\n");
+            stringBuilder.Append("HOST: 239.255.255.250:1900\r\n");
+            stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
+            stringBuilder.Append("LOCATION: http://www.bing.com\r\n");
+
+            stringBuilder.Append("NT: \"upnp:rootdevice\"\r\n");
+            stringBuilder.Append("NTS: ssdp:alive\r\n");
+            stringBuilder.Append("EXT:\r\n");
+            stringBuilder.Append("SERVER: Synology/DSM/200.200.200.100 UPnP/2.0 Test/1.0\r\n");
+            stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
+            stringBuilder.Append("CONFIGID.UPNP.ORG: 121212\r\n");
+            stringBuilder.Append("\r\n");
+            return stringBuilder.ToString();
+        }
     }
-
-    public interface IHttpResponseParserDelegate : IHttpParserDelegate
-    {
-        void OnResponseCode(HttpParser parser, int statusCode, string statusReason); 
-    }
-
-
-Then, create an instance of `HttpParser`. Whenever you read data, execute the parser on the data. The `Execute` method returns the number of bytes successfully parsed. If the returned value is not the same as the length of the buffer you provided, an error occurred while parsing. Make sure you provide a zero-length buffer at the end of the stream, as some callbacks may still be pending.
-
-    var handler = new MyHttpParserDelegate();
-    var parser = new HttpParser(handler);
-    
-    var buffer = new byte[1024 /* or whatever you like */]
-    
-    int bytesRead;
-    
-    while ((bytesRead = inputStream.Read(buffer, 0, buffer.Length)) > 0)
-        if (bytesRead != parser.Execute(new ArraySegment<byte>(buffer, 0, bytesRead))
-            goto error; /* or whatever you like */
-    
-    // ensure you get the last callbacks.
-    parser.Execute(default(ArraySegment<byte>));
-    
-The parser has three public properties:
-
-    // HTTP version provided in the request
-    public int MajorVersion { get; }
-    public int MinorVersion { get; }
-
-    // inspects "Connection" header and HTTP version (if any) to recommend a connection behavior
-    public bool ShouldKeepAlive { get; }
-
-These properties are only guaranteed to be accurate in the `OnBody` and `OnMessageEnd` callbacks.
+```
 
