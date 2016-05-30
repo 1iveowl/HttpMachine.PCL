@@ -66,17 +66,20 @@ class Program
         {
             var handler = new ParserHandler();
             var parser = new HttpCombinedParser(handler);
+            
             var bArray = Encoding.UTF8.GetBytes(TestReponse());
             System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
                 ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
                 : $"Response test failed");
+                
             bArray = Encoding.UTF8.GetBytes(TestRequest());
             System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
                 ? $"Request test succeed. Type identified is; {handler.MessageType}"
                 : $"Request test failed");
             System.Console.ReadKey();
         }
-
+        
+        // Test Response
         private static string TestReponse()
         {
             var stringBuilder = new StringBuilder();
@@ -95,7 +98,8 @@ class Program
             stringBuilder.Append("\r\n");
             return stringBuilder.ToString();
         }
-
+        
+        // Test request
         private static string TestRequest()
         {
             var stringBuilder = new StringBuilder();
