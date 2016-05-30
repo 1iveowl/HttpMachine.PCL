@@ -12,43 +12,19 @@ namespace HttpMachine.Console.Test
     {
         static void Main(string[] args)
         {
-            var bArray = Encoding.UTF8.GetBytes(TestReponse());
             var handler = new ParserHandler();
-
             var parser = new HttpCombinedParser(handler);
 
-            if (parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
-            {
-                System.Console.WriteLine($"Reponse test succeed. Type identified is; {handler.MessageType}");
-            }
-            else
-            {
-                System.Console.WriteLine($"Response test failed");
-            }
+            var bArray = Encoding.UTF8.GetBytes(TestReponse());
+            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+                ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
+                : $"Response test failed");
 
             bArray = Encoding.UTF8.GetBytes(TestRequest());
-            if (parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
-            {
-                System.Console.WriteLine($"Request test succeed. Type identified is; {handler.MessageType}");
-            }
-            else
-            {
-                System.Console.WriteLine($"Request test failed");
-            }
+            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+                ? $"Request test succeed. Type identified is; {handler.MessageType}"
+                : $"Request test failed");
 
-            // Simulate error
-            //var requestHandler = new ParserHandler();
-
-            //var parserHander2 = new HttpParser(requestHandler);
-
-            //if (parserHander2.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
-            //{
-            //    var t = "ok";
-            //}
-            //else
-            //{
-            //    var s = "fail";
-            //}
             System.Console.ReadKey();
         }
 
