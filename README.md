@@ -21,6 +21,7 @@ Updates:
 - Updated the Nuget to the most recent code base provided by the original project.
 - The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
 - From Nuget ver. 0.9.5.1 the Http Method now accepts these additional four characters: "$ - , .".
+- Can now mange Zero Lenght Headers - for example EXT: as using in UPnP 
 
 ## How to use
 ```cs
