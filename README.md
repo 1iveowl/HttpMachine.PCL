@@ -67,12 +67,16 @@ class Program
             var handler = new ParserHandler();
             var parser = new HttpCombinedParser(handler);
             
+            // Test response data
             var bArray = Encoding.UTF8.GetBytes(TestReponse());
+            
             System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
                 ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
                 : $"Response test failed");
-                
+            
+            // Test request data    
             bArray = Encoding.UTF8.GetBytes(TestRequest());
+            
             System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
                 ? $"Request test succeed. Type identified is; {handler.MessageType}"
                 : $"Request test failed");
