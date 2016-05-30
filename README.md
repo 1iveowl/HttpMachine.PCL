@@ -80,6 +80,7 @@ class Program
             System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
                 ? $"Request test succeed. Type identified is; {handler.MessageType}"
                 : $"Request test failed");
+                
             System.Console.ReadKey();
         }
         
