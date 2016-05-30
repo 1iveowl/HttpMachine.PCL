@@ -2,26 +2,27 @@
 
 This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
 
-HttpMachine is a C# HTTP request parser. It implements a state machine with [Adrian Thurston](http://www.complang.org/thurston/)'s excellent state machine compiler, [Ragel](http://www.complang.org/ragel/). Because Ragel supports C, D, Java, Ruby, it wouldn't be hard to port this library to those languages.
+HttpMachine.PCL is a combined C# HTTP request/reponse parser. It implements a state machine with [Adrian Thurston](http://www.complang.org/thurston/)'s excellent state machine compiler, [Ragel](http://www.complang.org/ragel/). Because Ragel supports C#, Java, Ruby, C++ and more.
 
 HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com). HttpMachine is licensed under the 
 MIT License. See LICENSE.txt.
 
-I've forked this project as Benjamin no longer is maintaining the work and I needed some updates for a project of mine.
+I've forked this project as Benjamin no longer is maintaining the work.
 
-## Features
+## Original Features
 
 - HTTP/1.1 and 1.0
 - Supports pipelined requests
 - Tells your server if it should keep-alive
 - Extracts the length of the entity body 
 - Support for parsing responses and request in one combined parser.
-
-Updates:
+ 
+## Updates Added to HttpMachine.PCL
 - Updated the Nuget to the most recent code base provided by the original project.
 - The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
-- From Nuget ver. 0.9.5.1 the Http Method now accepts these additional four characters: "$ - , .".
-- Can now mange Zero Lenght Headers - for example EXT: as using in UPnP 
+- From Nuget ver. 1.0 the Http Method now accepts these additional four characters: "$ - , .".
+- From Nuget ver 1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
+- Can now mange Zero Lenght Headers - for example EXT: as used in UPnP 
 
 ## How to use
 ### Implement a parser handler:
