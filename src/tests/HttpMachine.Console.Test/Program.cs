@@ -13,17 +13,27 @@ namespace HttpMachine.Console.Test
         static void Main(string[] args)
         {
             var bArray = Encoding.UTF8.GetBytes(TestReponse());
-            var responseHandler = new ParserHandler();
+            var handler = new ParserHandler();
 
-            var parserHander = new HttpCombinedParser(responseHandler);
+            var parser = new HttpCombinedParser(handler);
 
-            if (parserHander.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
+            if (parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
             {
-                var t = "ok";
+                System.Console.WriteLine($"Reponse test succeed. Type identified is; {handler.MessageType}");
             }
             else
             {
-                var s = "fail";
+                System.Console.WriteLine($"Response test failed");
+            }
+
+            bArray = Encoding.UTF8.GetBytes(TestRequest());
+            if (parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
+            {
+                System.Console.WriteLine($"Request test succeed. Type identified is; {handler.MessageType}");
+            }
+            else
+            {
+                System.Console.WriteLine($"Request test failed");
             }
 
             // Simulate error
@@ -39,6 +49,7 @@ namespace HttpMachine.Console.Test
             //{
             //    var s = "fail";
             //}
+            System.Console.ReadKey();
         }
 
 
@@ -62,6 +73,25 @@ namespace HttpMachine.Console.Test
 
             stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
             stringBuilder.Append("CONFIGID.UPNP.ORG: 1337\r\n");
+            stringBuilder.Append("\r\n");
+            return stringBuilder.ToString();
+        }
+
+        private static string TestRequest()
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.Append("NOTIFY * HTTP/1.1\r\n");
+            stringBuilder.Append("HOST: 239.255.255.250:1900\r\n");
+            stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
+            stringBuilder.Append("LOCATION: http://www.bing.com\r\n");
+
+            stringBuilder.Append("NT: \"upnp:rootdevice\"\r\n");
+            stringBuilder.Append("NTS: ssdp:alive\r\n");
+            stringBuilder.Append("EXT:\r\n");
+            stringBuilder.Append("SERVER: Synology/DSM/192.168.0.33 UPnP/2.0 Test/1.0\r\n");
+            stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
+            stringBuilder.Append("CONFIGID.UPNP.ORG: 121212\r\n");
             stringBuilder.Append("\r\n");
             return stringBuilder.ToString();
         }
