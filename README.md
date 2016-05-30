@@ -41,66 +41,37 @@ internal class ParserHandler : IHttpParserCombinedDelegate
             MessageType = MessageType.Request;
         }
 
-        public void OnMessageBegin(HttpCombinedParser combinedParser)
-        {
-        }
+        public void OnMessageBegin(HttpCombinedParser combinedParser) {}
 
-        public void OnHeaderName(HttpCombinedParser combinedParser, string name)
-        {
-        }
+        public void OnHeaderName(HttpCombinedParser combinedParser, string name) {}
 
-        public void OnHeaderValue(HttpCombinedParser combinedParser, string value)
-        {
-        }
+        public void OnHeaderValue(HttpCombinedParser combinedParser, string value) {}
 
-        public void OnHeadersEnd(HttpCombinedParser combinedParser)
-        {
-        }
-
-
+        public void OnHeadersEnd(HttpCombinedParser combinedParser) {}
         
-        public void OnMethod(HttpCombinedParser combinedParser, string method)
-        {
-        }
+        public void OnMethod(HttpCombinedParser combinedParser, string method) {}
 
-        public void OnRequestUri(HttpCombinedParser combinedParser, string requestUri)
-        {
-        }
+        public void OnRequestUri(HttpCombinedParser combinedParser, string requestUri) {}
 
-        public void OnPath(HttpCombinedParser combinedParser, string path)
-        {
-        }
+        public void OnPath(HttpCombinedParser combinedParser, string path) {}
 
-        public void OnFragment(HttpCombinedParser combinedParser, string fragment)
-        {
-        }
+        public void OnFragment(HttpCombinedParser combinedParser, string fragment) {}
 
-        public void OnQueryString(HttpCombinedParser combinedParser, string queryString)
-        {
-        }
+        public void OnQueryString(HttpCombinedParser combinedParser, string queryString) {}
+        
+        public void OnResponseCode(HttpCombinedParser combinedParser, int statusCode, string statusReason) {}
 
+        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data) {}
 
-
-        public void OnResponseCode(HttpCombinedParser combinedParser, int statusCode, string statusReason)
-        {
-        }
-
-        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data)
-        {
-        }
-
-        public void OnMessageEnd(HttpCombinedParser combinedParser)
-        {
-        }
+        public void OnMessageEnd(HttpCombinedParser combinedParser) {}
         public void OnParserError()
         {
             HasError = true;
         }
     }
-
 ```
 
-### Use the parser something like this: 
+### Use the parser  like this: 
 
 ```cs
 class Program
