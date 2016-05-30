@@ -24,8 +24,8 @@ Updates:
 - Can now mange Zero Lenght Headers - for example EXT: as using in UPnP 
 
 ## How to use
+### Implement a parser handler:
 ```cs
-### Implement a parser handler: 
 internal class ParserHandler : IHttpParserCombinedDelegate
     {
         public bool HasError { get; internal set; } = false;
