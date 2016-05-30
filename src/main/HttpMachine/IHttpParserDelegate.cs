@@ -7,6 +7,7 @@ namespace HttpMachine
 {
     public interface IHttpParserDelegate
     {
+        MessageType MessageType { get; }
         void OnMessageBegin(HttpParser parser);
         void OnHeaderName(HttpParser parser, string name);
         void OnHeaderValue(HttpParser parser, string value);

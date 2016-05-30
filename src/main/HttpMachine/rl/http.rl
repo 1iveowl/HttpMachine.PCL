@@ -38,7 +38,7 @@ http_response_code = ( digit+ ) >clear $buf %status_code ;
 http_response_phrase = ( ascii -- ("\r" | "\n") )+ >clear $buf %status_reason;
 
 
-http_request_line = (http_crlf $matched_leading_crlf)? http_request_method " " $matched_first_space %leave_first_space %/eof_leave_first_space http_request_uri (" " http_version)? http_crlf;
+http_request_line = (http_crlf $matched_leading_crlf)? http_request_method " " $matched_first_space %leave_first_space %/eof_leave_first_space http_request_uri (" " http_version)? http_crlf >on_request_message;
 
 http_response_line = (http_crlf $matched_leading_crlf)? http_version " " $matched_first_space %leave_first_space %/eof_leave_first_space http_response_code (" " http_response_phrase)? http_crlf >clear $buf %on_response_message;
 

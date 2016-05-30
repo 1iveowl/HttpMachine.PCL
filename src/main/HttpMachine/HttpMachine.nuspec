@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>HttpMachine.PCL</id>
-    <version>1.0.4</version>
+    <version>1.1.0</version>
     <title>HttpMachine PCL</title>
     <authors>Benjamin van der Veen, (edits: Jasper H. Bojsen)</authors>
     <owners>Benjamin van der Veen</owners>
@@ -11,7 +11,7 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An HTTP parser built with Ragel.</description>
-    <releaseNotes>Sync nuget with latest code base and changed to PCL. Extended HTTP Method character suppport. Reponse header value can now have length of zero</releaseNotes>
+    <releaseNotes>Extended HTTP Method character suppport. Reponse header value can now have length of zero</releaseNotes>
     <copyright>Copyright 2016 Benjamin van der Veen</copyright>
     <tags>http parser</tags>
   </metadata>

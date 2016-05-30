@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace HttpMachine.Console.Test.Model
 {
-    internal class RequestParserHandler : IHttpRequestParserDelegate
+    internal class ParserHandler : IHttpParserCombinedDelegate
     {
         public bool HasError { get; internal set; } = false;
+        public MessageType MessageType { get; private set; }
+
         public void OnMessageBegin(HttpParser parser)
         {
             //throw new NotImplementedException();
@@ -44,6 +46,11 @@ namespace HttpMachine.Console.Test.Model
             HasError = true;
         }
 
+        public void OnRequestType(HttpParser parser)
+        {
+            MessageType = MessageType.Request;
+        }
+
         public void OnMethod(HttpParser parser, string method)
         {
             //throw new NotImplementedException();
@@ -65,6 +72,16 @@ namespace HttpMachine.Console.Test.Model
         }
 
         public void OnQueryString(HttpParser parser, string queryString)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void OnResponseType(HttpParser parser)
+        {
+            MessageType = MessageType.Response;
+        }
+
+        public void OnResponseCode(HttpParser parser, int statusCode, string statusReason)
         {
             //throw new NotImplementedException();
         }

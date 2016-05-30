@@ -43,8 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\RequestParserHandler.cs" />
-    <Compile Include="Model\ResponseParserHandler.cs" />
+    <Compile Include="Model\ParserHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -13,7 +13,7 @@ namespace HttpMachine.Console.Test
         static void Main(string[] args)
         {
             var bArray = Encoding.UTF8.GetBytes(TestReponse());
-            var responseHandler = new ResponseParserHandler();
+            var responseHandler = new ParserHandler();
 
             var parserHander = new HttpParser(responseHandler);
 
@@ -27,18 +27,18 @@ namespace HttpMachine.Console.Test
             }
 
             // Simulate error
-            var requestHandler = new RequestParserHandler();
+            //var requestHandler = new ParserHandler();
 
-            var parserHander2 = new HttpParser(requestHandler);
+            //var parserHander2 = new HttpParser(requestHandler);
 
-            if (parserHander2.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
-            {
-                var t = "ok";
-            }
-            else
-            {
-                var s = "fail";
-            }
+            //if (parserHander2.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length)
+            //{
+            //    var t = "ok";
+            //}
+            //else
+            //{
+            //    var s = "fail";
+            //}
         }
 
 

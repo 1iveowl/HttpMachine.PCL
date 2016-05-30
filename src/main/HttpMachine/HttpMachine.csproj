@@ -37,13 +37,16 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
     <None Include="rl\http.rl" />
     <None Include="rl\HttpParser.cs.rl" />
+    <None Include="rl\HttpParser2.cs.rl" />
     <None Include="rl\uri.rl" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HttpParser.cs" />
+    <Compile Include="httpparser2.cs" />
+    <Compile Include="IHttpParserCombinedDelegate.cs" />
     <Compile Include="IHttpParserDelegate.cs" />
     <Compile Include="IHttpRequestParserDelegate.cs" />
     <Compile Include="IHttpResponseParserDelegate.cs" />
+    <Compile Include="MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
