@@ -96,7 +96,7 @@ class Program
             stringBuilder.Append("USN: uuid:73796E6F-6473-6D00-0000-0011322fe5f0::upnp:rootdevice\r\n");
             stringBuilder.Append("EXT:\r\n");
             stringBuilder.Append("SERVER: Synology/DSM/192.168.0.33\r\n");
-            stringBuilder.Append("LOCATION: http://192.168.0.33:5000/ssdp/desc-DSM-eth1.xml\r\n");
+            stringBuilder.Append("LOCATION: http://200.200.200.101:5000/ssdp/desc-DSM-eth1.xml\r\n");
             stringBuilder.Append("OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n");
             stringBuilder.Append("01-NLS: 1\r\n");
             stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
