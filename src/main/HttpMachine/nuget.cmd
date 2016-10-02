@@ -1,1 +1,0 @@
-nuget pack HttpMachine.csprojj -Prop Configuration=Release
