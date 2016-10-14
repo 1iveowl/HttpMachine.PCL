@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>HttpMachine.PCL</id>
-    <version>1.1.2</version>
+    <version>0</version>
     <title>HttpMachine PCL</title>
     <authors>Benjamin van der Veen, (edits: Jasper H. Bojsen)</authors>
     <owners>Benjamin van der Veen</owners>
@@ -15,20 +15,4 @@
     <copyright>Copyright 2016 Benjamin van der Veen</copyright>
     <tags>http parser</tags>
   </metadata>
-  
-    <!--Profile 111-->
-    <files>
-      <file src="\bin\Release\HttpMachine.dll"
-          target="lib\portable-net45+win8+wpa815\HttpMachine.dll" /> 
-      <file src="\bin\Release\HttpMachine.pdb"
-        target="lib\portable-net45+win8+wpa81\HttpMachine.pdb" /> 
-  </files>    
-
-  <!--.NET Standard 1.2-->
-  <!--<files>
-      <file src="\bin\Release\HttpMachine.dll"
-          target="lib\netstandard1.4\HttpMachine.dll" />
-      <file src="\bin\Release\HttpMachine.pdb"
-        target="lib\netstandard1.4\HttpMachine.pdb" />
-  </files>       -->
 </package>
