@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>HttpMachine.PCL</id>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <title>HttpMachine PCL</title>
     <authors>Benjamin van der Veen, (edits: Jasper H. Bojsen)</authors>
     <owners>Benjamin van der Veen</owners>
@@ -19,7 +19,7 @@
     <!--Profile 111-->
     <files>
       <file src="\bin\Release\HttpMachine.dll"
-          target="lib\portable-net45+win8+wpa815\HttpMachine.dll" /> 
+          target="lib\portable-net45+win8+wpa81\HttpMachine.dll" /> 
       <file src="\bin\Release\HttpMachine.pdb"
         target="lib\portable-net45+win8+wpa81\HttpMachine.pdb" /> 
   </files>    
