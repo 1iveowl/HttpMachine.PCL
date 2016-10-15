@@ -2,11 +2,8 @@
 <package >
   <metadata>
     <id>HttpMachine.PCL</id>
-<<<<<<< HEAD:src/main/HttpMachine/HttpMachine-Profile111.nuspec
-    <version>1.1.3</version>
-=======
     <version>0</version>
->>>>>>> 1c6153d0c97ca4d2496dd23673bc058faff5ce41:src/main/HttpMachine/HttpMachine.nuspec
+
     <title>HttpMachine PCL</title>
     <authors>Benjamin van der Veen, (edits: Jasper H. Bojsen)</authors>
     <owners>Benjamin van der Veen</owners>
@@ -19,8 +16,6 @@
     <copyright>Copyright 2016 Benjamin van der Veen</copyright>
     <tags>http parser</tags>
   </metadata>
-<<<<<<< HEAD:src/main/HttpMachine/HttpMachine-Profile111.nuspec
-  
     <!--Profile 111-->
     <files>
       <file src="\bin\Release\HttpMachine.dll"
@@ -36,6 +31,4 @@
       <file src="\bin\Release\HttpMachine.pdb"
         target="lib\netstandard1.4\HttpMachine.pdb" />
   </files>       -->
-=======
->>>>>>> 1c6153d0c97ca4d2496dd23673bc058faff5ce41:src/main/HttpMachine/HttpMachine.nuspec
 </package>
