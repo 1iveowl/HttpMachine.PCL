@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine", "HttpMachine.csproj", "{70448FCA-6275-4685-AA0B-8BE2221C46F7}"
 EndProject
@@ -16,8 +16,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{31AE5DCC-8EC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{8D3A9272-DBD0-4028-AB3C-31A8446501DA}"
 	ProjectSection(SolutionItems) = preProject
+		build.ps1 = build.ps1
 		HttpMachine.nuspec = HttpMachine.nuspec
-		nuget.cmd = nuget.cmd
+		HttpMachine.targets = HttpMachine.targets
+		publish.ps1 = publish.ps1
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.Console.Test", "..\..\tests\HttpMachine.Console.Test\HttpMachine.Console.Test.csproj", "{321FFCE8-CACC-416F-BAF8-E8496E645709}"
