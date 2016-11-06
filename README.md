@@ -9,7 +9,7 @@ HttpMachine.PCL is a combined C# HTTP request/reponse parser. It implements a st
 HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com). HttpMachine is licensed under the 
 MIT License. See LICENSE.txt.
 
-I've forked this project as Benjamin no longer is maintaining the work.
+I've forked this project as Benjamin is no longer is maintaining the work.
 
 ## Original Features
 
@@ -20,11 +20,12 @@ I've forked this project as Benjamin no longer is maintaining the work.
 - Support for parsing responses and request in one combined parser.
  
 ## Updates Added to HttpMachine.PCL
+Changes to this version
 - Updated the Nuget to the most recent code base provided by the original project.
 - The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
-- From Nuget ver. 1.0 the Http Method now accepts these additional four characters: "$ - , .".
+- The Http Method now accepts these additional four characters: "$ - , .".
 - From Nuget ver 1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
-- Can now mange Zero Lenght Headers - for example EXT: as used in UPnP 
+- Can now manage Zero Lenght Headers - for example EXT: as used in UPnP 
 
 ## How to use
 ### Implement a parser handler:
