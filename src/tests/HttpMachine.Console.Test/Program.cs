@@ -16,19 +16,22 @@ namespace HttpMachine.Console.Test
             var parser = new HttpCombinedParser(handler);
 
             var bArray = Encoding.UTF8.GetBytes(TestReponse());
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
-                : $"Response test failed");
+            //System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+            //    ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
+            //    : $"Response test failed");
 
             bArray = Encoding.UTF8.GetBytes(TestRequest());
             System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
                 ? $"Request test succeed. Type identified is; {handler.MessageType}"
                 : $"Request test failed");
 
+            bArray = Encoding.UTF8.GetBytes(TestChunkedResponse());
+            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+                ? $"Chunked Response test succeed. Type identified is; {handler.MessageType}"
+                : $"Chunked Response test failed");
+
             System.Console.ReadKey();
         }
-
-
 
         private static string TestReponse()
         {
@@ -68,7 +71,31 @@ namespace HttpMachine.Console.Test
             stringBuilder.Append("SERVER: Synology/DSM/192.168.0.33 UPnP/2.0 Test/1.0\r\n");
             stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
             stringBuilder.Append("CONFIGID.UPNP.ORG: 121212\r\n");
+            stringBuilder.Append("Content-Length: 6\r\n");
             stringBuilder.Append("\r\n");
+            stringBuilder.Append("Data\r\n");
+            stringBuilder.Append("\r\n");
+            return stringBuilder.ToString();
+        }
+
+        private static string TestChunkedResponse()
+        {
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.Append("HTTP/1.1 200 OK\r\n");
+            stringBuilder.Append("Content-Type: test/plain\r\n");
+            stringBuilder.Append("Transfer-Encoding: chunked\r\n" +
+                                 "\r\n");
+
+            stringBuilder.Append("7\r\n" +
+                                 "Mozilla\r\n" +
+                                 "9\r\n" +
+                                 "Developer\r\n" +
+                                 "7\r\n" +
+                                 "Network\r\n" +
+                                 "0\r\n" +
+                                 "\r\n");
+
             return stringBuilder.ToString();
         }
     }

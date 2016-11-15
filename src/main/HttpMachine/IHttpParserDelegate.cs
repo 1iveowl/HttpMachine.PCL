@@ -12,6 +12,7 @@ namespace HttpMachine
         void OnHeaderName(HttpCombinedParser combinedParser, string name);
         void OnHeaderValue(HttpCombinedParser combinedParser, string value);
         void OnHeadersEnd(HttpCombinedParser combinedParser);
+        void OnTransferEncodingChunked(HttpCombinedParser combinedParser, bool isChunked);
         void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data);
         void OnMessageEnd(HttpCombinedParser combinedParser);
         void OnParserError();

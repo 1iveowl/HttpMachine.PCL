@@ -31,6 +31,11 @@ namespace HttpMachine.Console.Test.Model
             //throw new NotImplementedException();
         }
 
+        public void OnTransferEncodingChunked(HttpCombinedParser combinedParser, bool isChunked)
+        {
+            //throw new NotImplementedException();
+        }
+
         public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data)
         {
             //throw new NotImplementedException();
