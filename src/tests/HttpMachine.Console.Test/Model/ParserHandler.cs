@@ -8,6 +8,7 @@ namespace HttpMachine.Console.Test.Model
 {
     internal class ParserHandler : IHttpParserCombinedDelegate
     {
+        public readonly HttpRequestReponse HttpRequestReponse = new HttpRequestReponse();
         public bool HasError { get; internal set; } = false;
         public MessageType MessageType { get; private set; }
 
@@ -38,7 +39,7 @@ namespace HttpMachine.Console.Test.Model
 
         public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data)
         {
-            //throw new NotImplementedException();
+            HttpRequestReponse.Body.Write(data.Array, 0, data.Array.Length);
         }
 
         public void OnMessageEnd(HttpCombinedParser combinedParser)

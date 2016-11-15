@@ -30,6 +30,12 @@ namespace HttpMachine.Console.Test
                 ? $"Chunked Response test succeed. Type identified is; {handler.MessageType}"
                 : $"Chunked Response test failed");
 
+            StreamReader reader = new StreamReader(handler.HttpRequestReponse.Body);
+            var body = reader.ReadToEnd();
+
+
+
+
             System.Console.ReadKey();
         }
 

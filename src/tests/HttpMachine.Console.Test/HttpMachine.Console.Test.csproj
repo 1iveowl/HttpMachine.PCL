@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Base\HttpHeaderBase.cs" />
+    <Compile Include="Model\Base\ParserControlBase.cs" />
+    <Compile Include="Model\HttpRequestResponse.cs" />
     <Compile Include="Model\ParserHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
