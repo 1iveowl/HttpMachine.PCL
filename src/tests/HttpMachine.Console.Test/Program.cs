@@ -12,39 +12,38 @@ namespace HttpMachine.Console.Test
     {
         static void Main(string[] args)
         {
-            var handler = new ParserHandler();
-
-            var parser = new HttpCombinedParser(handler);
-
             byte[] bArray;
 
-            bArray = TestReponse();
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
-                : $"Response test failed");
+            using (var handler = new ParserHandler())
+            using (var parser = new HttpCombinedParser(handler))
+            {
+                bArray = TestReponse();
+                System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+                    ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
+                    : $"Response test failed");
 
-            handler.HttpRequestReponse.Body.Position = 0;
-            var reader = new StreamReader(handler.HttpRequestReponse.Body);
-            var body = reader.ReadToEnd();
+                handler.HttpRequestReponse.Body.Position = 0;
+                var reader = new StreamReader(handler.HttpRequestReponse.Body);
+                var body = reader.ReadToEnd();
 
-            //bArray = Encoding.UTF8.GetBytes(TestRequest());
-            //System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-            //    ? $"Request test succeed. Type identified is; {handler.MessageType}"
-            //    : $"Request test failed");
+                //bArray = Encoding.UTF8.GetBytes(TestRequest());
+                //System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+                //    ? $"Request test succeed. Type identified is; {handler.MessageType}"
+                //    : $"Request test failed");
+            }
 
+            using (var handler = new ParserHandler())
+            using (var parser = new HttpCombinedParser(handler))
+            {
+                bArray = TestChunkedResponse();
+                System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
+                    ? $"Chunked Response test succeed. Type identified is; {handler.MessageType}."
+                    : $"Chunked Response test failed");
 
-            parser = null;
-            parser = new HttpCombinedParser(handler);
-
-            bArray = TestChunkedResponse();
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Chunked Response test succeed. Type identified is; {handler.MessageType}."
-                : $"Chunked Response test failed");
-
-            body = null;
-            handler.HttpRequestReponse.Body.Position = 0;
-            reader = new StreamReader(handler.HttpRequestReponse.Body);
-            body = reader.ReadToEnd();
+                handler.HttpRequestReponse.Body.Position = 0;
+                var reader = new StreamReader(handler.HttpRequestReponse.Body);
+                var body = reader.ReadToEnd();
+            }
 
             System.Console.ReadKey();
         }

@@ -1,6 +1,8 @@
-﻿namespace HttpMachine
+﻿using System;
+
+namespace HttpMachine
 {
-    public interface IHttpRequestParserDelegate : IHttpParserDelegate
+    public interface IHttpRequestParserDelegate : IHttpParserDelegate, IDisposable
     {
 
         void OnRequestType(HttpCombinedParser combinedParser);

@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace HttpMachine
 {
-    public class HttpCombinedParser
+    public class HttpCombinedParser : IDisposable
     {
         public int MajorVersion {get; private set;}
         public int MinorVersion {get; private set;}
@@ -36,6 +36,11 @@ namespace HttpMachine
         // int mark;
         private int statusCode;
         private string statusReason;
+
+		public void Dispose()
+		{
+			
+		}
 
         %%{
 

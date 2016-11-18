@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HttpMachine
 {
-    public interface IHttpParserCombinedDelegate : IHttpParserDelegate, IHttpRequestParserDelegate, IHttpResponseParserDelegate
+    public interface IHttpParserCombinedDelegate : IHttpParserDelegate, IHttpRequestParserDelegate, IHttpResponseParserDelegate, IDisposable
     {
     }
 }

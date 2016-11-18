@@ -53,8 +53,6 @@ namespace HttpMachine.Console.Test.Model
             HttpRequestReponse.Body.Write(data.Array, data.Offset, data.Count);
         }
 
-
-
         public void OnMessageEnd(HttpCombinedParser combinedParser)
         {
             //throw new NotImplementedException();
@@ -105,6 +103,9 @@ namespace HttpMachine.Console.Test.Model
             //throw new NotImplementedException();
         }
 
-        
+        public void Dispose()
+        {
+
+        }
     }
 }
