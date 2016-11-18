@@ -43,6 +43,7 @@
     <None Include="rl\HttpParser2-chunked.cs.rl" />
     <None Include="rl\HttpParser2.cs.rl" />
     <None Include="rl\RunRagel.cmd" />
+    <None Include="rl\RunRagelChunked.cmd" />
     <None Include="rl\uri.rl" />
   </ItemGroup>
   <ItemGroup>

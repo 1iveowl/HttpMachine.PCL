@@ -13,7 +13,9 @@ namespace HttpMachine
         void OnHeaderValue(HttpCombinedParser combinedParser, string value);
         void OnHeadersEnd(HttpCombinedParser combinedParser);
         void OnTransferEncodingChunked(HttpCombinedParser combinedParser, bool isChunked);
-        void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data);
+        void OnChunkedLength(HttpCombinedParser combinedParser, int length);
+        void OnChunkReceived(HttpCombinedParser combinedParser);
+        void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data, int length = 0, bool isChunked = false);
         void OnMessageEnd(HttpCombinedParser combinedParser);
         void OnParserError();
     }

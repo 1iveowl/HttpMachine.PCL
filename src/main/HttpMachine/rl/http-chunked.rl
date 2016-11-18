@@ -45,7 +45,7 @@ http_response_line = (http_crlf $matched_leading_crlf)? http_version " " $matche
 # not getting fancy with header values, just reading everything until CRLF and calling it good. 
 # thus we don't support line folding.
 http_header_value_text = ((any | zlen) -- ("\r" | "\n"))+;
-
+#http_header_value_text = ((any | zlen) -- ("\r" | "\n"));
 
 http_header_content_length = "content-length"i %header_content_length;
 http_header_transfer_encoding = "transfer-encoding"i %header_transfer_encoding;
@@ -62,7 +62,6 @@ http_interesting_header_values = (chunked | close | keepalive);
 
 http_header_name = (http_token | http_interesting_headers) >clear $buf %on_header_name;
 http_header_separator = (":" (" " | "\t" )*);
-#http_header_separator = (":");
 http_header_value = (http_header_value_text | http_interesting_header_values) >clear $buf %on_header_value;
 http_header = http_header_name http_header_separator <: http_header_value http_crlf;
 
@@ -73,13 +72,11 @@ main := http_request_headers >message_begin;
 body_identity := any+ @body_identity;
 body_identity_eof := any* @body_identity_eof;
 
-chunk_length = xdigit+ >clear $buf %on_chunck_len_hex;
+chunk_length = (zlen | http_crlf) (xdigit+) >chunked_hex_clear $chunked_hex_buf %on_chunck_len_hex http_crlf;
 
-chunk_last = '0';
+chunk = (any*) >read_chunk;
 
-# Challenge is to figure out how to control transition based on lenght.
-# Use the code to re-enter body_chunked_identity when pointer (fc?) is at hex_lenght
-body_chunked_identity := ((chunk_length -- chunk_last) any* >clear $buf %on_chunk_body)+ ;
+body_chunked_identity := chunk_length chunk @body_identity_eof; #>chunked_body_clear $chunked_body_builder; # %body_chunked_identity;
 
 dead := any <*enter_dead;
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,13 +35,40 @@ namespace HttpMachine.Console.Test.Model
 
         public void OnTransferEncodingChunked(HttpCombinedParser combinedParser, bool isChunked)
         {
-            //throw new NotImplementedException();
+            HttpRequestReponse.IsTransferEncodingChunked = isChunked;
         }
 
-        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data)
+        public void OnChunkedLength(HttpCombinedParser combinedParser, int length)
         {
-            HttpRequestReponse.Body.Write(data.Array, 0, data.Array.Length);
+            HttpRequestReponse.ChunkSize = length;
         }
+
+        public void OnChunkReceived(HttpCombinedParser combinedParser)
+        {
+
+        }
+
+        //private int writeOffset = 0;
+
+        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data, int length = 0, bool isChunked = false)
+        {
+            if (isChunked)
+            {
+                HttpRequestReponse.Body.Write(data.Array, data.Offset, length);
+
+                //var a = new ArraySegment<byte>(new byte[], 0, 10);
+       
+
+                //writeOffset = writeOffset + data.Array.Length;
+            }
+            else
+            {
+                HttpRequestReponse.Body.Write(data.Array, data.Offset, length);
+                //HttpRequestReponse.Body.Write(data.Array, 0, data.Array.Length);
+            }
+        }
+
+
 
         public void OnMessageEnd(HttpCombinedParser combinedParser)
         {
@@ -91,5 +119,7 @@ namespace HttpMachine.Console.Test.Model
         {
             //throw new NotImplementedException();
         }
+
+        
     }
 }

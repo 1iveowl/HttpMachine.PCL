@@ -15,9 +15,12 @@ namespace HttpMachine
 
 		private readonly StringBuilder _stringBuilder;
 		private StringBuilder _stringBuilder2;
+		private StringBuilder _chunkedBufferBuilder;
+		private StringBuilder _chunkedHexBufferBuilder;
 		
         private int _contentLength;
         private int _chunkLength;
+		private int _chunkPos;
 
 		// TODO make flags or something, dang
 		private bool inContentLengthHeader;
@@ -54,7 +57,19 @@ namespace HttpMachine
 		action clear2 {
 			if (_stringBuilder2 == null)
 				_stringBuilder2 = new StringBuilder();
-			_stringBuilder2.Length = 0;
+		 	_stringBuilder2.Length = 0;
+		}
+
+		action chunked_body_clear {
+			_chunkedBufferBuilder.Clear();
+		}
+
+		action chunked_hex_buf {
+			_chunkedHexBufferBuilder.Append((char)fc);
+		}
+
+		action chunked_hex_clear {
+			_chunkedHexBufferBuilder.Clear();
 		}
 
 		action message_begin {
@@ -210,6 +225,7 @@ namespace HttpMachine
 			if (inTransferEncodingHeader)
 				gotTransferEncodingChunked = true;
             parserDelegate.OnTransferEncodingChunked(this, true);
+			Debug.WriteLine($"Transfer Encoding Chunked: {gotTransferEncodingChunked}");
 		}
 
 		action header_upgrade {
@@ -233,7 +249,11 @@ namespace HttpMachine
 		}
 
         action on_chunck_len_hex {
-            _chunkLength = Convert.ToInt32(_stringBuilder2.ToString(), 16);
+            _chunkLength = Convert.ToInt32(_chunkedHexBufferBuilder.ToString(), 16);
+			_chunkPos = _chunkLength;
+			Debug.WriteLine($"Chunk Length: {_chunkLength}");	
+			parserDelegate.OnChunkedLength(this, _chunkLength);	
+			
         }
 
         action last_crlf {
@@ -254,42 +274,27 @@ namespace HttpMachine
 
 				if (_contentLength == 0)
 				{
+					// No Content. Get ready for new incoming request 
 					parserDelegate.OnMessageEnd(this);
-					//fhold;
 					fgoto main;
 				}
 				else if (_contentLength > 0)
 				{
-					//fhold;
+					// Handle Body based on Content Length
 					fgoto body_identity;
+				}
+				else if (gotTransferEncodingChunked)
+				{
+					// Handle Body based on Transfer-Encoding Chunked Length
+					fgoto body_chunked_identity;
 				}
 				else
 				{
-                    if (gotTransferEncodingChunked)
-                    {
-                        fgoto body_chunked_identity;
-                    }
-                    
-					//Console.WriteLine("Request had no content length.");
 					if (ShouldKeepAlive)
 					{
 						parserDelegate.OnMessageEnd(this);
-						//Console.WriteLine("Should keep alive, will read next message.");
-						//fhold;
 						fgoto main;
 					}
-					//else
-					//{
-					//	if (gotTransferEncodingChunked) {
-					//		//Console.WriteLine("Not keeping alive, will read until eof. Will hold, but currently fpc = " + fpc);
-					//		//fhold;
-					//		fgoto body_identity_eof;
-					//	}
-                    //		
-					//	parserDelegate.OnMessageEnd(this);
-					//	//fhold;
-					//	fgoto main;
-					//}
 				}
 			}
         }
@@ -299,7 +304,7 @@ namespace HttpMachine
 			//Console.WriteLine("body_identity: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead);
 				p += toRead - 1;
 				_contentLength -= toRead;
 				//Console.WriteLine("content length is now " + contentLength);
@@ -326,13 +331,52 @@ namespace HttpMachine
 				}
 			}
 		}
+
+		action read_chunk {
+			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");// p={p}, pe={pe}");
+			var toRead = Math.Min(pe - p, _chunkLength);
+			if (toRead > 0)
+			{
+				Debug.WriteLine($"To Read: {toRead}");
+				parserDelegate.OnChunkReceived(this);
+				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead, isChunked:true);
+				p += toRead - 1;
+				_chunkLength -= toRead;
+				
+				fgoto body_chunked_identity;
+			}
+
+			if (_chunkLength == 0)
+			{
+				Debug.WriteLine($"EoF Chunk identified");
+				parserDelegate.OnMessageEnd(this);
+				fgoto body_identity_eof;
+			}
+			else
+			{
+				fbreak;
+			}
+		}
 		
 		action body_identity_eof {
 			var toRead = pe - p;
+			Debug.WriteLine($"Eof To Read: {toRead}");
 			//Console.WriteLine("body_identity_eof: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				if (gotTransferEncodingChunked)
+				{
+					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead, isChunked:true);
+					p += toRead - 1;
+					fbreak;
+				}
+				else
+				{
+					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead);
+					p += toRead - 1;
+					fbreak;
+				}
+				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead);
 				p += toRead - 1;
 				fbreak;
 			}
@@ -351,38 +395,7 @@ namespace HttpMachine
 			}
 		}
 
-        action body_chunk_identity {
-			var toRead = Math.Min(pe - p, _chunkLength);
-			//Console.WriteLine("body_identity: reading " + toRead + " bytes from body.");
-			if (toRead > 0)
-			{
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
-				p += toRead - 1;
-				_chunkLength -= toRead;
-				//Console.WriteLine("content length is now " + contentLength);
 
-				if (_chunkLength == 0)
-				{
-					parserDelegate.OnMessageEnd(this);
-
-					if (ShouldKeepAlive)
-					{
-						//Console.WriteLine("Transitioning from identity body to next message.");
-						//fhold;
-						fgoto main;
-					}
-					else
-					{
-						//fhold;
-						fgoto dead;
-					}
-				}
-				else
-				{
-					fbreak;
-				}
-			}
-		}
 
 		action enter_dead {
 			throw new Exception("Parser is dead; there shouldn't be more data. Client is bogus? fpc =" + fpc);
@@ -397,6 +410,8 @@ namespace HttpMachine
         protected HttpCombinedParser()
         {
 			_stringBuilder = new StringBuilder();
+			_chunkedBufferBuilder = new StringBuilder();
+			_chunkedHexBufferBuilder = new StringBuilder();
             %% write init;        
         }
 

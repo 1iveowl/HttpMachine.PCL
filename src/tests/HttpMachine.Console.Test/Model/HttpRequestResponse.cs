@@ -24,4 +24,6 @@ namespace HttpMachine.Console.Test.Model
         public string Fragment { get; internal set; }
         public MemoryStream Body { get; internal set; } = new MemoryStream();
     }
+
+
 }

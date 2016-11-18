@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HttpMachine
 {
-    public class HttpParser
+    public class HttpCombinedParser
     {
         public int MajorVersion {get; private set;}
         public int MinorVersion {get; private set;}
@@ -350,13 +350,13 @@ namespace HttpMachine
         
         %% write data;
         
-        protected HttpParser()
+        protected HttpCombinedParser()
         {
 			_stringBuilder = new StringBuilder();
             %% write init;        
         }
 
-        public HttpParser(IHttpParserCombinedDelegate del) : this()
+        public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
         {
             this.parserDelegate = del;
         }
