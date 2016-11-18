@@ -48,24 +48,9 @@ namespace HttpMachine.Console.Test.Model
 
         }
 
-        //private int writeOffset = 0;
-
-        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data, int length = 0, bool isChunked = false)
+        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data)
         {
-            if (isChunked)
-            {
-                HttpRequestReponse.Body.Write(data.Array, data.Offset, length);
-
-                //var a = new ArraySegment<byte>(new byte[], 0, 10);
-       
-
-                //writeOffset = writeOffset + data.Array.Length;
-            }
-            else
-            {
-                HttpRequestReponse.Body.Write(data.Array, data.Offset, length);
-                //HttpRequestReponse.Body.Write(data.Array, 0, data.Array.Length);
-            }
+            HttpRequestReponse.Body.Write(data.Array, data.Offset, data.Count);
         }
 
 

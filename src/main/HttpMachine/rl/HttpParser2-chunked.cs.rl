@@ -304,7 +304,7 @@ namespace HttpMachine
 			//Console.WriteLine("body_identity: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead);
+				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
 				p += toRead - 1;
 				_contentLength -= toRead;
 				//Console.WriteLine("content length is now " + contentLength);
@@ -339,7 +339,7 @@ namespace HttpMachine
 			{
 				Debug.WriteLine($"To Read: {toRead}");
 				parserDelegate.OnChunkReceived(this);
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead, isChunked:true);
+				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
 				p += toRead - 1;
 				_chunkLength -= toRead;
 				
@@ -366,17 +366,17 @@ namespace HttpMachine
 			{
 				if (gotTransferEncodingChunked)
 				{
-					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead, isChunked:true);
+					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
 					p += toRead - 1;
 					fbreak;
 				}
 				else
 				{
-					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead);
+					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
 					p += toRead - 1;
 					fbreak;
 				}
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead), toRead);
+				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
 				p += toRead - 1;
 				fbreak;
 			}
