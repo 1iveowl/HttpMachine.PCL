@@ -232,9 +232,8 @@ namespace HttpMachine
 			parserDelegate.OnHeaderValue(this, str);
 		}
 
-        action chunk_len_hex {
+        action on_chunck_len_hex {
             _chunkLength = Convert.ToInt32(_stringBuilder2.ToString(), 16);
-
         }
 
         action last_crlf {
