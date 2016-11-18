@@ -75,8 +75,11 @@ body_identity_eof := any* @body_identity_eof;
 
 chunk_lenght = xdigit+ >clear $buf %on_chunck_len_hex;
 
-# Challenge is to figure out how to control transition based on lenght
-body_chunked_identity := (chunk_lenght any* >clear $buf %on_chunk_body)+ "0";
+chunk_last = '0';
+
+# Challenge is to figure out how to control transition based on lenght.
+# Use the code to re-enter body_chunked_identity when pointer (fc?) is at hex_lenght
+body_chunked_identity := ((chunk_lenght any* >clear $buf %on_chunk_body)+ ) -- chunk_last;
 
 dead := any <*enter_dead;
 
