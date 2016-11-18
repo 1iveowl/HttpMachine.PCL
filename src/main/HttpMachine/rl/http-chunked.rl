@@ -73,13 +73,13 @@ main := http_request_headers >message_begin;
 body_identity := any+ @body_identity;
 body_identity_eof := any* @body_identity_eof;
 
-chunk_lenght = xdigit+ >clear $buf %on_chunck_len_hex;
+chunk_length = xdigit+ >clear $buf %on_chunck_len_hex;
 
 chunk_last = '0';
 
 # Challenge is to figure out how to control transition based on lenght.
 # Use the code to re-enter body_chunked_identity when pointer (fc?) is at hex_lenght
-body_chunked_identity := ((chunk_lenght any* >clear $buf %on_chunk_body)+ ) -- chunk_last;
+body_chunked_identity := ((chunk_length -- chunk_last) any* >clear $buf %on_chunk_body)+ ;
 
 dead := any <*enter_dead;
 
