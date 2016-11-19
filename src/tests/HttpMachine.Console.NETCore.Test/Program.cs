@@ -105,7 +105,6 @@ class Program
                 chunks.Append("\r\n");
                 chunks.Append(part);
                 chunks.Append("\r\n"); //Trailing crlf - not counted towards the length.
-                                       //chunks.Append(stringBuilder); //.Add(Encoding.UTF8.GetBytes(stringBuilder.ToString()));
             }
         }
 

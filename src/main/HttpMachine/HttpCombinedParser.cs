@@ -45,7 +45,7 @@ namespace HttpMachine
 		}
 
         
-#line 411 "httpparser2-chunked.cs.rl"
+#line 425 "httpparser2-chunked.cs.rl"
 
         
         
@@ -55,26 +55,26 @@ static readonly sbyte[] _http_parser_actions =  new sbyte [] {
 	12, 1, 13, 1, 15, 1, 18, 1, 
 	20, 1, 21, 1, 23, 1, 24, 1, 
 	32, 1, 33, 1, 34, 1, 35, 1, 
-	36, 1, 37, 1, 38, 1, 39, 2, 
-	1, 0, 2, 1, 33, 2, 2, 0, 
-	2, 5, 4, 2, 6, 13, 2, 14, 
-	10, 2, 15, 20, 2, 16, 0, 2, 
-	16, 15, 2, 17, 0, 2, 17, 15, 
-	2, 22, 15, 2, 25, 32, 2, 26, 
-	32, 2, 27, 33, 2, 28, 33, 2, 
-	29, 32, 2, 30, 33, 2, 31, 32, 
-	2, 37, 38, 3, 3, 2, 0, 3, 
-	3, 17, 0, 3, 3, 17, 15, 3, 
-	3, 22, 15, 3, 6, 1, 0, 3, 
-	11, 1, 0, 3, 16, 15, 20, 3, 
-	17, 15, 20, 3, 18, 1, 0, 3, 
-	19, 1, 0, 3, 21, 1, 0, 3, 
-	22, 15, 20, 4, 3, 17, 15, 20, 
-	4, 3, 22, 15, 20, 4, 11, 1, 
-	9, 0, 4, 11, 1, 9, 15, 5, 
-	11, 1, 7, 9, 0, 5, 11, 1, 
-	9, 15, 20, 6, 11, 1, 8, 3, 
-	2, 0
+	36, 1, 37, 1, 38, 1, 39, 1, 
+	40, 2, 1, 0, 2, 1, 33, 2, 
+	2, 0, 2, 5, 4, 2, 6, 13, 
+	2, 14, 10, 2, 15, 20, 2, 16, 
+	0, 2, 16, 15, 2, 17, 0, 2, 
+	17, 15, 2, 22, 15, 2, 25, 32, 
+	2, 26, 32, 2, 27, 33, 2, 28, 
+	33, 2, 29, 32, 2, 30, 33, 2, 
+	31, 32, 2, 37, 38, 3, 3, 2, 
+	0, 3, 3, 17, 0, 3, 3, 17, 
+	15, 3, 3, 22, 15, 3, 6, 1, 
+	0, 3, 11, 1, 0, 3, 16, 15, 
+	20, 3, 17, 15, 20, 3, 18, 1, 
+	0, 3, 19, 1, 0, 3, 21, 1, 
+	0, 3, 22, 15, 20, 4, 3, 17, 
+	15, 20, 4, 3, 22, 15, 20, 4, 
+	11, 1, 9, 0, 4, 11, 1, 9, 
+	15, 5, 11, 1, 7, 9, 0, 5, 
+	11, 1, 9, 15, 20, 6, 11, 1, 
+	8, 3, 2, 0
 };
 
 static readonly short[] _http_parser_key_offsets =  new short [] {
@@ -97,7 +97,7 @@ static readonly short[] _http_parser_key_offsets =  new short [] {
 	1381, 1382, 1392, 1402, 1412, 1422, 1424, 1425, 
 	1427, 1428, 1430, 1434, 1435, 1457, 1463, 1468, 
 	1468, 1475, 1476, 1482, 1489, 1490, 1490, 1490, 
-	1490, 1490, 1490, 1490
+	1490, 1490, 1490, 1490, 1490
 };
 
 static readonly char[] _http_parser_trans_keys =  new char [] {
@@ -310,7 +310,7 @@ static readonly sbyte[] _http_parser_single_lengths =  new sbyte [] {
 	1, 4, 4, 4, 4, 0, 1, 0, 
 	1, 0, 2, 1, 10, 0, 1, 0, 
 	1, 1, 0, 1, 1, 0, 0, 0, 
-	0, 0, 0, 0
+	0, 0, 0, 0, 0
 };
 
 static readonly sbyte[] _http_parser_range_lengths =  new sbyte [] {
@@ -333,7 +333,7 @@ static readonly sbyte[] _http_parser_range_lengths =  new sbyte [] {
 	0, 3, 3, 3, 3, 1, 0, 1, 
 	0, 1, 1, 0, 6, 3, 2, 0, 
 	3, 0, 3, 3, 0, 0, 0, 0, 
-	0, 0, 0, 0
+	0, 0, 0, 0, 0
 };
 
 static readonly short[] _http_parser_index_offsets =  new short [] {
@@ -356,7 +356,7 @@ static readonly short[] _http_parser_index_offsets =  new short [] {
 	1085, 1087, 1095, 1103, 1111, 1119, 1121, 1123, 
 	1125, 1127, 1129, 1133, 1135, 1152, 1156, 1160, 
 	1161, 1166, 1168, 1172, 1177, 1179, 1180, 1181, 
-	1182, 1183, 1184, 1185
+	1182, 1183, 1184, 1185, 1186
 };
 
 static readonly byte[] _http_parser_indicies =  new byte [] {
@@ -508,7 +508,7 @@ static readonly byte[] _http_parser_indicies =  new byte [] {
 	187, 188, 189, 189, 189, 1, 190, 1, 
 	189, 189, 189, 1, 191, 192, 192, 192, 
 	1, 193, 1, 194, 1, 187, 195, 196, 
-	197, 1, 0
+	197, 198, 1, 0
 };
 
 static readonly byte[] _http_parser_trans_targs =  new byte [] {
@@ -536,35 +536,35 @@ static readonly byte[] _http_parser_trans_targs =  new byte [] {
 	132, 133, 134, 135, 136, 137, 138, 139, 
 	141, 138, 140, 8, 9, 33, 54, 71, 
 	142, 142, 139, 151, 145, 147, 146, 148, 
-	147, 153, 155, 152, 154, 154
+	147, 153, 156, 152, 154, 154, 155
 };
 
 static readonly byte[] _http_parser_trans_actions =  new byte [] {
-	51, 0, 115, 115, 9, 39, 39, 54, 
-	1, 173, 162, 157, 157, 179, 167, 0, 
-	0, 39, 39, 39, 39, 29, 1, 23, 
-	39, 0, 42, 39, 39, 1, 25, 1, 
-	1, 1, 1, 1, 1, 1, 90, 1, 
-	1, 1, 81, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 84, 1, 1, 1, 
-	1, 1, 1, 1, 1, 1, 1, 78, 
+	53, 0, 117, 117, 9, 41, 41, 56, 
+	1, 175, 164, 159, 159, 181, 169, 0, 
+	0, 41, 41, 41, 41, 29, 1, 23, 
+	41, 0, 44, 41, 41, 1, 25, 1, 
+	1, 1, 1, 1, 1, 1, 92, 1, 
+	1, 1, 83, 1, 1, 1, 1, 1, 
+	1, 1, 1, 1, 86, 1, 1, 1, 
+	1, 1, 1, 1, 1, 1, 1, 80, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 75, 1, 1, 1, 1, 1, 
+	1, 1, 77, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 87, 1, 1, 1, 1, 
-	1, 1, 93, 0, 0, 0, 0, 0, 
-	19, 0, 21, 15, 57, 11, 1, 1, 
-	1, 123, 63, 45, 60, 45, 60, 152, 
-	111, 99, 99, 143, 72, 45, 45, 45, 
-	45, 147, 107, 99, 103, 99, 127, 69, 
-	45, 66, 45, 45, 1, 1, 1, 1, 
+	1, 1, 1, 89, 1, 1, 1, 1, 
+	1, 1, 95, 0, 0, 0, 0, 0, 
+	19, 0, 21, 15, 59, 11, 1, 1, 
+	1, 125, 65, 47, 62, 47, 62, 154, 
+	113, 101, 101, 145, 74, 47, 47, 47, 
+	47, 149, 109, 101, 105, 101, 129, 71, 
+	47, 68, 47, 47, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
-	1, 0, 19, 0, 21, 5, 119, 131, 
-	13, 1, 1, 17, 139, 139, 139, 139, 
-	39, 1, 135, 31, 0, 48, 0, 27, 
-	3, 0, 0, 35, 96, 35
+	1, 0, 19, 0, 21, 5, 121, 133, 
+	13, 1, 1, 17, 141, 141, 141, 141, 
+	41, 1, 137, 31, 0, 50, 0, 27, 
+	3, 0, 0, 37, 98, 35, 35
 };
 
 static readonly byte[] _http_parser_from_state_actions =  new byte [] {
@@ -587,7 +587,7 @@ static readonly byte[] _http_parser_from_state_actions =  new byte [] {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 37
+	0, 0, 0, 0, 39
 };
 
 static readonly byte[] _http_parser_eof_actions =  new byte [] {
@@ -610,7 +610,7 @@ static readonly byte[] _http_parser_eof_actions =  new byte [] {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 7, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 33, 0, 0
+	0, 33, 0, 0, 0
 };
 
 const int http_parser_start = 1;
@@ -621,10 +621,11 @@ const int http_parser_en_main = 1;
 const int http_parser_en_body_identity = 143;
 const int http_parser_en_body_identity_eof = 152;
 const int http_parser_en_body_chunked_identity = 144;
+const int http_parser_en_read_chunk_stop = 155;
 const int http_parser_en_dead = 149;
 
 
-#line 414 "httpparser2-chunked.cs.rl"
+#line 428 "httpparser2-chunked.cs.rl"
         
         protected HttpCombinedParser()
         {
@@ -632,12 +633,12 @@ const int http_parser_en_dead = 149;
 			_chunkedBufferBuilder = new StringBuilder();
 			_chunkedHexBufferBuilder = new StringBuilder();
             
-#line 636 "..\\HttpCombinedParser.cs"
+#line 637 "..\\HttpCombinedParser.cs"
 	{
 	cs = http_parser_start;
 	}
 
-#line 421 "httpparser2-chunked.cs.rl"
+#line 435 "httpparser2-chunked.cs.rl"
         }
 
         public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
@@ -655,7 +656,7 @@ const int http_parser_en_dead = 149;
 			try
 			{
 				
-#line 659 "..\\HttpCombinedParser.cs"
+#line 660 "..\\HttpCombinedParser.cs"
 	{
 	sbyte _klen;
 	short _trans;
@@ -672,13 +673,13 @@ _resume:
 	_nacts = _http_parser_actions[_acts++];
 	while ( _nacts-- > 0 ) {
 		switch ( _http_parser_actions[_acts++] ) {
-	case 39:
-#line 405 "httpparser2-chunked.cs.rl"
+	case 40:
+#line 419 "httpparser2-chunked.cs.rl"
 	{
 			throw new Exception("Parser is dead; there shouldn't be more data. Client is bogus? fpc =" + p);
 		}
 	break;
-#line 682 "..\\HttpCombinedParser.cs"
+#line 683 "..\\HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -1073,7 +1074,7 @@ _match:
 	case 37:
 #line 340 "httpparser2-chunked.cs.rl"
 	{
-			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");// p={p}, pe={pe}");
+			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");
 			var toRead = Math.Min(pe - p, _chunkLength);
 			if (toRead > 0)
 			{
@@ -1088,9 +1089,7 @@ _match:
 
 			if (_chunkLength == 0)
 			{
-				Debug.WriteLine($"EoF Chunk identified");
-				parserDelegate.OnMessageEnd(this);
-				{cs = 152; if (true) goto _again;}
+				{cs = 155; if (true) goto _again;}
 			}
 			else
 			{
@@ -1099,7 +1098,25 @@ _match:
 		}
 	break;
 	case 38:
-#line 366 "httpparser2-chunked.cs.rl"
+#line 364 "httpparser2-chunked.cs.rl"
+	{
+			//Debug.WriteLine($"End of chunks");
+
+			parserDelegate.OnMessageEnd(this);
+			
+			if (ShouldKeepAlive)
+			{
+				{cs = 1; if (true) goto _again;}
+			}
+			else
+			{
+				p--;
+				{cs = 149; if (true) goto _again;}
+			}
+		}
+	break;
+	case 39:
+#line 380 "httpparser2-chunked.cs.rl"
 	{
 			var toRead = pe - p;
 			Debug.WriteLine($"Eof To Read: {toRead}");
@@ -1137,7 +1154,7 @@ _match:
 			}
 		}
 	break;
-#line 1141 "..\\HttpCombinedParser.cs"
+#line 1158 "..\\HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -1163,7 +1180,7 @@ _again:
 	case 37:
 #line 340 "httpparser2-chunked.cs.rl"
 	{
-			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");// p={p}, pe={pe}");
+			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");
 			var toRead = Math.Min(pe - p, _chunkLength);
 			if (toRead > 0)
 			{
@@ -1178,9 +1195,7 @@ _again:
 
 			if (_chunkLength == 0)
 			{
-				Debug.WriteLine($"EoF Chunk identified");
-				parserDelegate.OnMessageEnd(this);
-				{cs = 152; if (true) goto _again;}
+				{cs = 155; if (true) goto _again;}
 			}
 			else
 			{
@@ -1188,7 +1203,7 @@ _again:
 			}
 		}
 	break;
-#line 1192 "..\\HttpCombinedParser.cs"
+#line 1207 "..\\HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -1197,7 +1212,7 @@ _again:
 	_out: {}
 	}
 
-#line 438 "httpparser2-chunked.cs.rl"
+#line 452 "httpparser2-chunked.cs.rl"
 			}
 			catch (Exception)
 			{

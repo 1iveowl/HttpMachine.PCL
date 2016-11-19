@@ -338,7 +338,7 @@ namespace HttpMachine
 		}
 
 		action read_chunk {
-			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");// p={p}, pe={pe}");
+			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");
 			var toRead = Math.Min(pe - p, _chunkLength);
 			if (toRead > 0)
 			{
@@ -353,13 +353,27 @@ namespace HttpMachine
 
 			if (_chunkLength == 0)
 			{
-				Debug.WriteLine($"EoF Chunk identified");
-				parserDelegate.OnMessageEnd(this);
-				fgoto body_identity_eof;
+				fgoto read_chunk_stop;
 			}
 			else
 			{
 				fbreak;
+			}
+		}
+
+		action read_chunk_stop {
+			//Debug.WriteLine($"End of chunks");
+
+			parserDelegate.OnMessageEnd(this);
+			
+			if (ShouldKeepAlive)
+			{
+				fgoto main;
+			}
+			else
+			{
+				fhold;
+				fgoto dead;
 			}
 		}
 		

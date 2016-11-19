@@ -76,7 +76,8 @@ chunk_length = (zlen | http_crlf) (xdigit+) >chunked_hex_clear $chunked_hex_buf 
 
 chunk = (any*) >read_chunk;
 
-body_chunked_identity := chunk_length chunk @body_identity_eof; #>chunked_body_clear $chunked_body_builder; # %body_chunked_identity;
+body_chunked_identity := chunk_length chunk @read_chunk_stop; #>chunked_body_clear $chunked_body_builder; # %body_chunked_identity;
+read_chunk_stop := any* @read_chunk_stop;
 
 dead := any <*enter_dead;
 
