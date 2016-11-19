@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.25914.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine", "HttpMachine.csproj", "{70448FCA-6275-4685-AA0B-8BE2221C46F7}"
 EndProject
@@ -14,13 +14,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{31AE5DCC-8EC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{8D3A9272-DBD0-4028-AB3C-31A8446501DA}"
 	ProjectSection(SolutionItems) = preProject
-		HttpMachine.nuspec = HttpMachine.nuspec
-		nuget.cmd = nuget.cmd
+		..\build\build.ps1 = ..\build\build.ps1
+		..\build\HttpMachine.nuspec = ..\build\HttpMachine.nuspec
+		..\build\publish.ps1 = ..\build\publish.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.Console.NETCore.Test", "..\..\tests\HttpMachine.Console.NETCore.Test\HttpMachine.Console.NETCore.Test.csproj", "{0A14376B-1004-4734-BFB1-703BC06650A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.Console.NETCore.Test", "..\tests\HttpMachine.Console.NETCore.Test\HttpMachine.Console.NETCore.Test.csproj", "{0A14376B-1004-4734-BFB1-703BC06650A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.NETCore.UnitTest", "..\..\tests\HttpMachine.NETCore.UnitTest\HttpMachine.NETCore.UnitTest.csproj", "{68C4862E-CFA6-460F-94C0-698D42D4CF3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.NETCore.UnitTest", "..\tests\HttpMachine.NETCore.UnitTest\HttpMachine.NETCore.UnitTest.csproj", "{68C4862E-CFA6-460F-94C0-698D42D4CF3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

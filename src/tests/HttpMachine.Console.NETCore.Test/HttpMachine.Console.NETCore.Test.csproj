@@ -18,7 +18,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\main\HttpMachine\HttpMachine.csproj" />
+    <ProjectReference Include="..\..\main\HttpMachine.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
