@@ -20,7 +20,6 @@ namespace HttpMachine
 		
         private int _contentLength;
         private int _chunkLength;
-		private int _chunkPos;
 
 		// TODO make flags or something, dang
 		private bool inContentLengthHeader;
@@ -33,7 +32,7 @@ namespace HttpMachine
 		private bool gotUpgradeValue;
 
         private int cs;
-        // int mark;
+
         private int statusCode;
         private string statusReason;
 
@@ -93,18 +92,20 @@ namespace HttpMachine
 			gotUpgradeValue = false;
 			parserDelegate.OnMessageBegin(this);
 		}
+
+		 
         
         action matched_absolute_uri {
-           //Console.WriteLine("matched absolute_uri");
+
         }
         action matched_abs_path {
-            //Console.WriteLine("matched abs_path");
+			
         }
         action matched_authority {
-            //Console.WriteLine("matched authority");
+            
         }
         action matched_first_space {
-            //Console.WriteLine("matched first space");
+            
         }
         action leave_first_space {
             //Console.WriteLine("leave_first_space");
@@ -126,8 +127,19 @@ namespace HttpMachine
 		}
 
 		action on_method {
-			parserDelegate.OnMethod(this, _stringBuilder.ToString());
+			var toRead = pe - p;
+			if (toRead > 0)
+			{
+				parserDelegate.OnMethod(
+					this, 
+					new ArraySegment<byte>(data, p, toRead));
+			}
 		}
+		
+
+		#action on_method {
+		#	parserDelegate.OnMethod(this, _stringBuilder.ToString());
+		#}
         
 		action on_request_uri {
 			parserDelegate.OnRequestUri(this, _stringBuilder.ToString());
@@ -228,8 +240,10 @@ namespace HttpMachine
 
 		action header_transfer_encoding_chunked {
 			if (inTransferEncodingHeader)
+			{
 				gotTransferEncodingChunked = true;
-            parserDelegate.OnTransferEncodingChunked(this, true);
+            	parserDelegate.OnTransferEncodingChunked(this, true);
+			}
 			Debug.WriteLine($"Transfer Encoding Chunked: {gotTransferEncodingChunked}");
 		}
 
@@ -262,20 +276,10 @@ namespace HttpMachine
         }
 
         action last_crlf {
-			
+
 			if (fc == 10)
 			{
-				//Console.WriteLine("leave_headers contentLength = " + contentLength);
 				parserDelegate.OnHeadersEnd(this);
-
-				// if chunked transfer, ignore content length and parse chunked (but we can't yet so bail)
-				// if content length given but zero, read next request
-				// if content length is given and non-zero, we should read that many bytes
-				// if content length is not given
-				//   if should keep alive, assume next request is coming and read it
-				//   else 
-				//		if chunked transfer read body until EOF
-				//   	else read next request
 
 				if (_contentLength == 0)
 				{
@@ -306,27 +310,22 @@ namespace HttpMachine
 
 		action body_identity {
 			var toRead = Math.Min(pe - p, _contentLength);
-			//Console.WriteLine("body_identity: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
 				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
 				p += toRead - 1;
 				_contentLength -= toRead;
-				//Console.WriteLine("content length is now " + contentLength);
-
+				
 				if (_contentLength == 0)
 				{
 					parserDelegate.OnMessageEnd(this);
 
 					if (ShouldKeepAlive)
 					{
-						//Console.WriteLine("Transitioning from identity body to next message.");
-						//fhold;
 						fgoto main;
 					}
 					else
 					{
-						//fhold;
 						fgoto dead;
 					}
 				}
@@ -366,7 +365,6 @@ namespace HttpMachine
 		action body_identity_eof {
 			var toRead = pe - p;
 			Debug.WriteLine($"Eof To Read: {toRead}");
-			//Console.WriteLine("body_identity_eof: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
 				if (gotTransferEncodingChunked)
