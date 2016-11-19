@@ -5,8 +5,8 @@ machine http;
 include uri "uri.rl"; # absulote_uri, authority, abs_path, query, fragment
 include httpparser "HttpParser2-chunked.cs.rl";
 
-safe = ("$" | "-" | "_" | ".");
-method_string = (alpha | safe);
+safe_method_character = ("$" | "-" | "_" | ".");
+method_string = (alpha | safe_method_character);
 
 http_crlf = "\r\n";
 http_cntrl = (cntrl | 127);
