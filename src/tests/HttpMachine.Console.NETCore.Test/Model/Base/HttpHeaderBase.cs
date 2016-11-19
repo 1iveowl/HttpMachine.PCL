@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace HttpMachine.Console.Test.Model.Base
+namespace HttpMachine.Console.NETCore.Test.Model.Base
 {
     public abstract class HttpHeaderBase : ParseControlBase
     {

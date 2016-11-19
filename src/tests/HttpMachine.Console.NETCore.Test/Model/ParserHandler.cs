@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace HttpMachine.Console.Test.Model
+namespace HttpMachine.Console.NETCore.Test.Model
 {
     internal class ParserHandler : IHttpParserCombinedDelegate
     {

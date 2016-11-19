@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HttpMachine.Console.Test.Model.Base;
+﻿using System.IO;
+using HttpMachine.Console.NETCore.Test.Model.Base;
 
-namespace HttpMachine.Console.Test.Model
+namespace HttpMachine.Console.NETCore.Test.Model
 {
     public class HttpRequestReponse : HttpHeaderBase
     {
