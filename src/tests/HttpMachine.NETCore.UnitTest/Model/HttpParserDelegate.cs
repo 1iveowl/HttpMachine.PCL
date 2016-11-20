@@ -13,6 +13,8 @@ namespace HttpMachine.NETCore.UnitTest.Model
 
         public bool[] IsChunkSizeSquenceOk;
 
+        public bool HasEnded;
+
         public readonly HttpRequestAndReponse HttpRequestReponse = new HttpRequestAndReponse();
 
         public MessageType MessageType { get; internal set; }
@@ -78,11 +80,6 @@ namespace HttpMachine.NETCore.UnitTest.Model
             HttpRequestReponse.Body.Write(data.Array, data.Offset, data.Count);
         }
 
-        public void OnMessageEnd(HttpCombinedParser combinedParser)
-        {
-            
-        }
-
         public void OnParserError()
         {
 
@@ -123,6 +120,11 @@ namespace HttpMachine.NETCore.UnitTest.Model
         public void OnQueryString(HttpCombinedParser combinedParser, string queryString)
         {
             HttpRequestReponse.QueryString = queryString;
+        }
+
+        public void OnMessageEnd(HttpCombinedParser combinedParser)
+        {
+            HasEnded = true;
         }
 
         public void Dispose()

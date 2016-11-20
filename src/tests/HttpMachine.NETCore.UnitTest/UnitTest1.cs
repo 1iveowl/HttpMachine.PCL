@@ -44,6 +44,7 @@ namespace HttpMachine.NETCore.UnitTest
 
                 //Assert
                 Assert.IsTrue(isParserSuccessful);
+                Assert.IsTrue(handler.HasEnded);
                 Assert.AreEqual(content, responseContent);
                 Assert.IsTrue(_headers.Count == responseHeaders.Count
                     && _headers.Keys.All(key => responseHeaders.ContainsKey(key)
@@ -92,6 +93,7 @@ namespace HttpMachine.NETCore.UnitTest
 
                 //Assert
                 Assert.IsTrue(isParserSuccessful);
+                Assert.IsTrue(handler.HasEnded);
                 Assert.AreEqual(content, responseContent);
 
                 Assert.IsTrue(_headers.Count == responseHeaders.Count
