@@ -9,7 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C16837FC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{31AE5DCC-8EC2-46D4-9039-525579AF5E40}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\..\README.md = ..\..\..\README.md
+		..\..\LICENCE.md = ..\..\LICENCE.md
+		..\..\README.md = ..\..\README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{8D3A9272-DBD0-4028-AB3C-31A8446501DA}"

@@ -11,7 +11,9 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</description>
-    <releaseNotes>Updated to .NET Standard v.1.0</releaseNotes>
+    <releaseNotes>Updated to .NET Standard v.1.0
+Added support for Transfer-Encoding: chunked
+    </releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>http parser .netstandard1 netcore xamarin ios android uwp httpmachine ragel</tags>
   <dependencies>
