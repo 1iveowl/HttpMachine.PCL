@@ -1,1 +1,0 @@
-ragel.exe -A -T0 -o httpparser.cs httpparser2-chunked.cs.rl

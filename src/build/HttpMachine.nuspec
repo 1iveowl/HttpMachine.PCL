@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>HttpMachine.PCL</id>
+    <version>0</version>
+    <title>HttpMachine for .NET Standard 1.0</title>
+    <authors>Jasper H. Bojsen</authors>
+    <owners>1iveowl Development</owners>
+    <licenseUrl>https://github.com/bvanderveen/httpmachine/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/1iveowl/HttpMachine.PCL</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</description>
+    <releaseNotes>Updated to .NET Standard v.1.0
+Added support for Transfer-Encoding: chunked
+    </releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>http parser .netstandard1 netcore xamarin ios android uwp httpmachine ragel</tags>
+  <dependencies>
+  <group targetFramework="netstandard1.0">
+    <dependency id="NETStandard.Library" version="1.6.1" />
+  </group>
+</dependencies>
+  </metadata>
+  
+  <files>
+      <file src="..\main\bin\Release\HttpMachine.*" target="lib\netstandard1\" />
+  </files>       
+</package>
