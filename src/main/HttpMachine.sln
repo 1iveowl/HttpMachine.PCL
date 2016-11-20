@@ -17,11 +17,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{8D3A9272
 		..\build\build.ps1 = ..\build\build.ps1
 		..\build\HttpMachine.nuspec = ..\build\HttpMachine.nuspec
 		..\build\publish.ps1 = ..\build\publish.ps1
+		..\build\publishLocal.ps1 = ..\build\publishLocal.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.Console.NETCore.Test", "..\tests\HttpMachine.Console.NETCore.Test\HttpMachine.Console.NETCore.Test.csproj", "{0A14376B-1004-4734-BFB1-703BC06650A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpMachine.Console.NETCore.Test", "..\tests\HttpMachine.Console.NETCore.Test\HttpMachine.Console.NETCore.Test.csproj", "{0A14376B-1004-4734-BFB1-703BC06650A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.NETCore.UnitTest", "..\tests\HttpMachine.NETCore.UnitTest\HttpMachine.NETCore.UnitTest.csproj", "{68C4862E-CFA6-460F-94C0-698D42D4CF3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpMachine.NETCore.UnitTest", "..\tests\HttpMachine.NETCore.UnitTest\HttpMachine.NETCore.UnitTest.csproj", "{68C4862E-CFA6-460F-94C0-698D42D4CF3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
