@@ -1,10 +1,13 @@
 # HttpMachine.PCL
-[![NuGet](https://img.shields.io/badge/nuget-3.0.1_(.Net_Standard_1.0)-brightgreen.svg)](https://www.nuget.org/packages/HttpMachine.PCL/)
+[![NuGet Badge](https://buildstats.info/nuget/HttpMachine.PCL)](https://github.com/1iveowl/SSDP.UPnP.PCL)
+
+[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v1.0-green.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library) 
+ 
 [![NuGet](https://img.shields.io/badge/nuget-1.1.10_(Profile_111)-yellow.svg)](https://www.nuget.org/packages/HttpMachine.PCL/1.1.10)
 
 This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
 
-HttpMachine.PCL is a combined C# HTTP request/reponse parser. It implements a state machine with [Adrian Thurston](http://www.complang.org/thurston/)'s excellent state machine compiler, [Ragel](http://www.complang.org/ragel/). Because Ragel supports C#, Java, Ruby, C++ and more.
+HttpMachine.PCL is a combined C# HTTP request/reponse parser. It implements a state machine with [Adrian Thurston](http://www.complang.org/thurston/)'s excellent state machine compiler, [Ragel](http://www.complang.org/ragel/). 
 
 HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com). HttpMachine is licensed under the 
 MIT License. See LICENSE.txt.
@@ -20,14 +23,16 @@ I've forked this project as Benjamin is no longer is maintaining the work.
 - Support for parsing responses and request in one combined parser.
  
 ## Updates Added to HttpMachine.PCL
-Changes to this version
-- Updated the Nuget to the most recent code base provided by the original project.
-- The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
+Changes new to this version
+- Transfer-Encoding Chunked now supported.
+- Created for the future with .NET Standard
+- The HttpMachine.PCL a PCL that can be used on .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
 - The Http Method now accepts these additional four characters: "$ - , .".
 - From Nuget ver 1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
-- Can now manage Zero Lenght Headers - for example EXT: as used in UPnP 
+- Can now manage Zero Lenght Headers - for example EXT: as used in UPnP.
 
-## How to use
+## How To Use The Library
+The libary is 
 ### Implement a parser handler:
 ```cs
 internal class ParserHandler : IHttpParserCombinedDelegate
