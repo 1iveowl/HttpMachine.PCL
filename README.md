@@ -19,6 +19,16 @@ MIT License. See LICENSE.txt.
 
 I've forked this project as Benjamin is no longer is maintaining the work.
 
+## Compatibility
+- iOS
+- Android
+- Universal Windows (UWP/Windows 10)
+- .NET 4.5+
+- Mono/Xamarin Platforms
+- .NET Core (macOS, Windows, Linux)
+- Windows 8.0+
+- Windows Phone 8.0+
+
 ## Original Features
 
 - HTTP/1.1 and 1.0
@@ -29,110 +39,98 @@ I've forked this project as Benjamin is no longer is maintaining the work.
  
 ## Updates Added to HttpMachine.PCL
 Changes to this version
+- Now supports [Transfer-Encoding: chunked](https://en.wikipedia.org/wiki/Chunked_transfer_encoding "Transfer-Encoding: chunked")
+- Now supports [.NET Standard 1.0](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library ".NET Standard 1.0") and can be used in [.NET Core](https://www.microsoft.com/net/core/platform ".NET Core").
 - Updated the Nuget to the most recent code base provided by the original project.
-- The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
 - The Http Method now accepts these additional four characters: "$ - , .".
-- From Nuget ver 1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
+- From Nuget v1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
+- From Nuget v3.0.1+ this library is .NET Standard 1.0 compliant
 - Can now manage Zero Lenght Headers - for example EXT: as used in UPnP 
 
 ## How to use
-### Implement a parser handler:
-```cs
-internal class ParserHandler : IHttpParserCombinedDelegate
-    {
-        public bool HasError { get; internal set; } = false;
-        public MessageType MessageType { get; private set; }
-        public void OnResponseType(HttpCombinedParser combinedParser)
-        {
-            MessageType = MessageType.Response;
-        }
-        public void OnRequestType(HttpCombinedParser combinedParser)
-        {
-            MessageType = MessageType.Request;
-        }
-        public void OnMessageBegin(HttpCombinedParser combinedParser) {}
-        public void OnHeaderName(HttpCombinedParser combinedParser, string name) {}
-        public void OnHeaderValue(HttpCombinedParser combinedParser, string value) {}
-        public void OnHeadersEnd(HttpCombinedParser combinedParser) {}
-        public void OnMethod(HttpCombinedParser combinedParser, string method) {}
-        public void OnRequestUri(HttpCombinedParser combinedParser, string requestUri) {}
-        public void OnPath(HttpCombinedParser combinedParser, string path) {}
-        public void OnFragment(HttpCombinedParser combinedParser, string fragment) {}
-        public void OnQueryString(HttpCombinedParser combinedParser, string queryString) {}
-        public void OnResponseCode(HttpCombinedParser combinedParser, int statusCode, string statusReason) {}
-        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data) {}
-        public void OnMessageEnd(HttpCombinedParser combinedParser) {}
-        public void OnParserError()
-        {
-            HasError = true;
-        }
-    }
+For an example of using HttpMachine see the included [test](https://github.com/1iveowl/HttpMachine.PCL/tree/master/src/tests/HttpMachine.Console.NETCore.Test "test") or see [Simple Http Listener](https://github.com/1iveowl/Simple-Http-Listener-PCL "Simple Http Listener").
+
+The principal is easy. 
+
+1. To use HttpMachine.PCL start by creating a "parser delegate" class that implements the interface `IHttpParserCombinedDelegate`. 
+
+2. This delegate is then passed (i.e. using [Dependency Injection](https://msdn.microsoft.com/en-us/library/ff921152.aspx "Dependency Injection")) into an instance of the HttpCombinedParser class provided by HttpMachine. It looks something like this:
+
+```csharp
+using HttpMachine;
+
+class Program
+{
+	static void Main(string[] args)
+	{
+		using (var handler = new ParserHandler())
+		using (var parser = new HttpCombinedParser(handler))
+		{
+			// Your code goes here...
+		}
+	}
+}
+
 ```
 
-### Use the parser  like this: 
+3. The HttpMachine parser expects an [ArraySegment](http://stackoverflow.com/questions/4600024/what-is-the-use-of-arraysegmentt-class "ArraySegment") of bytes: `ArraySegment<byte>`.
+
+4. If you already have an array of bytes (`bArray`) then creating an ArraySegment is easy: `new ArraySegment<byte>(bArray, 0, bArray.Length)`
+
+5. The parser returns the number of bytes parses and a simple way to check for success is see if all bytes have been parsed - i.e.: `parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length`
+
+### Simple Example: 
 
 ```cs
 class Program
     {
-        static void Main(string[] args)
-        {
-            var handler = new ParserHandler();
-            var parser = new HttpCombinedParser(handler);
-            
-            // Test response data
-            var bArray = Encoding.UTF8.GetBytes(TestReponse());
-            
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
-                : $"Response test failed");
-            
-            // Test request data    
-            bArray = Encoding.UTF8.GetBytes(TestRequest());
-            
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Request test succeed. Type identified is; {handler.MessageType}"
-                : $"Request test failed");
-                
-            System.Console.ReadKey();
-        }
+	static void Main(string[] args)
+	{
+		var handler1 = new ParserHandler();
+		var parser1 = new HttpCombinedParser(handler);
+
+		// Test response data
+		var bArray1 = Encoding.UTF8.GetBytes(TestReponse());
+
+		System.Console.WriteLine(parser1.Execute(new ArraySegment<byte>(bArray1, 0, bArray1.Length)) == bArray1.Length
+		? $"Reponse test succeed. Type identified is; {handler1.MessageType}"
+		: $"Response test failed");
+
+// ------------------------------ part 2 -------------------------------------- //
+		Handler();
+		var parser2 = new HttpCombinedParser(handler);
+		
+		// Test request data    
+		var handler2 = new Parser
+		var bArray2 = Encoding.UTF8.GetBytes(TestRequest());
+
+		System.Console.WriteLine(parser2.Execute(new ArraySegment<byte>(bArray2, 0, bArray2.Length)) == bArray2.Length
+		? $"Request test succeed. Type identified is; {handler2.MessageType}"
+		: $"Request test failed");
+
+		System.Console.ReadKey();
+	}
         
-        // Test Response
-        private static string TestReponse()
-        {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append("HTTP/1.1 200 OK\r\n");
-            stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
-            stringBuilder.Append("ST: upnp:rootdevice\r\n");
-            stringBuilder.Append("ST: upnp:rootdevice\r\n");
-            stringBuilder.Append("USN: uuid:73796E6F-6473-6D00-0000-0011322fe5f0::upnp:rootdevice\r\n");
-            stringBuilder.Append("EXT:\r\n");
-            stringBuilder.Append("SERVER: Synology/DSM/200.200.200.200\r\n");
-            stringBuilder.Append("LOCATION: http://200.200.200.101:5000/ssdp/desc-DSM-eth1.xml\r\n");
-            stringBuilder.Append("OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n");
-            stringBuilder.Append("01-NLS: 1\r\n");
-            stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
-            stringBuilder.Append("CONFIGID.UPNP.ORG: 1337\r\n");
-            stringBuilder.Append("\r\n");
-            return stringBuilder.ToString();
-        }
-        
-        // Test request
-        private static string TestRequest()
-        {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append("NOTIFY * HTTP/1.1\r\n");
-            stringBuilder.Append("HOST: 239.255.255.250:1900\r\n");
-            stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
-            stringBuilder.Append("LOCATION: http://www.bing.com\r\n");
-            stringBuilder.Append("NT: \"upnp:rootdevice\"\r\n");
-            stringBuilder.Append("NTS: ssdp:alive\r\n");
-            stringBuilder.Append("EXT:\r\n");
-            stringBuilder.Append("SERVER: Synology/DSM/200.200.200.100 UPnP/2.0 Test/1.0\r\n");
-            stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
-            stringBuilder.Append("CONFIGID.UPNP.ORG: 121212\r\n");
-            stringBuilder.Append("\r\n");
-            return stringBuilder.ToString();
-        }
-    }
+	// Test Response
+	private static string TestReponse()
+	{
+		var stringBuilder = new StringBuilder();
+		stringBuilder.Append("HTTP/1.1 200 OK\r\n");
+
+		return stringBuilder.ToString();
+		}
+
+	// Test request
+	private static string TestRequest()
+	{
+		var stringBuilder = new StringBuilder();
+		stringBuilder.Append("NOTIFY * HTTP/1.1\r\n");
+		stringBuilder.Append("HOST: 239.255.255.250:1900\r\n");
+		stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
+		stringBuilder.Append("LOCATION: http://www.bing.com\r\n");
+
+		return stringBuilder.ToString();
+	}
+}
 ```
 
