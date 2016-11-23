@@ -87,7 +87,7 @@ class Program
 	static void Main(string[] args)
 	{
 		var handler1 = new ParserHandler();
-		var parser1 = new HttpCombinedParser(handler);
+		var parser1 = new HttpCombinedParser(handler1);
 
 		// Test response data
 		var bArray1 = Encoding.UTF8.GetBytes(TestReponse());
@@ -97,8 +97,8 @@ class Program
 		: $"Response test failed");
 
 // ------------------------------ part 2 -------------------------------------- //
-		Handler();
-		var parser2 = new HttpCombinedParser(handler);
+		var handler2 = new ParserHandler();
+		var parser2 = new HttpCombinedParser(handler2);
 		
 		// Test request data    
 		var handler2 = new Parser
