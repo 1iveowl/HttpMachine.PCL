@@ -1,10 +1,12 @@
 # HttpMachine.PCL
 [![NuGet Badge](https://buildstats.info/nuget/SimpleHttpListener)](https://www.nuget.org/packages/HttpMachine.PCL)
-[![NuGet](https://img.shields.io/badge/nuget-1.1.10_(Profile_111)-yellow.svg)](https://www.nuget.org/packages/HttpMachine.PCL/1.1.10)
+
+[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v1.0-green.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)
 
 For a PCL Profile111 legacy edition see:
 
-[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v1.0-green.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)
+[![NuGet](https://img.shields.io/badge/nuget-1.1.10_(Profile_111)-yellow.svg)](https://www.nuget.org/packages/HttpMachine.PCL/1.1.10)
+
 
 ## History Note 
 
