@@ -1,7 +1,11 @@
 # HttpMachine.PCL
 [![NuGet Badge](https://www.nuget.org/packages/HttpMachine.PCL)](https://www.nuget.org/packages/HttpMachine.PCL)
 [![NuGet](https://img.shields.io/badge/nuget-1.1.10_(Profile_111)-yellow.svg)](https://www.nuget.org/packages/HttpMachine.PCL/1.1.10)
+
+For a PCL Profile111 legacy edition see:
 [![.NET Standard](http://img.shields.io/badge/.NET_Standard-v1.0-green.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)
+
+## History Note
 
 This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
 
