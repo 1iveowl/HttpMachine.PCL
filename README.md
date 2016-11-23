@@ -52,7 +52,7 @@ For an example of using HttpMachine see the included [test](https://github.com/1
 
 The principal is easy. 
 
-1. To use HttpMachine.PCL start by creating a "parser delegate" class that implements the interface `IHttpParserCombinedDelegate`. 
+1. To use HttpMachine.PCL start by creating a "parser delegate" class that implements the interface `IHttpParserCombinedDelegate` and a class to store the outcome. For an example see the [model in the unit test](https://github.com/1iveowl/HttpMachine.PCL/tree/master/src/tests/HttpMachine.NETCore.UnitTest/Model "model in the test"). 
 
 2. This delegate is then passed (i.e. using [Dependency Injection](https://msdn.microsoft.com/en-us/library/ff921152.aspx "Dependency Injection")) into an instance of the HttpCombinedParser class provided by HttpMachine. It looks something like this:
 
