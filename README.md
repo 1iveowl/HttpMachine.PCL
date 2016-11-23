@@ -5,7 +5,7 @@
 For a PCL Profile111 legacy edition see:
 [![.NET Standard](http://img.shields.io/badge/.NET_Standard-v1.0-green.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)
 
-## History Note
+## History Note 
 
 This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
 
