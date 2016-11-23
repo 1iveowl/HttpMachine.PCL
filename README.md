@@ -44,13 +44,13 @@ Changes to this version
 - Updated the Nuget to the most recent code base provided by the original project.
 - The Http Method now accepts these additional four characters: "$ - , .".
 - From Nuget v1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
-- From Nuget v3.0.1+ this library is .NET Standard 1.0 compliant
-- Can now manage Zero Lenght Headers - for example EXT: as used in UPnP 
+- From Nuget v3.0.1+ this library is .NET Standard 1.0 compliant.
+- Can now manage Zero Lenght Headers - for example EXT: as used in UPnP.
 
 ## How to use
 For an example of using HttpMachine see the included [test](https://github.com/1iveowl/HttpMachine.PCL/tree/master/src/tests/HttpMachine.Console.NETCore.Test "test") or see [Simple Http Listener](https://github.com/1iveowl/Simple-Http-Listener-PCL "Simple Http Listener").
 
-The principal is easy. 
+HttpMachine is easy to use.
 
 1. To use HttpMachine.PCL start by creating a "parser delegate" class that implements the interface `IHttpParserCombinedDelegate` and a class to store the outcome. For an example see the [model in the unit test](https://github.com/1iveowl/HttpMachine.PCL/tree/master/src/tests/HttpMachine.NETCore.UnitTest/Model "model in the test"). 
 
@@ -75,17 +75,18 @@ class Program
 
 3. The HttpMachine parser expects an [ArraySegment](http://stackoverflow.com/questions/4600024/what-is-the-use-of-arraysegmentt-class "ArraySegment") of bytes: `ArraySegment<byte>`.
 
-4. If you already have an array of bytes (`bArray`) then creating an ArraySegment is easy: `new ArraySegment<byte>(bArray, 0, bArray.Length)`
+4. If you already have an array of bytes (`bArray`) then creating an ArraySegment is easy like this: `new ArraySegment<byte>(bArray, 0, bArray.Length)`
 
-5. The parser returns the number of bytes parses and a simple way to check for success is see if all bytes have been parsed - i.e.: `parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length`
+5. The parser returns the number of bytes parses and a simple way to check for success is see if all bytes have been parsed. Like this: `parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length`
 
-### Simple Example: 
+### Simple Example
 
 ```cs
 class Program
     {
 	static void Main(string[] args)
 	{
+		// ------------------------------ Response Test -------------------------------------- //
 		var handler1 = new ParserHandler();
 		var parser1 = new HttpCombinedParser(handler1);
 
@@ -96,7 +97,7 @@ class Program
 		? $"Reponse test succeed. Type identified is; {handler1.MessageType}"
 		: $"Response test failed");
 
-// ------------------------------ part 2 -------------------------------------- //
+		// ------------------------------ Request Test -------------------------------------- //
 		var handler2 = new ParserHandler();
 		var parser2 = new HttpCombinedParser(handler2);
 		
