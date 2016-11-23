@@ -1,5 +1,5 @@
 # HttpMachine.PCL
-[![NuGet Badge](https://buildstats.info/nuget/SimpleHttpListener)](https://www.nuget.org/packages/HttpMachine.PCL)
+[![NuGet Badge](https://buildstats.info/nuget/HttpMachine.PCL)](https://www.nuget.org/packages/HttpMachine.PCL)
 
 [![.NET Standard](http://img.shields.io/badge/.NET_Standard-v1.0-green.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)
 
