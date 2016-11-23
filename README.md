@@ -115,6 +115,7 @@ class Program
 	{
 		var stringBuilder = new StringBuilder();
 		stringBuilder.Append("HTTP/1.1 200 OK\r\n");
+		stringBuilder.Append("r\n");
 
 		return stringBuilder.ToString();
 		}
@@ -127,6 +128,7 @@ class Program
 		stringBuilder.Append("HOST: 239.255.255.250:1900\r\n");
 		stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
 		stringBuilder.Append("LOCATION: http://www.bing.com\r\n");
+		stringBuilder.Append("r\n");
 
 		return stringBuilder.ToString();
 	}
