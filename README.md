@@ -101,7 +101,6 @@ class Program
 		var parser2 = new HttpCombinedParser(handler2);
 		
 		// Test request data    
-		var handler2 = new Parser
 		var bArray2 = Encoding.UTF8.GetBytes(TestRequest());
 
 		System.Console.WriteLine(parser2.Execute(new ArraySegment<byte>(bArray2, 0, bArray2.Length)) == bArray2.Length
