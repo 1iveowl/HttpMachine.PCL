@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,47 @@ namespace HttpMachine.NETCore.UnitTest
     public class UnitTest1
     {
         private IDictionary<string, string> _headers;
+
+        [TestMethod]
+        public void TestWebSocketSwitchingProtocolHandshake()
+        {
+            //Arrange
+            using (var handler = new HttpParserDelegate(numberOfChunks: 0))
+            using (var parser = new HttpCombinedParser(handler))
+            {
+                _headers = new Dictionary<string, string>()
+                {
+                    {"UPGRADE", "websocket" },
+                    {"CONNECTION", "Upgrade"},
+                    {"SEC-WEBSOCKET-ACCEPT", "ZOrX9EvDrWNMYNiL01ZoJvlFlPI="},
+                    {"SEC-WEBSOCKET-PROTOCOL", "chat"},
+                };
+
+                var content = "";
+
+                var responseDatagram = TestReponseComposerSwitchingProtocol(_headers, content);
+
+                //Act
+                var bytesParsed = parser.Execute(new ArraySegment<byte>(responseDatagram, 0, responseDatagram.Length));
+
+                var isParserSuccessful = bytesParsed == responseDatagram.Length;
+
+                handler.HttpRequestReponse.Body.Position = 0;
+                var reader = new StreamReader(handler.HttpRequestReponse.Body);
+                var responseContent = reader.ReadToEnd();
+                var responseHeaders = handler.HttpRequestReponse.Headers;
+
+                IEqualityComparer<string> valueComparer = EqualityComparer<string>.Default;
+
+                //Assert
+                Assert.IsTrue(isParserSuccessful);
+                Assert.IsTrue(handler.HasEnded);
+                Assert.AreEqual(content, responseContent);
+                Assert.IsTrue(_headers.Count == responseHeaders.Count
+                    && _headers.Keys.All(key => responseHeaders.ContainsKey(key)
+                    && valueComparer.Equals(_headers[key], responseHeaders[key])));
+            }
+        }
 
         [TestMethod]
         public void TestReponseWithBodyUsingContentLength()
@@ -41,6 +83,8 @@ namespace HttpMachine.NETCore.UnitTest
                 var responseHeaders = handler.HttpRequestReponse.Headers;
 
                 IEqualityComparer<string> valueComparer = EqualityComparer<string>.Default;
+
+                Debug.WriteLine(isParserSuccessful);
 
                 //Assert
                 Assert.IsTrue(isParserSuccessful);
@@ -102,6 +146,13 @@ namespace HttpMachine.NETCore.UnitTest
             }
         }
 
+        private byte[] TestReponseComposerSwitchingProtocol(IDictionary<string, string> headerDictionary, string content)
+        {
+            var stringBuilder = SwitchingProtocolHeaderBuilder(headerDictionary);
+
+            return ComposeDatagramWithBody(stringBuilder, content);
+        }
+
         private byte[] TestReponseComposer(IDictionary<string, string> headerDictionary, string content)
         {
             var stringBuilder = HeaderStringBuilder(headerDictionary);
@@ -128,6 +179,19 @@ namespace HttpMachine.NETCore.UnitTest
             chunksStringBuilder.Append($"{0:X}\r\n\r\n"); // End chunking
 
             return ComposeDatagramWithBody(headerStringBuilder, chunksStringBuilder.ToString(), isChunked: true);
+        }
+
+        private StringBuilder SwitchingProtocolHeaderBuilder(IDictionary<string, string> headerDictionary)
+        {
+            var headerStringBuilder = new StringBuilder();
+
+            headerStringBuilder.Append("HTTP/1.1 101 Switching Protocols\r\n");
+
+            foreach (var header in headerDictionary)
+            {
+                headerStringBuilder.Append($"{header.Key}: {header.Value}\r\n");
+            }
+            return headerStringBuilder;
         }
 
         private StringBuilder HeaderStringBuilder(IDictionary<string, string> headerDictionary)
