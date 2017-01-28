@@ -81,7 +81,7 @@ class Program
 
 ### Simple Example
 
-```cs
+```csharp
 class Program
     {
 	static void Main(string[] args)
