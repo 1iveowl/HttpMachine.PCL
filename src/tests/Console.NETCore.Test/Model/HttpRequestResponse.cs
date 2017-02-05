@@ -1,7 +1,8 @@
 ﻿using System.IO;
-using HttpMachine.Console.NETCore.Test.Model.Base;
+using Console.NETCore.Test.Model.Base;
+using HttpMachine;
 
-namespace HttpMachine.Console.NETCore.Test.Model
+namespace Console.NETCore.Test.Model
 {
     public class HttpRequestReponse : HttpHeaderBase
     {

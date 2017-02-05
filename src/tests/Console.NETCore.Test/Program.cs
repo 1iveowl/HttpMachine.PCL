@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Console.NETCore.Test.Model;
 using HttpMachine;
-using HttpMachine.Console.NETCore.Test.Model;
 
 class Program
 {

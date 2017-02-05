@@ -1,4 +1,4 @@
-﻿namespace HttpMachine.Console.NETCore.Test.Model.Base
+﻿namespace Console.NETCore.Test.Model.Base
 {
     public abstract class ParseControlBase
     {

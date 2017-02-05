@@ -1,6 +1,7 @@
 ﻿using System;
+using HttpMachine;
 
-namespace HttpMachine.Console.NETCore.Test.Model
+namespace Console.NETCore.Test.Model
 {
     internal class ParserHandler : IHttpParserCombinedDelegate
     {
