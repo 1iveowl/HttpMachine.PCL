@@ -11,6 +11,8 @@ MIT License. See LICENSE.txt.
 
 I've forked this project as Benjamin is no longer is maintaining the work.
 
+*Please star this project if you find it useful. Thank you.*
+
 ## Original Features
 
 - HTTP/1.1 and 1.0
