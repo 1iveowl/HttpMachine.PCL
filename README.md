@@ -1,6 +1,5 @@
 # HttpMachine for .NET Standard 1.0
 [![NuGet](https://img.shields.io/badge/nuget-3.1.0_(.Net_Standard_1.0)-brightgreen.svg)](https://www.nuget.org/packages/HttpMachine.PCL/)
-[![NuGet](https://img.shields.io/badge/nuget-1.1.10_(Profile_111)-yellow.svg)](https://www.nuget.org/packages/HttpMachine.PCL/1.1.10)
 
 *Please star this project if you find it useful. Thank you.*
 
