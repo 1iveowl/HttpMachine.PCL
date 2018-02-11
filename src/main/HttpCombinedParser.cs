@@ -45,7 +45,7 @@ namespace HttpMachine
 		}
 
         
-#line 425 "httpparser2-chunked.cs.rl"
+#line 434 "httpparser2-chunked.cs.rl"
 
         
         
@@ -621,11 +621,12 @@ const int http_parser_en_main = 1;
 const int http_parser_en_body_identity = 143;
 const int http_parser_en_body_identity_eof = 152;
 const int http_parser_en_body_chunked_identity = 144;
+const int http_parser_en_body_chunked_identity_chunk = 153;
 const int http_parser_en_read_chunk_stop = 155;
 const int http_parser_en_dead = 149;
 
 
-#line 428 "httpparser2-chunked.cs.rl"
+#line 437 "httpparser2-chunked.cs.rl"
         
         protected HttpCombinedParser()
         {
@@ -633,12 +634,12 @@ const int http_parser_en_dead = 149;
 			_chunkedBufferBuilder = new StringBuilder();
 			_chunkedHexBufferBuilder = new StringBuilder();
             
-#line 637 "..\\HttpCombinedParser.cs"
+#line 638 "..\\HttpCombinedParser.cs"
 	{
 	cs = http_parser_start;
 	}
 
-#line 435 "httpparser2-chunked.cs.rl"
+#line 444 "httpparser2-chunked.cs.rl"
         }
 
         public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
@@ -656,7 +657,7 @@ const int http_parser_en_dead = 149;
 			try
 			{
 				
-#line 660 "..\\HttpCombinedParser.cs"
+#line 661 "..\\HttpCombinedParser.cs"
 	{
 	sbyte _klen;
 	short _trans;
@@ -674,12 +675,12 @@ _resume:
 	while ( _nacts-- > 0 ) {
 		switch ( _http_parser_actions[_acts++] ) {
 	case 40:
-#line 419 "httpparser2-chunked.cs.rl"
+#line 428 "httpparser2-chunked.cs.rl"
 	{
 			throw new Exception("Parser is dead; there shouldn't be more data. Client is bogus? fpc =" + p);
 		}
 	break;
-#line 683 "..\\HttpCombinedParser.cs"
+#line 684 "..\\HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -1084,7 +1085,16 @@ _match:
 				p += toRead - 1;
 				_chunkLength -= toRead;
 				
-				{cs = 144; if (true) goto _again;}
+				if (_chunkLength == 0)
+				{
+					// Finished reading the current chunk. Go to the next one.
+					{cs = 144; if (true) goto _again;}
+				}
+				else
+				{
+					// Additional chunk data will be present in the next buffer. Stay in the same sate.
+					{cs = 153; if (true) goto _again;}
+				}
 			}
 
 			if (_chunkLength == 0)
@@ -1098,7 +1108,7 @@ _match:
 		}
 	break;
 	case 38:
-#line 364 "httpparser2-chunked.cs.rl"
+#line 373 "httpparser2-chunked.cs.rl"
 	{
 			//Debug.WriteLine($"End of chunks");
 
@@ -1116,7 +1126,7 @@ _match:
 		}
 	break;
 	case 39:
-#line 380 "httpparser2-chunked.cs.rl"
+#line 389 "httpparser2-chunked.cs.rl"
 	{
 			var toRead = pe - p;
 			Debug.WriteLine($"Eof To Read: {toRead}");
@@ -1154,7 +1164,7 @@ _match:
 			}
 		}
 	break;
-#line 1158 "..\\HttpCombinedParser.cs"
+#line 1168 "..\\HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -1190,7 +1200,16 @@ _again:
 				p += toRead - 1;
 				_chunkLength -= toRead;
 				
-				{cs = 144; if (true) goto _again;}
+				if (_chunkLength == 0)
+				{
+					// Finished reading the current chunk. Go to the next one.
+					{cs = 144; if (true) goto _again;}
+				}
+				else
+				{
+					// Additional chunk data will be present in the next buffer. Stay in the same sate.
+					{cs = 153; if (true) goto _again;}
+				}
 			}
 
 			if (_chunkLength == 0)
@@ -1203,7 +1222,7 @@ _again:
 			}
 		}
 	break;
-#line 1207 "..\\HttpCombinedParser.cs"
+#line 1226 "..\\HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -1212,7 +1231,7 @@ _again:
 	_out: {}
 	}
 
-#line 452 "httpparser2-chunked.cs.rl"
+#line 461 "httpparser2-chunked.cs.rl"
 			}
 			catch (Exception)
 			{

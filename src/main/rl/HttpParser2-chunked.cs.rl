@@ -348,7 +348,16 @@ namespace HttpMachine
 				p += toRead - 1;
 				_chunkLength -= toRead;
 				
-				fgoto body_chunked_identity;
+				if (_chunkLength == 0)
+				{
+					// Finished reading the current chunk. Go to the next one.
+					fgoto body_chunked_identity;
+				}
+				else
+				{
+					// Additional chunk data will be present in the next buffer. Stay in the same sate.
+					fgoto chunk;
+				}
 			}
 
 			if (_chunkLength == 0)
