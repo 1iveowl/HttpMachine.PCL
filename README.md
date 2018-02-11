@@ -1,6 +1,10 @@
-# HttpMachine.PCL
+# HttpMachine for .NET Standard 1.0
 [![NuGet](https://img.shields.io/badge/nuget-3.1.0_(.Net_Standard_1.0)-brightgreen.svg)](https://www.nuget.org/packages/HttpMachine.PCL/)
 [![NuGet](https://img.shields.io/badge/nuget-1.1.10_(Profile_111)-yellow.svg)](https://www.nuget.org/packages/HttpMachine.PCL/1.1.10)
+
+*Please star this project if you find it useful. Thank you.*
+
+## Background
 
 This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
 
@@ -11,9 +15,8 @@ MIT License. See LICENSE.txt.
 
 I've forked this project as Benjamin is no longer is maintaining the work.
 
-*Please star this project if you find it useful. Thank you.*
 
-## Breaking changes from version 3.0.1 to 3.1.0
+## IMPORTANT: Breaking changes from version 3.0.1 to 3.1.0
 From version 3.1.0 and forward the ParserHandler must use `IHttpCombinedParser` instead of `HttpCombinedParser` (see example code below).
 
 Also you must include `using IHttpMachine` when implementing the parser handler.
