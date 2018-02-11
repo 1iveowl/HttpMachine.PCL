@@ -18,7 +18,7 @@ From version 3.1.0 and forward the ParserHandler must use `IHttpCombinedParser` 
 
 Also you must include `using IHttpMachine` when implementing the parser handler.
 
-## Original Features
+## Original features
 
 - HTTP/1.1 and 1.0
 - Supports pipelined requests
@@ -26,11 +26,12 @@ Also you must include `using IHttpMachine` when implementing the parser handler.
 - Extracts the length of the entity body 
 - Support for parsing responses and request in one combined parser.
  
-## Updates Added to HttpMachine.PCL
-Changes to this version compared with the original HttpMachine by [Benjamin van der Veen](http://bvanderveen.com)
-- Updated the Nuget to the most recent code base provided by the original project.
-- The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
-- The Http Method now accepts these additional four characters: "$ - , .".
+## Additional features
+Additions to this version compared with the original HttpMachine by [Benjamin van der Veen](http://bvanderveen.com)
+- .Net standard 1.0 support
+- Support for Chunked Transfer-Encoding
+- Can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
+- The Http Method now accepts these additional four characters: $ - , .
 - From Nuget ver 1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
 - Can now manage Zero Lenght Headers - for example EXT: as used in UPnP 
 
