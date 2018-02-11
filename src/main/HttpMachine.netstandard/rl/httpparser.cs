@@ -3,10 +3,11 @@
 ﻿using System;
 using System.Text;
 using System.Diagnostics;
+ using IHttpMachine;
 
 namespace HttpMachine
 {
-    public class HttpCombinedParser
+    public class HttpCombinedParser : IHttpCombinedParser
     {
         public int MajorVersion {get; private set;}
         public int MinorVersion {get; private set;}

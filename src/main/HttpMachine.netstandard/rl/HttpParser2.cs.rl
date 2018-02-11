@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Text;
 ﻿using System.Diagnostics;
+using IHttpMachine;
 
-namespace HttpMachine
+namespace HttpMachine : IHttpCombinedParser
 {
     public class HttpCombinedParser
     {

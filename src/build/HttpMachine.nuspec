@@ -11,19 +11,18 @@
     <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</description>
-    <releaseNotes>Updated to .NET Standard v.1.0
-Added support for Transfer-Encoding: chunked
+    <releaseNotes>
+      Updated to .NET Standard v.1.0
+      Added support for Transfer-Encoding: chunked
+      Fix for the multi-buffer chunked message parsing error
+      BREAKING: Changed HttpCombinedParser to IHttpCombinedParser
     </releaseNotes>
-    <copyright>Copyright 2016</copyright>
+    <copyright>Copyright 2018</copyright>
     <tags>http parser .netstandard1 netcore xamarin ios android uwp httpmachine ragel</tags>
-  <dependencies>
-  <group targetFramework="netstandard1.0">
-    <dependency id="NETStandard.Library" version="1.6.1" />
-  </group>
-</dependencies>
   </metadata>
   
   <files>
-      <file src="..\main\bin\Release\HttpMachine.*" target="lib\netstandard1\" />
+    <file src="..\main\HttpMachine.netstandard\bin\Release\netstandard1.0\HttpMachine.*" target="lib\netstandard1.0" />
+    <file src="..\main\HttpMachine.netstandard\bin\Release\netstandard1.0\IHttpMachine.*" target="lib\netstandard1.0" />
   </files>       
 </package>

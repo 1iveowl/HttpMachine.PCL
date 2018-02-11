@@ -13,6 +13,11 @@ I've forked this project as Benjamin is no longer is maintaining the work.
 
 *Please star this project if you find it useful. Thank you.*
 
+## Breaking changes from version 3.0.1 to 3.1.0
+From version 3.1.0 and forward the ParserHandler must use `IHttpCombinedParser` instead of `HttpCombinedParser` (see example code below).
+
+Also you must include `using IHttpMachine` when implementing the parser handler.
+
 ## Original Features
 
 - HTTP/1.1 and 1.0
@@ -22,7 +27,7 @@ I've forked this project as Benjamin is no longer is maintaining the work.
 - Support for parsing responses and request in one combined parser.
  
 ## Updates Added to HttpMachine.PCL
-Changes to this version
+Changes to this version compared with the original HttpMachine by [Benjamin van der Veen](http://bvanderveen.com)
 - Updated the Nuget to the most recent code base provided by the original project.
 - The HttpMachine.PCL a PCL that can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
 - The Http Method now accepts these additional four characters: "$ - , .".
@@ -36,26 +41,26 @@ internal class ParserHandler : IHttpParserCombinedDelegate
     {
         public bool HasError { get; internal set; } = false;
         public MessageType MessageType { get; private set; }
-        public void OnResponseType(HttpCombinedParser combinedParser)
+        public void OnResponseType(IHttpCombinedParser combinedParser)
         {
             MessageType = MessageType.Response;
         }
-        public void OnRequestType(HttpCombinedParser combinedParser)
+        public void OnRequestType(IHttpCombinedParser combinedParser)
         {
             MessageType = MessageType.Request;
         }
-        public void OnMessageBegin(HttpCombinedParser combinedParser) {}
-        public void OnHeaderName(HttpCombinedParser combinedParser, string name) {}
-        public void OnHeaderValue(HttpCombinedParser combinedParser, string value) {}
-        public void OnHeadersEnd(HttpCombinedParser combinedParser) {}
-        public void OnMethod(HttpCombinedParser combinedParser, string method) {}
-        public void OnRequestUri(HttpCombinedParser combinedParser, string requestUri) {}
-        public void OnPath(HttpCombinedParser combinedParser, string path) {}
-        public void OnFragment(HttpCombinedParser combinedParser, string fragment) {}
-        public void OnQueryString(HttpCombinedParser combinedParser, string queryString) {}
-        public void OnResponseCode(HttpCombinedParser combinedParser, int statusCode, string statusReason) {}
-        public void OnBody(HttpCombinedParser combinedParser, ArraySegment<byte> data) {}
-        public void OnMessageEnd(HttpCombinedParser combinedParser) {}
+        public void OnMessageBegin(IHttpCombinedParser combinedParser) {}
+        public void OnHeaderName(IHttpCombinedParser combinedParser, string name) {}
+        public void OnHeaderValue(IHttpCombinedParser combinedParser, string value) {}
+        public void OnHeadersEnd(IHttpCombinedParser combinedParser) {}
+        public void OnMethod(IHttpCombinedParser combinedParser, string method) {}
+        public void OnRequestUri(IHttpCombinedParser combinedParser, string requestUri) {}
+        public void OnPath(IHttpCombinedParser combinedParser, string path) {}
+        public void OnFragment(IHttpCombinedParser combinedParser, string fragment) {}
+        public void OnQueryString(IHttpCombinedParser combinedParser, string queryString) {}
+        public void OnResponseCode(IHttpCombinedParser combinedParser, int statusCode, string statusReason) {}
+        public void OnBody(IHttpCombinedParser combinedParser, ArraySegment<byte> data) {}
+        public void OnMessageEnd(IHttpCombinedParser combinedParser) {}
         public void OnParserError()
         {
             HasError = true;

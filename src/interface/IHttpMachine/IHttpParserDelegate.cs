@@ -1,0 +1,22 @@
+﻿using System;
+using HttpMachine;
+
+namespace IHttpMachine
+{
+    public interface IHttpParserDelegate
+    {
+        MessageType MessageType { get; }
+        void OnMessageBegin(IHttpCombinedParser combinedParser);
+        void OnHeaderName(IHttpCombinedParser combinedParser, string name);
+        void OnHeaderValue(IHttpCombinedParser combinedParser, string value);
+        void OnHeadersEnd(IHttpCombinedParser combinedParser);
+        void OnTransferEncodingChunked(IHttpCombinedParser combinedParser, bool isChunked);
+        void OnChunkedLength(IHttpCombinedParser combinedParser, int length);
+        void OnChunkReceived(IHttpCombinedParser combinedParser);
+        void OnBody(IHttpCombinedParser combinedParser, ArraySegment<byte> data);
+        void OnMessageEnd(IHttpCombinedParser combinedParser);
+        void OnParserError();
+    }
+
+}
+

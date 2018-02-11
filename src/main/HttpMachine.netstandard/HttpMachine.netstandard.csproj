@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <AssemblyName>HttpMachine</AssemblyName>
+    <RootNamespace>HttpMachine</RootNamespace>
+    <AssemblyVersion>3.1.0.0</AssemblyVersion>
+    <FileVersion>3.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="rl\httpparser.cs" />
+    <Compile Remove="rl\httpparser2.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\interface\IHttpMachine\IHttpMachine.csproj" />
+  </ItemGroup>
+
+</Project>
