@@ -18,7 +18,7 @@ MIT License. See LICENSE.txt.
 I've forked this project as Benjamin is no longer is maintaining the work.
 
 ## Breaking changes for version 4.0+
-.NET Standard 2.0+ is not required.
+.NET Standard 2.0+ is now required minimun version.
 
 Refactoring and simplification of use causes some namespaces to change. See example below for guidance. 
 
