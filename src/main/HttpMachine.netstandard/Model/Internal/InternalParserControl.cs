@@ -4,7 +4,7 @@ namespace HttpMachine.Model.Internal
 {
     internal abstract class InternalParserControl : InternalHttpHeader, IParserControl
     {
-        public bool IsEndOfRequest { get; internal set; }
+        public bool IsEndOfMessage { get; internal set; }
 
         public bool IsRequestTimedOut { get; internal set; }
 

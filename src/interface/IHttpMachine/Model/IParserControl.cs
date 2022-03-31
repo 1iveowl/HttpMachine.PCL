@@ -2,7 +2,7 @@
 {
     public interface IParserControl : IParserHeader
     {
-        bool IsEndOfRequest { get; }
+        bool IsEndOfMessage { get; }
         bool IsRequestTimedOut { get; }
         bool IsUnableToParseHttp { get; }
         string RemoteAddress { get; }

@@ -2,7 +2,7 @@
 {
     public abstract record ParserControlBase : HttpHeaderBase, IParserControl
     {
-        public bool IsEndOfRequest { get; init; }
+        public bool IsEndOfMessage { get; init; }
         public bool IsRequestTimedOut { get; init; }
         public bool IsUnableToParseHttp { get; init; }
         public string RemoteAddress { get; init; }
@@ -10,7 +10,7 @@
 
         protected ParserControlBase(IParserControl parserControl, IParserHeader parserHeader) : base(parserHeader)
         {
-            IsEndOfRequest = parserControl.IsEndOfRequest;
+            IsEndOfMessage = parserControl.IsEndOfMessage;
             IsRequestTimedOut = parserControl.IsRequestTimedOut;
             IsUnableToParseHttp = parserControl.IsUnableToParseHttp;
             RemoteAddress = parserControl.RemoteAddress;

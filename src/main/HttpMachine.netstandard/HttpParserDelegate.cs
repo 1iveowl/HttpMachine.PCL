@@ -13,8 +13,6 @@ namespace HttpMachine
         private string _readingHeader;
         private readonly IDictionary<string, IList<string>> _headers;
 
-        public bool HasError { get; private set; } 
-
         public HttpRequestResponse HttpRequestResponse { get; private set; }
 
         public HttpParserDelegate()
@@ -78,17 +76,9 @@ namespace HttpMachine
             _httpRequestResponse.Body.Write(data.Array, data.Offset, data.Count);
         }
 
-        public virtual void OnMessageEnd(IHttpCombinedParser combinedParser)
-        {
-            if (!_httpRequestResponse.IsRequestTimedOut && !_httpRequestResponse.IsUnableToParseHttp)
-            {
-                HttpRequestResponse = new(_httpRequestResponse);
-            }
-        }
-
         public virtual void OnParserError()
         {
-            HasError = true;
+            _httpRequestResponse.IsUnableToParseHttp = true;
         }
 
         public virtual void OnMethod(IHttpCombinedParser combinedParser, string method)
@@ -130,6 +120,15 @@ namespace HttpMachine
         {
             _httpRequestResponse.ResponseReason = statusReason;
             _httpRequestResponse.StatusCode = statusCode;
+        }
+
+        public virtual void OnMessageEnd(IHttpCombinedParser combinedParser)
+        {
+            if (!_httpRequestResponse.IsUnableToParseHttp)
+            {
+                _httpRequestResponse.IsEndOfMessage = true;
+                HttpRequestResponse = new(_httpRequestResponse);
+            }
         }
 
         public virtual void Dispose()
