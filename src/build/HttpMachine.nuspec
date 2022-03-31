@@ -3,26 +3,29 @@
   <metadata>
     <id>HttpMachine.PCL</id>
     <version>0</version>
-    <title>HttpMachine for .NET Standard 1.0</title>
+    <title>HttpMachine for .NET Standard 2.0</title>
     <authors>Jasper H. Bojsen</authors>
     <owners>1iveowl Development</owners>
-    <licenseUrl>https://github.com/bvanderveen/httpmachine/blob/master/LICENSE</licenseUrl>
+	<license type="expression">MIT</license>
     <projectUrl>https://github.com/1iveowl/HttpMachine.PCL</projectUrl>
-    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon.png</iconUrl>
+	<icon>images\1iveowl-logo.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</description>
     <releaseNotes>
-      Updated to .NET Standard v.1.0
-      Added support for Transfer-Encoding: chunked
-      Fix for the multi-buffer chunked message parsing error
-      BREAKING: Changed HttpCombinedParser to IHttpCombinedParser
-    </releaseNotes>
-    <copyright>Copyright 2018</copyright>
+Updated to .NET Standard v2.0
+	</releaseNotes>
+    <copyright>Copyright 2022</copyright>
     <tags>http parser .netstandard1 netcore xamarin ios android uwp httpmachine ragel</tags>
-  </metadata>
-  
+	
+	<dependencies>
+	    <group targetFramework="netstandard2.0">
+	    </group>
+	</dependencies>
+	  
+  </metadata>  
   <files>
-    <file src="..\main\HttpMachine.netstandard\bin\Release\netstandard1.0\HttpMachine.*" target="lib\netstandard1.0" />
-    <file src="..\main\HttpMachine.netstandard\bin\Release\netstandard1.0\IHttpMachine.*" target="lib\netstandard1.0" />
+	<file src="1iveowl-logo.png" target="images\" />
+    <file src="..\main\HttpMachine.netstandard\bin\Release\netstandard1.0\HttpMachine.*" target="lib\netstandard2.0" />
+    <file src="..\main\HttpMachine.netstandard\bin\Release\netstandard1.0\IHttpMachine.*" target="lib\netstandard2.0" />
   </files>       
 </package>

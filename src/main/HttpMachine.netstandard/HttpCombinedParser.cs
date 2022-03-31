@@ -4,6 +4,7 @@
 using System.Text;
 using System.Diagnostics;
 using IHttpMachine;
+using System.IO;
 
 namespace HttpMachine
 {
@@ -12,7 +13,9 @@ namespace HttpMachine
         public int MajorVersion {get; private set;}
         public int MinorVersion {get; private set;}
 
-        public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0) ? !gotConnectionClose : gotConnectionClose;
+        public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0) 
+			? !gotConnectionClose 
+			: gotConnectionClose;
         
         private readonly IHttpParserCombinedDelegate parserDelegate;
 
@@ -647,14 +650,18 @@ const int http_parser_en_dead = 149;
         {
             this.parserDelegate = del;
         }
-	
+
+		public int Execute(MemoryStream buff) => Execute(buff.ToArray());
+
+        public int Execute(byte[] buff) => Execute(new ArraySegment<byte>(buff, 0, buff.Length));
+
         public int Execute(ArraySegment<byte> buf)
         {
 			byte[] data = buf.Array;
 			int p = buf.Offset;
 			int pe = buf.Offset + buf.Count;
 			int eof = buf.Count == 0 ? buf.Offset : -1;
-			
+
 			try
 			{
 				

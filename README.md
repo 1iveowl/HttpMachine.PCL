@@ -1,5 +1,5 @@
-# HttpMachine for .NET Standard 1.0
-[![NuGet](https://img.shields.io/badge/nuget-3.1.0_(.Net_Standard_1.0)-brightgreen.svg)](https://www.nuget.org/packages/HttpMachine.PCL/)
+# HttpMachine for .NET Standard 2.0
+[![NuGet](https://img.shields.io/badge/nuget-3.1.0_(.Net_Standard_2.0)-brightgreen.svg)](https://www.nuget.org/packages/HttpMachine.PCL/)
 
 *Please star this project if you find it useful. Thank you.*
 
@@ -14,14 +14,17 @@ MIT License. See LICENSE.txt.
 
 I've forked this project as Benjamin is no longer is maintaining the work.
 
+## Breaking changes for version 4.0+
+.NET Standard 2.0+ is not required.
 
-## IMPORTANT: Breaking changes from version 3.0.1 to 3.1.0
-From version 3.1.0 and forward the ParserHandler must use `IHttpCombinedParser` instead of `HttpCombinedParser` (see example code below).
+Refactoring and simplification of use causes some namespaces to change. See example below for guidance. 
 
-Also you must include `using IHttpMachine` when implementing the parser handler.
+For instance, while still possible, it's no longer necessary to implement the interface `IHttpCombinedParser`. Simply new up the `HttpParserDelegate` and override methods as needed.
+
+## Breaking changes from version 3.0.1 to 3.1.0
+From version 3.1.0 and forward the ParserHandler must implement `IHttpCombinedParser` instead of using `HttpCombinedParser` (see example code below).
 
 ## Original features
-
 - HTTP/1.1 and 1.0
 - Supports pipelined requests
 - Tells your server if it should keep-alive
@@ -30,72 +33,54 @@ Also you must include `using IHttpMachine` when implementing the parser handler.
  
 ## Additional features
 Additions to this version compared with the original HttpMachine by [Benjamin van der Veen](http://bvanderveen.com)
-- .Net standard 1.0 support
+- .NET Standard 1.0 support (after version 4.0 only .NET Standard 2.0 is supported).
 - Support for Chunked Transfer-Encoding
 - Can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
 - The Http Method now accepts these additional four characters: $ - , .
-- From Nuget ver 1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
-- Can now manage Zero Lenght Headers - for example EXT: as used in UPnP 
+- From library ver 1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
+- Can now manage Zero Lenght Headers - for example EXT: as used in UPnP.
+- From version 4.0 and onwards header values are collected in an `IEnumerable<string>`;
 
-## How to use
-### Implement a parser handler:
-```cs
-internal class ParserHandler : IHttpParserCombinedDelegate
-    {
-        public bool HasError { get; internal set; } = false;
-        public MessageType MessageType { get; private set; }
-        public void OnResponseType(IHttpCombinedParser combinedParser)
-        {
-            MessageType = MessageType.Response;
-        }
-        public void OnRequestType(IHttpCombinedParser combinedParser)
-        {
-            MessageType = MessageType.Request;
-        }
-        public void OnMessageBegin(IHttpCombinedParser combinedParser) {}
-        public void OnHeaderName(IHttpCombinedParser combinedParser, string name) {}
-        public void OnHeaderValue(IHttpCombinedParser combinedParser, string value) {}
-        public void OnHeadersEnd(IHttpCombinedParser combinedParser) {}
-        public void OnMethod(IHttpCombinedParser combinedParser, string method) {}
-        public void OnRequestUri(IHttpCombinedParser combinedParser, string requestUri) {}
-        public void OnPath(IHttpCombinedParser combinedParser, string path) {}
-        public void OnFragment(IHttpCombinedParser combinedParser, string fragment) {}
-        public void OnQueryString(IHttpCombinedParser combinedParser, string queryString) {}
-        public void OnResponseCode(IHttpCombinedParser combinedParser, int statusCode, string statusReason) {}
-        public void OnBody(IHttpCombinedParser combinedParser, ArraySegment<byte> data) {}
-        public void OnMessageEnd(IHttpCombinedParser combinedParser) {}
-        public void OnParserError()
-        {
-            HasError = true;
-        }
-    }
-```
-
-### Use the parser  like this: 
+### Use like this: 
 
 ```cs
 class Program
     {
         static void Main(string[] args)
         {
-            var handler = new ParserHandler();
-            var parser = new HttpCombinedParser(handler);
-            
-            // Test response data
-            var bArray = Encoding.UTF8.GetBytes(TestReponse());
-            
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
-                : $"Response test failed");
-            
-            // Test request data    
-            bArray = Encoding.UTF8.GetBytes(TestRequest());
-            
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Request test succeed. Type identified is; {handler.MessageType}"
-                : $"Request test failed");
-                
-            System.Console.ReadKey();
+            byte[] bArray;
+
+            using (var handler = new HttpParserDelegate())
+            using (var parser = new HttpCombinedParser(handler))
+            {
+                bArray = TestReponse();
+                Console.WriteLine(parser.Execute(bArray) == bArray.Length
+                    ? $"Reponse test succeed. Type identified is; {handler.HttpRequestResponse.MessageType} \r\n" +
+                        $"Headers: \r\n" +
+                        $"{string.Join("\r\n", handler.HttpRequestResponse.Headers.Select(h => $"{h.Key}: {string.Join(", ", h.Value)} "))}"
+                    : $"Response test failed");
+
+                handler.HttpRequestResponse.Body.Position = 0;
+                var reader = new StreamReader(handler.HttpRequestResponse.Body);
+                var body = reader.ReadToEnd();
+            }
+
+            Console.WriteLine("\r\n\r\n");
+
+            using (var handler = new HttpParserDelegate())
+            using (var parser = new HttpCombinedParser(handler))
+            {
+                bArray = TestChunkedResponse();
+                Console.WriteLine(parser.Execute(bArray) == bArray.Length
+                    ? $"Chunked Response test succeed. Type identified is; {handler.HttpRequestResponse.MessageType}." +
+                    $"Headers: \r\n" +
+                    $"{string.Join("\r\n", handler.HttpRequestResponse.Headers.Select(h => $"{h.Key}: {string.Join(",", h.Value)} "))}"
+                    : $"Chunked Response test failed");
+
+                handler.HttpRequestResponse.Body.Position = 0;
+                var reader = new StreamReader(handler.HttpRequestResponse.Body);
+                var body = reader.ReadToEnd();
+            }
         }
         
         // Test Response

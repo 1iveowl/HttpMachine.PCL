@@ -2,7 +2,7 @@ param([string]$version)
 
 if ([string]::IsNullOrEmpty($version)) {$version = "0.0.1"}
 
-$msbuild = join-path -path "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin" -childpath "msbuild.exe"
+$msbuild = join-path -path "C:\Program Files\Microsoft Visual Studio\2022\PReview\MSBuild\Current\Bin" -childpath "msbuild.exe"
 &$msbuild ..\main\HttpMachine.netstandard\HttpMachine.netstandard.csproj /t:Build /p:Configuration="Release"
 
 
