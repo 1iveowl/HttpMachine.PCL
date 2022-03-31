@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Console.NETCore.Test.Model;
 using HttpMachine;
 
 class Program
@@ -12,38 +11,39 @@ class Program
     {
         byte[] bArray;
 
-        using (var handler = new ParserHandler())
+        using (var handler = new HttpParserDelegate())
         using (var parser = new HttpCombinedParser(handler))
         {
             bArray = TestReponse();
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Reponse test succeed. Type identified is; {handler.MessageType}"
+            Console.WriteLine(parser.Execute(bArray) == bArray.Length
+                ? $"Reponse test succeed. Type identified is; {handler.HttpRequestResponse.MessageType} \r\n" +
+                    $"Headers: \r\n" +
+                    $"{string.Join("\r\n", handler.HttpRequestResponse.Headers.Select(h => $"{h.Key}: {string.Join(", ", h.Value)} "))}"
                 : $"Response test failed");
 
-            handler.HttpRequestReponse.Body.Position = 0;
-            var reader = new StreamReader(handler.HttpRequestReponse.Body);
+            handler.HttpRequestResponse.Body.Position = 0;
+            var reader = new StreamReader(handler.HttpRequestResponse.Body);
             var body = reader.ReadToEnd();
-
-            //bArray = Encoding.UTF8.GetBytes(TestRequest());
-            //System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-            //    ? $"Request test succeed. Type identified is; {handler.MessageType}"
-            //    : $"Request test failed");
         }
 
-        using (var handler = new ParserHandler())
+        Console.WriteLine("\r\n\r\n");
+
+        using (var handler = new HttpParserDelegate())
         using (var parser = new HttpCombinedParser(handler))
         {
             bArray = TestChunkedResponse();
-            System.Console.WriteLine(parser.Execute(new ArraySegment<byte>(bArray, 0, bArray.Length)) == bArray.Length
-                ? $"Chunked Response test succeed. Type identified is; {handler.MessageType}."
+            Console.WriteLine(parser.Execute(bArray) == bArray.Length
+                ? $"Chunked Response test succeed. Type identified is; {handler.HttpRequestResponse.MessageType}." +
+                $"Headers: \r\n" +
+                $"{string.Join("\r\n", handler.HttpRequestResponse.Headers.Select(h => $"{h.Key}: {string.Join(",", h.Value)} "))}"
                 : $"Chunked Response test failed");
 
-            handler.HttpRequestReponse.Body.Position = 0;
-            var reader = new StreamReader(handler.HttpRequestReponse.Body);
+            handler.HttpRequestResponse.Body.Position = 0;
+            var reader = new StreamReader(handler.HttpRequestResponse.Body);
             var body = reader.ReadToEnd();
         }
 
-        System.Console.ReadKey();
+        Console.ReadKey();
     }
 
     private static byte[] TestReponse()
@@ -54,7 +54,7 @@ class Program
         stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
         stringBuilder.Append("ST: upnp:rootdevice\r\n");
 
-        stringBuilder.Append("ST: upnp:rootdevice\r\n");
+        stringBuilder.Append("ST: upnp:rootdevice2\r\n");
         stringBuilder.Append("USN: uuid:73796E6F-6473-6D00-0000-0011322fe5f0::upnp:rootdevice\r\n");
         stringBuilder.Append("EXT:\r\n");
         stringBuilder.Append("SERVER: Synology/DSM/192.168.0.33\r\n");

@@ -1,11 +1,12 @@
 ﻿using System;
 using HttpMachine;
+using IHttpMachine.Model;
 
 namespace IHttpMachine
 {
     public interface IHttpParserDelegate
     {
-        MessageType MessageType { get; }
+        HttpRequestResponse HttpRequestResponse { get; }
         void OnMessageBegin(IHttpCombinedParser combinedParser);
         void OnHeaderName(IHttpCombinedParser combinedParser, string name);
         void OnHeaderValue(IHttpCombinedParser combinedParser, string value);
