@@ -20,9 +20,9 @@ I've forked this project as Benjamin is no longer is maintaining the work.
 ## Breaking changes for version 4.0+
 .NET Standard 2.0+ is now required minimun version.
 
-Refactoring and simplification of use causes some namespaces to change. See example below for guidance. 
+Refactoring and simplification of use, have caused some namespaces to change. See example below for guidance for usage. 
 
-For instance, while still possible, it's no longer necessary to implement the interface `IHttpCombinedParser`. Simply new up the `HttpParserDelegate` and override methods as needed.
+For instance, while still possible, it's no longer necessary to implement the interface `IHttpCombinedParser`, instead simply new up the `HttpParserDelegate`. Methods can be overrided if needed.
 
 ## Breaking changes from version 3.0.1 to 3.1.0
 From version 3.1.0 and forward the ParserHandler must implement `IHttpCombinedParser` instead of using `HttpCombinedParser` (see example code below).
