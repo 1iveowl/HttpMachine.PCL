@@ -1,5 +1,8 @@
 # HttpMachine for .NET Standard 2.0
-[![NuGet](https://img.shields.io/badge/nuget-3.1.0_(.Net_Standard_2.0)-brightgreen.svg)](https://www.nuget.org/packages/HttpMachine.PCL/)
+
+[![NuGet Badge](https://buildstats.info/nuget/HttpMachine.PCL/)](https://www.nuget.org/packages/HttpMachine.PCL/)
+
+[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v2.0-red.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library) 
 
 *Please star this project if you find it useful. Thank you.*
 
