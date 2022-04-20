@@ -20,10 +20,10 @@ namespace HttpMachine
             _httpRequestResponse = new InternalHttpRequestResponse();
             _headers = new Dictionary<string, IList<string>>();
         }
-
+               
         public virtual void OnMessageBegin(IHttpCombinedParser combinedParser)
         {
-            //throw new NotImplementedException();
+
         }
 
         public virtual void OnHeaderName(IHttpCombinedParser combinedParser, string headerName)
@@ -127,6 +127,11 @@ namespace HttpMachine
             if (!_httpRequestResponse.IsUnableToParseHttp)
             {
                 _httpRequestResponse.IsEndOfMessage = true;
+
+                _httpRequestResponse.MajorVersion = combinedParser.MajorVersion;
+                _httpRequestResponse.MinorVersion = combinedParser.MinorVersion;
+                _httpRequestResponse.ShouldKeepAlive = combinedParser.ShouldKeepAlive;
+
                 HttpRequestResponse = new(_httpRequestResponse);
             }
         }
