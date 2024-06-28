@@ -15,7 +15,7 @@ HttpMachine.PCL is a combined C# HTTP request/reponse parser. It implements a st
 HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com). HttpMachine is licensed under the 
 MIT License. See LICENSE.txt.
 
-I've forked this project as Benjamin is no longer is maintaining the work.
+I've forked this project as Benjamin is no longer maintaining the work.
 
 ## Breaking changes for version 4.0+
 .NET Standard 2.0+ is now required minimun version.
