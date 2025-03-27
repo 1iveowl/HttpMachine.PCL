@@ -1,8 +1,7 @@
 ﻿
-namespace HttpMachine
+namespace HttpMachine;
+
+public enum ParserStatus
 {
-    public enum ParserStatus
-    {
-        Start
-    }
+    Start
 }

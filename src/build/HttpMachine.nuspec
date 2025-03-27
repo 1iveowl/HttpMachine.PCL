@@ -6,14 +6,12 @@
     <title>HttpMachine for .NET Standard 2.0</title>
     <authors>Jasper H. Bojsen</authors>
     <owners>1iveowl Development</owners>
-	<license type="expression">MIT</license>
+	  <license type="expression">MIT</license>
     <projectUrl>https://github.com/1iveowl/HttpMachine.PCL</projectUrl>
-	<icon>images\1iveowl-logo.png</icon>
+	  <icon>images\1iveowl-logo.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</description>
-    <releaseNotes>
-Updated to .NET Standard v2.0
-	</releaseNotes>
+    <releaseNotes>Updated to .NET Standard v2.0</releaseNotes>
     <copyright>Copyright 2022</copyright>
     <tags>http parser .netstandard1 netcore xamarin ios android uwp httpmachine ragel</tags>
 	

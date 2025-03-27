@@ -1,11 +1,10 @@
-﻿namespace IHttpMachine.Model
+﻿namespace IHttpMachine.Model;
+
+public interface IParserControl : IParserHeader
 {
-    public interface IParserControl : IParserHeader
-    {
-        bool IsEndOfMessage { get; }
-        bool IsRequestTimedOut { get; }
-        bool IsUnableToParseHttp { get; }
-        string RemoteAddress { get; }
-        int RemotePort { get; }
-    }
+    bool IsEndOfMessage { get; }
+    bool IsRequestTimedOut { get; }
+    bool IsUnableToParseHttp { get; }
+    string RemoteAddress { get; }
+    int RemotePort { get; }
 }

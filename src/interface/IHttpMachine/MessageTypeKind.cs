@@ -1,8 +1,7 @@
-﻿namespace HttpMachine
+﻿namespace HttpMachine;
+
+public enum MessageTypeKind
 {
-    public enum MessageTypeKind
-    {
-        Request,
-        Response
-    }
+    Request,
+    Response
 }

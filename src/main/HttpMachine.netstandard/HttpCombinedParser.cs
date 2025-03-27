@@ -6,26 +6,26 @@ using System.Diagnostics;
 using IHttpMachine;
 using System.IO;
 
-namespace HttpMachine
-{
-    public class HttpCombinedParser : IHttpCombinedParser, IDisposable
-    {
-        public int MajorVersion {get; private set;}
-        public int MinorVersion {get; private set;}
+namespace HttpMachine;
 
-        public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0) 
+public class HttpCombinedParser : IHttpCombinedParser, IDisposable
+{
+    public int MajorVersion {get; private set;}
+    public int MinorVersion {get; private set;}
+
+    public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0) 
 			? !gotConnectionClose 
 			: gotConnectionClose;
-        
-        private readonly IHttpParserCombinedDelegate parserDelegate;
+    
+    private readonly IHttpParserCombinedDelegate parserDelegate;
 
 		private readonly StringBuilder _stringBuilder;
 		private StringBuilder _stringBuilder2;
 		private StringBuilder _chunkedBufferBuilder;
 		private StringBuilder _chunkedHexBufferBuilder;
 		
-        private int _contentLength;
-        private int _chunkLength;
+    private int _contentLength;
+    private int _chunkLength;
 		private int _chunkPos;
 
 		// TODO make flags or something, dang
@@ -38,21 +38,21 @@ namespace HttpMachine
 		private bool gotTransferEncodingChunked;
 		private bool gotUpgradeValue;
 
-        private int cs;
-        // int mark;
-        private int statusCode;
-        private string statusReason;
+    private int cs;
+    // int mark;
+    private int statusCode;
+    private string statusReason;
 
 		public void Dispose()
 		{
 			
 		}
 
-        
+    
 #line 434 "httpparser2-chunked.cs.rl"
 
-        
-        
+    
+    
 #line 53 "..\\HttpCombinedParser.cs"
 static readonly sbyte[] _http_parser_actions =  new sbyte [] {
 	0, 1, 0, 1, 4, 1, 10, 1, 
@@ -631,32 +631,32 @@ const int http_parser_en_dead = 149;
 
 
 #line 437 "httpparser2-chunked.cs.rl"
-        
-        protected HttpCombinedParser()
-        {
+    
+    protected HttpCombinedParser()
+    {
 			_stringBuilder = new StringBuilder();
 			_chunkedBufferBuilder = new StringBuilder();
 			_chunkedHexBufferBuilder = new StringBuilder();
-            
+        
 #line 638 "..\\HttpCombinedParser.cs"
 	{
 	cs = http_parser_start;
 	}
 
 #line 444 "httpparser2-chunked.cs.rl"
-        }
+    }
 
-        public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
-        {
-            this.parserDelegate = del;
-        }
+    public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
+    {
+        this.parserDelegate = del;
+    }
 
 		public int Execute(MemoryStream buff) => Execute(buff.ToArray());
 
-        public int Execute(byte[] buff) => Execute(new ArraySegment<byte>(buff, 0, buff.Length));
+    public int Execute(byte[] buff) => Execute(new ArraySegment<byte>(buff, 0, buff.Length));
 
-        public int Execute(ArraySegment<byte> buf)
-        {
+    public int Execute(ArraySegment<byte> buf)
+    {
 			byte[] data = buf.Array;
 			int p = buf.Offset;
 			int pe = buf.Offset + buf.Count;
@@ -814,32 +814,32 @@ _match:
 	case 7:
 #line 97 "httpparser2-chunked.cs.rl"
 	{
-           //Console.WriteLine("matched absolute_uri");
-        }
+       //Console.WriteLine("matched absolute_uri");
+    }
 	break;
 	case 8:
 #line 100 "httpparser2-chunked.cs.rl"
 	{
-            //Console.WriteLine("matched abs_path");
-        }
+        //Console.WriteLine("matched abs_path");
+    }
 	break;
 	case 9:
 #line 103 "httpparser2-chunked.cs.rl"
 	{
-            //Console.WriteLine("matched authority");
-        }
+        //Console.WriteLine("matched authority");
+    }
 	break;
 	case 10:
 #line 106 "httpparser2-chunked.cs.rl"
 	{
-            //Console.WriteLine("matched first space");
-        }
+        //Console.WriteLine("matched first space");
+    }
 	break;
 	case 11:
 #line 109 "httpparser2-chunked.cs.rl"
 	{
-            //Console.WriteLine("leave_first_space");
-        }
+        //Console.WriteLine("leave_first_space");
+    }
 	break;
 	case 13:
 #line 118 "httpparser2-chunked.cs.rl"
@@ -919,11 +919,11 @@ _match:
 	case 25:
 #line 200 "httpparser2-chunked.cs.rl"
 	{
-            if (_contentLength != -1) throw new Exception("Already got Content-Length. Possible attack?");
+        if (_contentLength != -1) throw new Exception("Already got Content-Length. Possible attack?");
 			//Console.WriteLine("Saw content length");
 			_contentLength = 0;
 			inContentLengthHeader = true;
-        }
+    }
 	break;
 	case 26:
 #line 207 "httpparser2-chunked.cs.rl"
@@ -960,7 +960,7 @@ _match:
 	{
 			if (inTransferEncodingHeader)
 				gotTransferEncodingChunked = true;
-            parserDelegate.OnTransferEncodingChunked(this, true);
+        parserDelegate.OnTransferEncodingChunked(this, true);
 			Debug.WriteLine($"Transfer Encoding Chunked: {gotTransferEncodingChunked}");
 		}
 	break;
@@ -993,12 +993,12 @@ _match:
 	case 34:
 #line 256 "httpparser2-chunked.cs.rl"
 	{
-            _chunkLength = Convert.ToInt32(_chunkedHexBufferBuilder.ToString(), 16);
+        _chunkLength = Convert.ToInt32(_chunkedHexBufferBuilder.ToString(), 16);
 			_chunkPos = _chunkLength;
 			Debug.WriteLine($"Chunk Length: {_chunkLength}");	
 			parserDelegate.OnChunkedLength(this, _chunkLength);	
 			
-        }
+    }
 	break;
 	case 35:
 #line 264 "httpparser2-chunked.cs.rl"
@@ -1043,7 +1043,7 @@ _match:
 					}
 				}
 			}
-        }
+    }
 	break;
 	case 36:
 #line 307 "httpparser2-chunked.cs.rl"
@@ -1192,8 +1192,8 @@ _again:
 	case 12:
 #line 112 "httpparser2-chunked.cs.rl"
 	{
-            //Console.WriteLine("eof_leave_first_space");
-        }
+        //Console.WriteLine("eof_leave_first_space");
+    }
 	break;
 	case 37:
 #line 340 "httpparser2-chunked.cs.rl"
@@ -1243,7 +1243,7 @@ _again:
 			}
 			catch (Exception)
 			{
-                parserDelegate.OnParserError();
+            parserDelegate.OnParserError();
 			}			
 							
 			var result = p - buf.Offset;
@@ -1256,6 +1256,5 @@ _again:
 			}
 			
 			return p - buf.Offset;            
-        }
     }
 }

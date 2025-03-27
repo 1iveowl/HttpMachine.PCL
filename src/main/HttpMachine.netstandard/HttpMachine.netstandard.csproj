@@ -1,13 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net9.0</TargetFrameworks>
     <AssemblyName>HttpMachine</AssemblyName>
     <RootNamespace>HttpMachine</RootNamespace>
-    <AssemblyVersion>4.0.3.0</AssemblyVersion>
-    <FileVersion>4.0.3.0</FileVersion>
-	<LangVersion>10.0</LangVersion>
+    <AssemblyVersion>5.0.0.0</AssemblyVersion>
+    <FileVersion>5.0.0.0</FileVersion>
+	  <LangVersion>13.0</LangVersion>
+
+    <PackageIcon>images\1iveowl-logo.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>5.0</Version>
+    <Authors>Jasper Hedegaard Bojsen</Authors>
+    <Copyright>1iveowl Development 2025</Copyright>
+    <PackageProjectUrl>https://github.com/1iveowl/WebsocketClientLite.PCL</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/1iveowl/HttpMachine.PCL</RepositoryUrl>
+    <Description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</Description>
+    <PackageReleaseNotes>Updated to .NET Standard v2.0, 2.1,.Net 6,.Net 8,.Net 9</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\build\1iveowl-logo.png" Link="images\1iveowl-logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\images</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="rl\httpparser.cs" />

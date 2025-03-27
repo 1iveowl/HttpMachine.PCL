@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace IHttpMachine
+namespace IHttpMachine;
+
+public interface IHttpResponseParserDelegate : IHttpParserDelegate, IDisposable
 {
-    public interface IHttpResponseParserDelegate : IHttpParserDelegate, IDisposable
-    {
-        void OnResponseType(IHttpCombinedParser combinedParser);
-        void OnResponseCode(IHttpCombinedParser combinedParser, int statusCode, string statusReason);
-    }
+    void OnResponseType(IHttpCombinedParser combinedParser);
+    void OnResponseCode(IHttpCombinedParser combinedParser, int statusCode, string statusReason);
 }

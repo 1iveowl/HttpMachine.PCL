@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C16837FC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{31AE5DCC-8EC2-46D4-9039-525579AF5E40}"
 	ProjectSection(SolutionItems) = preProject
+		..\..\.github\workflows\build.yml = ..\..\.github\workflows\build.yml
+		..\..\GitVersion.yml = ..\..\GitVersion.yml
 		..\..\LICENCE.md = ..\..\LICENCE.md
 		..\..\README.md = ..\..\README.md
 	EndProjectSection

@@ -1,9 +1,7 @@
 ﻿using System;
-using HttpMachine;
 
-namespace IHttpMachine
+namespace IHttpMachine;
+
+public interface IHttpParserCombinedDelegate : IHttpParserDelegate, IHttpRequestParserDelegate, IHttpResponseParserDelegate, IDisposable
 {
-    public interface IHttpParserCombinedDelegate : IHttpParserDelegate, IHttpRequestParserDelegate, IHttpResponseParserDelegate, IDisposable
-    {
-    }
 }

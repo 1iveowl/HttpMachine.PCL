@@ -1,8 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-	<LangVersion>10.0</LangVersion>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net9.0</TargetFrameworks>
+	  <LangVersion>13.0</LangVersion>
+    <AssemblyName>IHttpMachine</AssemblyName>
+    <RootNamespace>IHttpMachine</RootNamespace>
+    <AssemblyVersion>5.0.0</AssemblyVersion>
+    <FileVersion>5.0.0</FileVersion>
+    <PackageIcon>images\1iveowl-logo.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>5.0</Version>
+    <Authors>Jasper Hedegaard Bojsen</Authors>
+    <Copyright>1iveowl Development 2025</Copyright>
+    <PackageProjectUrl>https://github.com/1iveowl/IHttpMachine</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/1iveowl/HttpMachine.Standard</RepositoryUrl>
+    <Description>Interface for HttpMachine.</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\build\1iveowl-logo.png" Link="images\1iveowl-logo.png">
+      <PackagePath>\images</PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
 
 </Project>
