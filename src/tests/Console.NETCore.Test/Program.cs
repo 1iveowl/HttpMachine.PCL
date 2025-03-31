@@ -130,7 +130,8 @@ class Program
         // Add headers based on whether it's chunked or not
         if (!isChunked)
         {
-            stringBuilder.Append($"Content-Length: {body.Length}\r\n\r\n");
+            stringBuilder.Append($"Content-Length: {body.Length}");
+            stringBuilder.Append("\r\n\r\n");
         }
 
         // More efficient way to combine header and body
