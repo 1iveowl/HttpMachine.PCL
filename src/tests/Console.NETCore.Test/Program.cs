@@ -24,6 +24,7 @@ class Program
             handler.HttpRequestResponse.Body.Position = 0;
             var reader = new StreamReader(handler.HttpRequestResponse.Body);
             var body = reader.ReadToEnd();
+            Console.WriteLine($"Body: {body}");
         }
 
         Console.WriteLine("\r\n\r\n");
@@ -41,6 +42,7 @@ class Program
             handler.HttpRequestResponse.Body.Position = 0;
             var reader = new StreamReader(handler.HttpRequestResponse.Body);
             var body = reader.ReadToEnd();
+            Console.WriteLine($"Body: {body}");
         }
 
         Console.ReadKey();
@@ -79,13 +81,13 @@ class Program
                              "\r\n");
 
         string[] dataChunks =
-        {
-                "test",
-                "This is a longer text string to test how the code copes with multi digit hex length. This string is longer than 16.",
-                "The end is near",
-                "The end is here... \r\n almost on this second line",
-                "Stop"
-            };
+        [
+            "test",
+            "This is a longer text string to test how the code copes with multi digit hex length. This string is longer than 16.",
+            "The end is near",
+            "The end is here... \r\n almost on this second line",
+            "Stop"
+        ];
 
         var body = ComposeChunkedBody(dataChunks);
 
@@ -115,26 +117,31 @@ class Program
 
     private static byte[] ComposeDatagramWithBody(StringBuilder stringBuilder, string body, bool isChunked = false)
     {
-        byte[] datagram = null;
-
-        if (!isChunked) // Add Content-Length with message is not chunked.
+        // Early return for null body with appropriate headers
+        if (string.IsNullOrEmpty(body))
         {
-            if (body.Length > 0)
+            if (!isChunked)
             {
-                stringBuilder.Append($"Content-Length: {body.Length}");
+                stringBuilder.Append("\r\n\r\n");
             }
-            stringBuilder.Append($"\r\n\r\n");
-
-            datagram = Encoding.UTF8.GetBytes(stringBuilder.ToString());
+            return Encoding.UTF8.GetBytes(stringBuilder.ToString());
         }
 
-        if (body?.Length > 0)
+        // Add headers based on whether it's chunked or not
+        if (!isChunked)
         {
-            datagram = Encoding.UTF8.GetBytes(stringBuilder.ToString());
-            datagram = datagram?.Concat(Encoding.UTF8.GetBytes(body)).ToArray();
+            stringBuilder.Append($"Content-Length: {body.Length}\r\n\r\n");
         }
 
-        return datagram;
+        // More efficient way to combine header and body
+        byte[] headerBytes = Encoding.UTF8.GetBytes(stringBuilder.ToString());
+        byte[] bodyBytes = Encoding.UTF8.GetBytes(body);
+
+        byte[] result = new byte[headerBytes.Length + bodyBytes.Length];
+        Buffer.BlockCopy(headerBytes, 0, result, 0, headerBytes.Length);
+        Buffer.BlockCopy(bodyBytes, 0, result, headerBytes.Length, bodyBytes.Length);
+
+        return result;
     }
 
     private static string TestRequest()
