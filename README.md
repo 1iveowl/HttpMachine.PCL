@@ -1,8 +1,8 @@
 # HttpMachine for .NET Standard 2.0
 
-[![NuGet Badge](https://buildstats.info/nuget/HttpMachine.PCL/)](https://www.nuget.org/packages/HttpMachine.PCL/)
-
-[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v2.0-red.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library) 
+[![NuGet Badge](https://img.shields.io/nuget/v/HttpMachine.PCL)](https://www.nuget.org/packages/HttpMachine.PCL)
+[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v2.0-red.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v2.1-red.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)
+[![.NET 6](http://img.shields.io/badge/.NET-v6.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/6.0)[![.NET 8](http://img.shields.io/badge/.NET-v8.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)[![.NET 9](http://img.shields.io/badge/.NET-v9.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
 
 *Please star this project if you find it useful. Thank you.*
 
