@@ -4,16 +4,16 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net9.0</TargetFrameworks>
     <AssemblyName>HttpMachine</AssemblyName>
     <RootNamespace>HttpMachine</RootNamespace>
-    <AssemblyVersion>5.0.0.0</AssemblyVersion>
-    <FileVersion>5.0.0.0</FileVersion>
+    <AssemblyVersion>5.0.1.0</AssemblyVersion>
+    <FileVersion>5.0.1.0</FileVersion>
 	  <LangVersion>13.0</LangVersion>
 
     <PackageIcon>images\1iveowl-logo.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>5.0</Version>
+    <Version>5.0.1</Version>
     <Authors>Jasper Hedegaard Bojsen</Authors>
     <Copyright>1iveowl Development 2025</Copyright>
-    <PackageProjectUrl>https://github.com/1iveowl/WebsocketClientLite.PCL</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/1iveowl/HttpMachine.PCL</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/1iveowl/HttpMachine.PCL</RepositoryUrl>
     <Description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</Description>
