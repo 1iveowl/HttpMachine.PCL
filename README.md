@@ -1,20 +1,31 @@
 # HttpMachine
 
-[![NuGet Badge](https://img.shields.io/nuget/v/HttpMachine.PCL)](https://www.nuget.org/packages/HttpMachine.PCL)
+[![NuGet](https://img.shields.io/nuget/v/HttpMachine.PCL?logo=nuget&label=HttpMachine.PCL)](https://www.nuget.org/packages/HttpMachine.PCL)
+[![NuGet](https://img.shields.io/nuget/v/IHttpMachine?logo=nuget&label=IHttpMachine)](https://www.nuget.org/packages/IHttpMachine)
+[![Downloads](https://img.shields.io/nuget/dt/HttpMachine.PCL?logo=nuget&color=blue)](https://www.nuget.org/packages/HttpMachine.PCL)
+[![Build and Test](https://github.com/1iveowl/HttpMachine.PCL/actions/workflows/test.yml/badge.svg)](https://github.com/1iveowl/HttpMachine.PCL/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENCE.md)
 
-Targets: .NET Standard 2.0 & 2.1, .NET 6, .NET 8 and .NET 10.
+[![.NET](https://img.shields.io/badge/.NET-6.0%20%7C%208.0%20%7C%2010.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download)
+[![.NET Standard](https://img.shields.io/badge/.NET%20Standard-2.0%20%7C%202.1-5C2D91?logo=dotnet&logoColor=white)](https://learn.microsoft.com/dotnet/standard/net-standard)
+
+A combined C# HTTP request/response parser, implemented as a state machine built with
+[Adrian Thurston](https://www.colm.net/)'s excellent state machine compiler,
+[Ragel](https://www.colm.net/open-source/ragel/).
 
 *Please star this project if you find it useful. Thank you.*
 
 ## Background
 
-This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
+This project began in May 2016 as a fork of the great work done by Benjamin van der Veen,
+[the original HttpMachine](https://github.com/bvanderveen/httpmachine), which was no longer
+being maintained. It has been developed independently ever since, and by now differs
+substantially from its origin: a combined request/response parser, chunked transfer encoding,
+zero-length header support, a span-based parsing API, and continuous modernization of the
+target frameworks — see the [version history](#version-history) below.
 
-HttpMachine.PCL is a combined C# HTTP request/response parser. It implements a state machine built with [Adrian Thurston](https://www.colm.net/)'s excellent state machine compiler, [Ragel](https://www.colm.net/open-source/ragel/).
-
-HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com). HttpMachine is licensed under the MIT License. See [LICENCE.md](LICENCE.md).
-
-I've forked this project as Benjamin is no longer maintaining the work.
+The original HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com)
+and is licensed under the MIT License, as is this fork. See [LICENCE.md](LICENCE.md).
 
 ## Features
 
