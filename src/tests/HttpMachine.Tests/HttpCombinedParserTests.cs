@@ -221,6 +221,41 @@ public class HttpCombinedParserTests
     }
 
     [Fact]
+    public void SpanInputSplitAcrossExecutes()
+    {
+        var handler = new HttpParserDelegate();
+        var parser = new HttpCombinedParser(handler);
+
+        ReadOnlySpan<byte> part1 = Bytes("HTTP/1.1 200 OK\r\nContent-Le");
+        ReadOnlySpan<byte> part2 = Bytes("ngth: 5\r\n\r\nHello");
+
+        Assert.Equal(part1.Length, parser.Execute(part1));
+        Assert.Equal(part2.Length, parser.Execute(part2));
+        Assert.Equal(200, handler.HttpRequestResponse.StatusCode);
+        Assert.Equal("Hello", BodyOf(handler));
+    }
+
+    [Fact]
+    public void ParsesChunkedResponseFromSpanInput()
+    {
+        var handler = new HttpParserDelegate();
+        var parser = new HttpCombinedParser(handler);
+
+        ReadOnlySpan<byte> data = Bytes(
+            "HTTP/1.1 200 OK\r\n" +
+            "Transfer-Encoding: chunked\r\n" +
+            "\r\n" +
+            "4\r\nWiki\r\n" +
+            "6\r\npedia \r\n" +
+            "E\r\nin \r\n\r\nchunks.\r\n" +
+            "0\r\n\r\n");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.True(handler.HttpRequestResponse.IsTransferEncodingChunked);
+        Assert.Equal("Wikipedia in \r\n\r\nchunks.", BodyOf(handler));
+    }
+
+    [Fact]
     public void ExecuteAcceptsMemoryStream()
     {
         var handler = new HttpParserDelegate();
