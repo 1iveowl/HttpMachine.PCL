@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Text;
 using System.Diagnostics;
 using IHttpMachine;
@@ -6,20 +7,30 @@ using System.IO;
 
 namespace HttpMachine;
 
+/// <summary>
+/// Combined HTTP request/response parser built on a Ragel-generated state machine.
+/// Feed it data with the <c>Execute</c> overloads; results arrive through the callbacks on
+/// the <see cref="IHttpParserCombinedDelegate"/> supplied to the constructor.
+/// This class is generated from <c>rl/HttpParser2-chunked.cs.rl</c> — edit that file, not the .cs.
+/// </summary>
 public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 {
+    /// <inheritdoc/>
     public int MajorVersion {get; private set;}
+
+    /// <inheritdoc/>
     public int MinorVersion {get; private set;}
 
+    /// <inheritdoc/>
     public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0)
 			? !gotConnectionClose
 			: gotConnectionKeepAlive;
 
     private readonly IHttpParserCombinedDelegate parserDelegate;
+    private readonly IHttpParserSpanDelegate spanDelegate;
 
 		private readonly StringBuilder _stringBuilder;
 		private StringBuilder _stringBuilder2;
-		private StringBuilder _chunkedHexBufferBuilder;
 
     private int _contentLength;
     private int _chunkLength;
@@ -38,9 +49,10 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
     private int statusCode;
     private string statusReason;
 
+		/// <summary>Releases resources. The parser holds none.</summary>
 		public void Dispose()
 		{
-			
+
 		}
 
     %%{
@@ -67,11 +79,11 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 		}
 
 		action chunked_hex_buf {
-			_chunkedHexBufferBuilder.Append((char)fc);
+			_chunkLength = (_chunkLength << 4) | HexValue((char)fc);
 		}
 
 		action chunked_hex_clear {
-			_chunkedHexBufferBuilder.Clear();
+			_chunkLength = 0;
 		}
 
 		action message_begin {
@@ -139,9 +151,14 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 			parserDelegate.OnQueryString(this, _stringBuilder2.ToString());
 		}
 
-		action status_code
+		action status_code_clear
 		{
-			statusCode = int.Parse(_stringBuilder.ToString());
+			statusCode = 0;
+		}
+
+		action status_code_digit
+		{
+			statusCode = statusCode * 10 + ((char)fc - '0');
 		}
 
 		action status_reason
@@ -250,10 +267,8 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 		}
 
         action on_chunck_len_hex {
-            _chunkLength = Convert.ToInt32(_chunkedHexBufferBuilder.ToString(), 16);
 			Debug.WriteLine($"Chunk Length: {_chunkLength}");
 			parserDelegate.OnChunkedLength(this, _chunkLength);
-
         }
 
         action last_crlf {
@@ -308,7 +323,7 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 			//Console.WriteLine("body_identity: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				EmitBody(data, array, arrayOffset, p, toRead);
 				p += toRead - 1;
 				_contentLength -= toRead;
 				//Console.WriteLine("content length is now " + contentLength);
@@ -343,7 +358,7 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 			{
 				Debug.WriteLine($"To Read: {toRead}");
 				parserDelegate.OnChunkReceived(this);
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				EmitBody(data, array, arrayOffset, p, toRead);
 				p += toRead - 1;
 				_chunkLength -= toRead;
 				
@@ -390,7 +405,7 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 			Debug.WriteLine($"Eof To Read: {toRead}");
 			if (toRead > 0)
 			{
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				EmitBody(data, array, arrayOffset, p, toRead);
 				p += toRead - 1;
 				fbreak;
 			}
@@ -424,28 +439,96 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 
     %% write data;
 
+    /// <summary>Initializes the state machine. Use the delegate-taking constructor instead.</summary>
     protected HttpCombinedParser()
     {
 			_stringBuilder = new StringBuilder();
-			_chunkedHexBufferBuilder = new StringBuilder();
         %% write init;
     }
 
+    /// <summary>
+    /// Creates a parser that reports its results to <paramref name="del"/>. When the delegate
+    /// also implements <see cref="IHttpParserSpanDelegate"/>, body data from span input is
+    /// delivered without copying.
+    /// </summary>
     public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
     {
         this.parserDelegate = del;
+        this.spanDelegate = del as IHttpParserSpanDelegate;
     }
 
-		public int Execute(MemoryStream buff) => Execute(buff.ToArray());
+		private static int HexValue(char c) => c <= '9' ? c - '0' : (c | 0x20) - 'a' + 10;
 
-    public int Execute(byte[] buff) => Execute(new ArraySegment<byte>(buff, 0, buff.Length));
+		// Body callbacks mirror the Execute overload that was used: array-based input is
+		// delivered as an ArraySegment over the caller's buffer (as in 5.x); span-based
+		// input goes to IHttpParserSpanDelegate when implemented, or to the ArraySegment
+		// callback via a pooled copy otherwise.
+		private void EmitBody(ReadOnlySpan<byte> data, byte[] array, int arrayOffset, int start, int count)
+		{
+			if (array != null)
+			{
+				parserDelegate.OnBody(this, new ArraySegment<byte>(array, arrayOffset + start, count));
+			}
+			else if (spanDelegate != null)
+			{
+				spanDelegate.OnBody(this, data.Slice(start, count));
+			}
+			else
+			{
+				var rented = ArrayPool<byte>.Shared.Rent(count);
+				try
+				{
+					data.Slice(start, count).CopyTo(rented);
+					parserDelegate.OnBody(this, new ArraySegment<byte>(rented, 0, count));
+				}
+				finally
+				{
+					ArrayPool<byte>.Shared.Return(rented);
+				}
+			}
+		}
 
-    public int Execute(ArraySegment<byte> buf)
+		/// <summary>
+		/// Parses the entire contents of <paramref name="buff"/> (independent of its current
+		/// position). The stream is not copied when its buffer is exposable.
+		/// Returns the number of bytes consumed; less than the stream length means a parse
+		/// error at that offset.
+		/// </summary>
+		public int Execute(MemoryStream buff) =>
+			buff.TryGetBuffer(out var buffer)
+				? Execute(new ReadOnlySpan<byte>(buffer.Array, buffer.Offset, buffer.Count), buffer.Array, buffer.Offset)
+				: Execute(buff.ToArray());
+
+    /// <summary>
+    /// Parses <paramref name="buff"/>. Call repeatedly as data arrives; messages may be split
+    /// across calls at any byte. Pass an empty buffer to signal end of stream for bodies
+    /// delimited by connection close. Returns the number of bytes consumed; less than
+    /// <c>buff.Length</c> means a parse error at that offset.
+    /// </summary>
+    public int Execute(byte[] buff) => Execute(new ReadOnlySpan<byte>(buff), buff, 0);
+
+    /// <summary>
+    /// Parses the given segment. Call repeatedly as data arrives; messages may be split
+    /// across calls at any byte. Pass an empty segment to signal end of stream for bodies
+    /// delimited by connection close. Returns the number of bytes consumed; less than
+    /// <c>buf.Count</c> means a parse error at that offset.
+    /// </summary>
+    public int Execute(ArraySegment<byte> buf) => Execute(buf.AsSpan(), buf.Array, buf.Offset);
+
+    /// <summary>
+    /// Parses the given span without requiring an array. Body data is delivered via
+    /// <see cref="IHttpParserSpanDelegate.OnBody"/> when the delegate implements it, or as a
+    /// pooled copy through <see cref="IHttpParserDelegate.OnBody"/> otherwise. Pass an empty
+    /// span to signal end of stream for bodies delimited by connection close. Returns the
+    /// number of bytes consumed; less than <c>buf.Length</c> means a parse error at that offset.
+    /// </summary>
+    public int Execute(ReadOnlySpan<byte> buf) => Execute(buf, null, 0);
+
+    private int Execute(ReadOnlySpan<byte> data, byte[] array, int arrayOffset)
     {
-			byte[] data = buf.Array;
-			int p = buf.Offset;
-			int pe = buf.Offset + buf.Count;
-			int eof = buf.Count == 0 ? buf.Offset : -1;
+			int p = 0;
+			int pe = data.Length;
+			int eof = data.Length == 0 ? 0 : -1;
 
 			try
 			{
@@ -456,15 +539,12 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
             parserDelegate.OnParserError();
 			}
 
-			var result = p - buf.Offset;
-
-			if (result != buf.Count)
+			if (p >= 0 && p < data.Length)
 			{
 				Debug.WriteLine("error on character " + p);
-				Debug.WriteLine("('" + buf.Array[p] + "')");
-				Debug.WriteLine("('" + (char)buf.Array[p] + "')");
+				Debug.WriteLine("('" + (char)data[p] + "')");
 			}
 
-			return p - buf.Offset;
+			return p;
     }
 }

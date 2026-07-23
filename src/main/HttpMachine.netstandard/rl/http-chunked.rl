@@ -34,7 +34,7 @@ http_request_uri = ("*" | absolute_uri | abs_path_query_fragment | authority) >c
 
 http_version = "HTTP/" (digit{1} $version_major) "." (digit{1} $version_minor);
 
-http_response_code = ( digit+ ) >clear $buf %status_code ;
+http_response_code = ( digit+ ) >status_code_clear $status_code_digit;
 http_response_phrase = ( ascii -- ("\r" | "\n") )+ >clear $buf %status_reason;
 
 

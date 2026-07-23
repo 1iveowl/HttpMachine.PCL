@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net9.0</TargetFrameworks>
-	  <LangVersion>13.0</LangVersion>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net10.0</TargetFrameworks>
+	  <LangVersion>14.0</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>IHttpMachine</AssemblyName>
     <RootNamespace>IHttpMachine</RootNamespace>
     <AssemblyVersion>6.0.0.0</AssemblyVersion>
@@ -22,6 +23,10 @@
       <PackagePath>\images</PackagePath>
       <Pack>True</Pack>
     </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Memory" Version="4.6.0" />
   </ItemGroup>
 
 </Project>

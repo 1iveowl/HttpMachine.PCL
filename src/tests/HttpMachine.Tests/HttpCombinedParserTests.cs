@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using HttpMachine;
+using IHttpMachine;
 using Xunit;
 
 namespace HttpMachine.Tests;
@@ -202,6 +203,119 @@ public class HttpCombinedParserTests
 
         Assert.Equal("body until close", BodyOf(handler));
         Assert.True(handler.HttpRequestResponse.IsEndOfMessage);
+    }
+
+    [Fact]
+    public void ExecuteAcceptsSpanInput()
+    {
+        var handler = new HttpParserDelegate();
+        var parser = new HttpCombinedParser(handler);
+        ReadOnlySpan<byte> span = Bytes(
+            "GET /index.html HTTP/1.1\r\n" +
+            "Host: example.com\r\n" +
+            "\r\n");
+
+        Assert.Equal(span.Length, parser.Execute(span));
+        Assert.Equal(MessageTypeKind.Request, handler.HttpRequestResponse.MessageType);
+        Assert.Equal("/index.html", handler.HttpRequestResponse.Path);
+    }
+
+    [Fact]
+    public void ExecuteAcceptsMemoryStream()
+    {
+        var handler = new HttpParserDelegate();
+        var parser = new HttpCombinedParser(handler);
+        var bytes = Bytes("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nhi");
+        using var stream = new MemoryStream();
+        stream.Write(bytes, 0, bytes.Length);
+
+        Assert.Equal(bytes.Length, parser.Execute(stream));
+        Assert.Equal("hi", BodyOf(handler));
+    }
+
+    private sealed class ArraySegmentCapturingDelegate : HttpParserDelegate
+    {
+        public readonly MemoryStream Captured = new();
+
+        public override void OnBody(IHttpCombinedParser combinedParser, ArraySegment<byte> data)
+        {
+            Captured.Write(data.Array, data.Offset, data.Count);
+            base.OnBody(combinedParser, data);
+        }
+    }
+
+    private sealed class SpanCapturingDelegate : HttpParserDelegate
+    {
+        public readonly MemoryStream Captured = new();
+
+        public override void OnBody(IHttpCombinedParser combinedParser, ReadOnlySpan<byte> data)
+        {
+            Captured.Write(data);
+            base.OnBody(combinedParser, data);
+        }
+    }
+
+    // Implements only the 5.x interfaces - no IHttpParserSpanDelegate.
+    private sealed class LegacyInterfaceDelegate : IHttpMachine.IHttpParserCombinedDelegate
+    {
+        public readonly MemoryStream Captured = new();
+
+        public IHttpMachine.Model.HttpRequestResponse HttpRequestResponse => null;
+        public void OnMessageBegin(IHttpMachine.IHttpCombinedParser p) { }
+        public void OnHeaderName(IHttpMachine.IHttpCombinedParser p, string name) { }
+        public void OnHeaderValue(IHttpMachine.IHttpCombinedParser p, string value) { }
+        public void OnHeadersEnd(IHttpMachine.IHttpCombinedParser p) { }
+        public void OnTransferEncodingChunked(IHttpMachine.IHttpCombinedParser p, bool isChunked) { }
+        public void OnChunkedLength(IHttpMachine.IHttpCombinedParser p, int length) { }
+        public void OnChunkReceived(IHttpMachine.IHttpCombinedParser p) { }
+        public void OnBody(IHttpMachine.IHttpCombinedParser p, ArraySegment<byte> data) => Captured.Write(data.Array, data.Offset, data.Count);
+        public void OnMessageEnd(IHttpMachine.IHttpCombinedParser p) { }
+        public void OnParserError() { }
+        public void OnRequestType(IHttpMachine.IHttpCombinedParser p) { }
+        public void OnMethod(IHttpMachine.IHttpCombinedParser p, string method) { }
+        public void OnRequestUri(IHttpMachine.IHttpCombinedParser p, string requestUri) { }
+        public void OnPath(IHttpMachine.IHttpCombinedParser p, string path) { }
+        public void OnFragment(IHttpMachine.IHttpCombinedParser p, string fragment) { }
+        public void OnQueryString(IHttpMachine.IHttpCombinedParser p, string queryString) { }
+        public void OnResponseType(IHttpMachine.IHttpCombinedParser p) { }
+        public void OnResponseCode(IHttpMachine.IHttpCombinedParser p, int statusCode, string statusReason) { }
+        public void Dispose() { }
+    }
+
+    private const string BodyMessage =
+        "HTTP/1.1 200 OK\r\nContent-Length: 14\r\n\r\nThis is a test";
+
+    [Fact]
+    public void ArrayInputDeliversArraySegmentToOverride()
+    {
+        var handler = new ArraySegmentCapturingDelegate();
+        var parser = new HttpCombinedParser(handler);
+        var data = Bytes(BodyMessage);
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.Equal("This is a test", Encoding.UTF8.GetString(handler.Captured.ToArray()));
+    }
+
+    [Fact]
+    public void SpanInputDeliversSpanToOverride()
+    {
+        var handler = new SpanCapturingDelegate();
+        var parser = new HttpCombinedParser(handler);
+        ReadOnlySpan<byte> data = Bytes(BodyMessage);
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.Equal("This is a test", Encoding.UTF8.GetString(handler.Captured.ToArray()));
+    }
+
+    [Fact]
+    public void LegacyInterfaceDelegateWorksWithSpanInput()
+    {
+        var handler = new LegacyInterfaceDelegate();
+        var parser = new HttpCombinedParser(handler);
+        ReadOnlySpan<byte> data = Bytes(BodyMessage);
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.Equal("This is a test", Encoding.UTF8.GetString(handler.Captured.ToArray()));
     }
 
     [Fact]

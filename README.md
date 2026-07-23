@@ -2,7 +2,7 @@
 
 [![NuGet Badge](https://img.shields.io/nuget/v/HttpMachine.PCL)](https://www.nuget.org/packages/HttpMachine.PCL)
 
-Targets: .NET Standard 2.0 & 2.1, .NET 6, .NET 8 and .NET 9.
+Targets: .NET Standard 2.0 & 2.1, .NET 6, .NET 8 and .NET 10.
 
 *Please star this project if you find it useful. Thank you.*
 
@@ -73,6 +73,7 @@ See [the console test project](src/tests/Console.NETCore.Test/Program.cs) for a 
 
 - **Return value of `Execute`:** the number of bytes consumed. If it is less than the length you passed in, the parser hit a parse error at that position.
 - **Feeding data incrementally:** call `Execute` repeatedly as data arrives; messages may be split across buffers at any point.
+- **Span support:** `Execute(ReadOnlySpan<byte>)` parses without requiring an array — useful with pooled buffers or `PipeReader` slices. Body callbacks mirror the input: array-based `Execute` overloads deliver `OnBody(ArraySegment<byte>)` over your buffer (as in 5.x); the span overload delivers `OnBody(ReadOnlySpan<byte>)` to delegates implementing `IHttpParserSpanDelegate` (which `HttpParserDelegate` does), or a pooled copy to plain `IHttpParserDelegate` implementors. Either way the buffer is only valid during the callback — copy it if you keep it.
 - **End of stream:** when a message has no `Content-Length` and is not chunked, the body runs until the connection closes. Signal this to the parser by calling `Execute` with an empty buffer.
 - **Header keys:** stored uppercased; the `Headers` dictionary uses a case-insensitive comparer, so `headers["content-type"]` works too.
 - **Delegate results:** `handler.HttpRequestResponse` is the snapshot of the most recently *completed* message. It is `null` until the first message has been fully parsed. When parsing pipelined messages, read it from `OnMessageEnd` (override it) if you need every message.
@@ -101,6 +102,9 @@ dotnet test
 
 ### 6.0
 - **Breaking:** removed the unused `ParserStatus` enum.
+- Added `Execute(ReadOnlySpan<byte>)` and the optional `IHttpParserSpanDelegate` interface for zero-copy body delivery; `IHttpParserDelegate` is unchanged, so existing delegates keep working.
+- Targets .NET 10 instead of .NET 9 (C# 14); .NET Standard 2.0/2.1, .NET 6 and .NET 8 unchanged (`System.Memory` dependency added for .NET Standard 2.0).
+- Performance: `Execute(MemoryStream)` no longer copies the stream when its buffer is exposable; chunk sizes and status codes are parsed without intermediate string allocations.
 - Fixed `ShouldKeepAlive` for HTTP/1.0 messages (`Connection: keep-alive`/`close` were inverted).
 - Fixed bodies delimited by connection close (no `Content-Length`, not chunked); signal EOF with an empty `Execute` call.
 - Fixed repeated headers separated by other headers (previously failed the whole parse).
