@@ -135,3 +135,25 @@ dotnet test
 
 ### 1.1.1
 - The parser was combined into one request/response parser. Filter on `MessageType` to see what type was passed.
+
+## Why HTTP/1.x only?
+
+HttpMachine parses HTTP/1.0 and HTTP/1.1, and there are no plans to support HTTP/2 or HTTP/3.
+
+What makes this library useful is that it parses HTTP messages straight off a byte stream, with no
+connection, socket or transport attached — which is what you need for HTTP-shaped traffic that
+doesn't arrive over a normal HTTP connection: SSDP/UPnP discovery over UDP multicast, WebSocket
+upgrade handshakes, embedded devices, protocol testing and the like.
+
+HTTP/2 doesn't fit that model. It is a binary, multiplexed protocol that requires an ordered,
+reliable connection (in practice TLS with ALPN), so the scenarios above can't use it in the first
+place. It also can't be handled by a parser alone: an endpoint has to acknowledge SETTINGS and send
+WINDOW_UPDATE frames or the peer stalls, so anything supporting it needs a write path and becomes a
+connection implementation rather than a parser. Beyond that, HTTP/2 shares no grammar with HTTP/1.x —
+the Ragel state machine buys you nothing, header compression (HPACK) needs connection-wide state, and
+stream multiplexing would mean a stream ID on every delegate callback. That is a separate library,
+not a feature. HTTP/3 adds QUIC on top of all of it.
+
+If you need HTTP/2 or HTTP/3 over a regular connection, .NET already has excellent support:
+[`System.Net.Http.HttpClient`](https://learn.microsoft.com/dotnet/api/system.net.http.httpclient) for
+clients and [Kestrel](https://learn.microsoft.com/aspnet/core/fundamentals/servers/kestrel) for servers.
