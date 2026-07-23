@@ -1,27 +1,39 @@
 ﻿using System;
+using System.Buffers;
 using System.Text;
 using System.Diagnostics;
 using IHttpMachine;
+using System.IO;
 
-namespace HttpMachine
+namespace HttpMachine;
+
+/// <summary>
+/// Combined HTTP request/response parser built on a Ragel-generated state machine.
+/// Feed it data with the <c>Execute</c> overloads; results arrive through the callbacks on
+/// the <see cref="IHttpParserCombinedDelegate"/> supplied to the constructor.
+/// This class is generated from <c>rl/HttpParser2-chunked.cs.rl</c> — edit that file, not the .cs.
+/// </summary>
+public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 {
-    public class HttpCombinedParser : IHttpCombinedParser, IDisposable
-    {
-        public int MajorVersion {get; private set;}
-        public int MinorVersion {get; private set;}
+    /// <inheritdoc/>
+    public int MajorVersion {get; private set;}
 
-        public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0) ? !gotConnectionClose : gotConnectionClose;
-        
-        private readonly IHttpParserCombinedDelegate parserDelegate;
+    /// <inheritdoc/>
+    public int MinorVersion {get; private set;}
+
+    /// <inheritdoc/>
+    public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0)
+			? !gotConnectionClose
+			: gotConnectionKeepAlive;
+
+    private readonly IHttpParserCombinedDelegate parserDelegate;
+    private readonly IHttpParserSpanDelegate spanDelegate;
 
 		private readonly StringBuilder _stringBuilder;
 		private StringBuilder _stringBuilder2;
-		private StringBuilder _chunkedBufferBuilder;
-		private StringBuilder _chunkedHexBufferBuilder;
-		
-        private int _contentLength;
-        private int _chunkLength;
-		private int _chunkPos;
+
+    private int _contentLength;
+    private int _chunkLength;
 
 		// TODO make flags or something, dang
 		private bool inContentLengthHeader;
@@ -31,19 +43,19 @@ namespace HttpMachine
 		private bool gotConnectionClose;
 		private bool gotConnectionKeepAlive;
 		private bool gotTransferEncodingChunked;
-		private bool gotUpgradeValue;
 
-        private int cs;
-        // int mark;
-        private int statusCode;
-        private string statusReason;
+    private int cs;
+    // int mark;
+    private int statusCode;
+    private string statusReason;
 
+		/// <summary>Releases resources. The parser holds none.</summary>
 		public void Dispose()
 		{
-			
+
 		}
 
-        %%{
+    %%{
 
         # define actions
         machine http_parser;
@@ -66,16 +78,12 @@ namespace HttpMachine
 		 	_stringBuilder2.Length = 0;
 		}
 
-		action chunked_body_clear {
-			_chunkedBufferBuilder.Clear();
-		}
-
 		action chunked_hex_buf {
-			_chunkedHexBufferBuilder.Append((char)fc);
+			_chunkLength = (_chunkLength << 4) | HexValue((char)fc);
 		}
 
 		action chunked_hex_clear {
-			_chunkedHexBufferBuilder.Clear();
+			_chunkLength = 0;
 		}
 
 		action message_begin {
@@ -91,7 +99,6 @@ namespace HttpMachine
 			gotConnectionClose = false;
 			gotConnectionKeepAlive = false;
 			gotTransferEncodingChunked = false;
-			gotUpgradeValue = false;
 			parserDelegate.OnMessageBegin(this);
 		}
         
@@ -144,9 +151,14 @@ namespace HttpMachine
 			parserDelegate.OnQueryString(this, _stringBuilder2.ToString());
 		}
 
-		action status_code
+		action status_code_clear
 		{
-			statusCode = int.Parse(_stringBuilder.ToString());
+			statusCode = 0;
+		}
+
+		action status_code_digit
+		{
+			statusCode = statusCode * 10 + ((char)fc - '0');
 		}
 
 		action status_reason
@@ -255,11 +267,8 @@ namespace HttpMachine
 		}
 
         action on_chunck_len_hex {
-            _chunkLength = Convert.ToInt32(_chunkedHexBufferBuilder.ToString(), 16);
-			_chunkPos = _chunkLength;
-			Debug.WriteLine($"Chunk Length: {_chunkLength}");	
-			parserDelegate.OnChunkedLength(this, _chunkLength);	
-			
+			Debug.WriteLine($"Chunk Length: {_chunkLength}");
+			parserDelegate.OnChunkedLength(this, _chunkLength);
         }
 
         action last_crlf {
@@ -269,18 +278,21 @@ namespace HttpMachine
 				//Console.WriteLine("leave_headers contentLength = " + contentLength);
 				parserDelegate.OnHeadersEnd(this);
 
-				// if chunked transfer, ignore content length and parse chunked (but we can't yet so bail)
+				// if chunked transfer, ignore content length and parse chunked
 				// if content length given but zero, read next request
 				// if content length is given and non-zero, we should read that many bytes
 				// if content length is not given
 				//   if should keep alive, assume next request is coming and read it
-				//   else 
-				//		if chunked transfer read body until EOF
-				//   	else read next request
+				//   else read the body until the connection closes (EOF)
 
-				if (_contentLength == 0)
+				if (gotTransferEncodingChunked)
 				{
-					// No Content. Get ready for new incoming request 
+					// RFC 9112 6.3: Transfer-Encoding takes precedence over Content-Length
+					fgoto body_chunked_identity;
+				}
+				else if (_contentLength == 0)
+				{
+					// No Content. Get ready for new incoming request
 					parserDelegate.OnMessageEnd(this);
 					fgoto main;
 				}
@@ -289,17 +301,18 @@ namespace HttpMachine
 					// Handle Body based on Content Length
 					fgoto body_identity;
 				}
-				else if (gotTransferEncodingChunked)
-				{
-					// Handle Body based on Transfer-Encoding Chunked Length
-					fgoto body_chunked_identity;
-				}
 				else
 				{
 					if (ShouldKeepAlive)
 					{
 						parserDelegate.OnMessageEnd(this);
 						fgoto main;
+					}
+					else
+					{
+						// No framing information: the body runs until the connection closes.
+						// Signal EOF by calling Execute with an empty buffer.
+						fgoto body_identity_eof;
 					}
 				}
 			}
@@ -310,7 +323,7 @@ namespace HttpMachine
 			//Console.WriteLine("body_identity: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				EmitBody(data, array, arrayOffset, p, toRead);
 				p += toRead - 1;
 				_contentLength -= toRead;
 				//Console.WriteLine("content length is now " + contentLength);
@@ -345,7 +358,7 @@ namespace HttpMachine
 			{
 				Debug.WriteLine($"To Read: {toRead}");
 				parserDelegate.OnChunkReceived(this);
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				EmitBody(data, array, arrayOffset, p, toRead);
 				p += toRead - 1;
 				_chunkLength -= toRead;
 				
@@ -390,34 +403,24 @@ namespace HttpMachine
 		action body_identity_eof {
 			var toRead = pe - p;
 			Debug.WriteLine($"Eof To Read: {toRead}");
-			//Console.WriteLine("body_identity_eof: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
-				if (gotTransferEncodingChunked)
-				{
-					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
-					p += toRead - 1;
-					fbreak;
-				}
-				else
-				{
-					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
-					p += toRead - 1;
-					fbreak;
-				}
-				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				EmitBody(data, array, arrayOffset, p, toRead);
 				p += toRead - 1;
 				fbreak;
 			}
 			else
 			{
+				// Reached only from the EOF action (empty Execute call).
 				parserDelegate.OnMessageEnd(this);
-				
+
 				if (ShouldKeepAlive)
+				{
+					fhold;
 					fgoto main;
+				}
 				else
 				{
-					//Console.WriteLine("body_identity_eof: going to dead");
 					fhold;
 					fgoto dead;
 				}
@@ -432,49 +435,116 @@ namespace HttpMachine
 
         include http "http-chunked.rl";
         
-        }%%
-        
-        %% write data;
-        
-        protected HttpCombinedParser()
-        {
-			_stringBuilder = new StringBuilder();
-			_chunkedBufferBuilder = new StringBuilder();
-			_chunkedHexBufferBuilder = new StringBuilder();
-            %% write init;        
-        }
+    }%%
 
-        public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
-        {
-            this.parserDelegate = del;
-        }
-	
-        public int Execute(ArraySegment<byte> buf)
-        {
-			byte[] data = buf.Array;
-			int p = buf.Offset;
-			int pe = buf.Offset + buf.Count;
-			int eof = buf.Count == 0 ? buf.Offset : -1;
-			
+    %% write data;
+
+    /// <summary>Initializes the state machine. Use the delegate-taking constructor instead.</summary>
+    protected HttpCombinedParser()
+    {
+			_stringBuilder = new StringBuilder();
+        %% write init;
+    }
+
+    /// <summary>
+    /// Creates a parser that reports its results to <paramref name="del"/>. When the delegate
+    /// also implements <see cref="IHttpParserSpanDelegate"/>, body data from span input is
+    /// delivered without copying.
+    /// </summary>
+    public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
+    {
+        this.parserDelegate = del;
+        this.spanDelegate = del as IHttpParserSpanDelegate;
+    }
+
+		private static int HexValue(char c) => c <= '9' ? c - '0' : (c | 0x20) - 'a' + 10;
+
+		// Body callbacks mirror the Execute overload that was used: array-based input is
+		// delivered as an ArraySegment over the caller's buffer (as in 5.x); span-based
+		// input goes to IHttpParserSpanDelegate when implemented, or to the ArraySegment
+		// callback via a pooled copy otherwise.
+		private void EmitBody(ReadOnlySpan<byte> data, byte[] array, int arrayOffset, int start, int count)
+		{
+			if (array != null)
+			{
+				parserDelegate.OnBody(this, new ArraySegment<byte>(array, arrayOffset + start, count));
+			}
+			else if (spanDelegate != null)
+			{
+				spanDelegate.OnBody(this, data.Slice(start, count));
+			}
+			else
+			{
+				var rented = ArrayPool<byte>.Shared.Rent(count);
+				try
+				{
+					data.Slice(start, count).CopyTo(rented);
+					parserDelegate.OnBody(this, new ArraySegment<byte>(rented, 0, count));
+				}
+				finally
+				{
+					ArrayPool<byte>.Shared.Return(rented);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Parses the entire contents of <paramref name="buff"/> (independent of its current
+		/// position). The stream is not copied when its buffer is exposable.
+		/// Returns the number of bytes consumed; less than the stream length means a parse
+		/// error at that offset.
+		/// </summary>
+		public int Execute(MemoryStream buff) =>
+			buff.TryGetBuffer(out var buffer)
+				? Execute(new ReadOnlySpan<byte>(buffer.Array, buffer.Offset, buffer.Count), buffer.Array, buffer.Offset)
+				: Execute(buff.ToArray());
+
+    /// <summary>
+    /// Parses <paramref name="buff"/>. Call repeatedly as data arrives; messages may be split
+    /// across calls at any byte. Pass an empty buffer to signal end of stream for bodies
+    /// delimited by connection close. Returns the number of bytes consumed; less than
+    /// <c>buff.Length</c> means a parse error at that offset.
+    /// </summary>
+    public int Execute(byte[] buff) => Execute(new ReadOnlySpan<byte>(buff), buff, 0);
+
+    /// <summary>
+    /// Parses the given segment. Call repeatedly as data arrives; messages may be split
+    /// across calls at any byte. Pass an empty segment to signal end of stream for bodies
+    /// delimited by connection close. Returns the number of bytes consumed; less than
+    /// <c>buf.Count</c> means a parse error at that offset.
+    /// </summary>
+    public int Execute(ArraySegment<byte> buf) => Execute(buf.AsSpan(), buf.Array, buf.Offset);
+
+    /// <summary>
+    /// Parses the given span without requiring an array. Body data is delivered via
+    /// <see cref="IHttpParserSpanDelegate.OnBody"/> when the delegate implements it, or as a
+    /// pooled copy through <see cref="IHttpParserDelegate.OnBody"/> otherwise. Pass an empty
+    /// span to signal end of stream for bodies delimited by connection close. Returns the
+    /// number of bytes consumed; less than <c>buf.Length</c> means a parse error at that offset.
+    /// </summary>
+    public int Execute(ReadOnlySpan<byte> buf) => Execute(buf, null, 0);
+
+    private int Execute(ReadOnlySpan<byte> data, byte[] array, int arrayOffset)
+    {
+			int p = 0;
+			int pe = data.Length;
+			int eof = data.Length == 0 ? 0 : -1;
+
 			try
 			{
 				%% write exec;
 			}
 			catch (Exception)
 			{
-                parserDelegate.OnParserError();
-			}			
-							
-			var result = p - buf.Offset;
+            parserDelegate.OnParserError();
+			}
 
-			if (result != buf.Count)
+			if (p >= 0 && p < data.Length)
 			{
 				Debug.WriteLine("error on character " + p);
-				Debug.WriteLine("('" + buf.Array[p] + "')");
-				Debug.WriteLine("('" + (char)buf.Array[p] + "')");
+				Debug.WriteLine("('" + (char)data[p] + "')");
 			}
-			
-			return p - buf.Offset;            
-        }
+
+			return p;
     }
 }

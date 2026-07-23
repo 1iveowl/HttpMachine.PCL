@@ -1,9 +1,8 @@
-# HttpMachine for .NET Standard 2.0
+# HttpMachine
 
 [![NuGet Badge](https://img.shields.io/nuget/v/HttpMachine.PCL)](https://www.nuget.org/packages/HttpMachine.PCL)
 
-[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v2.0-red.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)[![.NET Standard](http://img.shields.io/badge/.NET_Standard-v2.1-red.svg)](https://docs.microsoft.com/da-dk/dotnet/articles/standard/library)
-[![.NET 6](http://img.shields.io/badge/.NET-v6.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/6.0)[![.NET 8](http://img.shields.io/badge/.NET-v8.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)[![.NET 9](http://img.shields.io/badge/.NET-v9.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
+Targets: .NET Standard 2.0 & 2.1, .NET 6, .NET 8 and .NET 10.
 
 *Please star this project if you find it useful. Thank you.*
 
@@ -11,119 +10,117 @@
 
 This is a fork of the great work done by Benjamin van der Veen. [The Original HttpMachine](https://github.com/bvanderveen/httpmachine)
 
-HttpMachine.PCL is a combined C# HTTP request/reponse parser. It implements a state machine with [Adrian Thurston](http://www.complang.org/thurston/)'s excellent state machine compiler, [Ragel](http://www.complang.org/ragel/). Because Ragel supports C#, Java, Ruby, C++ and more.
+HttpMachine.PCL is a combined C# HTTP request/response parser. It implements a state machine built with [Adrian Thurston](https://www.colm.net/)'s excellent state machine compiler, [Ragel](https://www.colm.net/open-source/ragel/).
 
-HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com). HttpMachine is licensed under the 
-MIT License. See LICENSE.txt.
+HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com). HttpMachine is licensed under the MIT License. See [LICENCE.md](LICENCE.md).
 
 I've forked this project as Benjamin is no longer maintaining the work.
 
-## Breaking changes for version 4.0+
-.NET Standard 2.0+ is now required minimun version.
+## Features
 
-Refactoring and simplification of use, have caused some namespaces to change. See example below for guidance for usage. 
-
-For instance, while still possible, it's no longer necessary to implement the interface `IHttpCombinedParser`, instead simply new up the `HttpParserDelegate`. Methods can be overrided if needed.
-
-## Breaking changes from version 3.0.1 to 3.1.0
-From version 3.1.0 and forward the ParserHandler must implement `IHttpCombinedParser` instead of using `HttpCombinedParser` (see example code below).
-
-## Original features
 - HTTP/1.1 and 1.0
-- Supports pipelined requests
-- Tells your server if it should keep-alive
-- Extracts the length of the entity body 
-- Support for parsing responses and request in one combined parser.
- 
-## Additional features
-Additions to this version compared with the original HttpMachine by [Benjamin van der Veen](http://bvanderveen.com)
-- .NET Standard 1.0 support (after version 4.0 only .NET Standard 2.0 is supported).
-- Support for Chunked Transfer-Encoding
-- Can be used on Windows 8+, .NET 4.5+, Xamarin.Android, Xamarin.iOS and ASP.NET Core 1.0+
-- The Http Method now accepts these additional four characters: $ - , .
-- From library ver 1.1.1 the parser has been combined into one Request/Reponse parser. Filter on `MessageType` to see what type was passed.
-- Can now manage Zero Lenght Headers - for example EXT: as used in UPnP.
-- From version 4.0 and onwards header values are collected in an `IEnumerable<string>`;
+- Parses requests and responses with one combined parser — filter on `MessageType` to see which one was parsed
+- Supports pipelined messages
+- Tells your server if it should keep the connection alive (`ShouldKeepAlive`)
+- Extracts the length of the entity body (`Content-Length`)
+- Supports chunked Transfer-Encoding
+- Handles zero-length headers (for example `EXT:` as used in UPnP)
+- Header values are collected in an `IEnumerable<string>` per header name (repeated headers accumulate)
 
-### Use like this: 
+## Usage
 
 ```cs
-class Program
-    {
-        static void Main(string[] args)
-        {
-            byte[] bArray;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using HttpMachine;
 
-            using (var handler = new HttpParserDelegate())
-            using (var parser = new HttpCombinedParser(handler))
-            {
-                bArray = TestReponse();
-                Console.WriteLine(parser.Execute(bArray) == bArray.Length
-                    ? $"Reponse test succeed. Type identified is; {handler.HttpRequestResponse.MessageType} \r\n" +
-                        $"Headers: \r\n" +
-                        $"{string.Join("\r\n", handler.HttpRequestResponse.Headers.Select(h => $"{h.Key}: {string.Join(", ", h.Value)} "))}"
-                    : $"Response test failed");
+var data = Encoding.UTF8.GetBytes(
+    "HTTP/1.1 200 OK\r\n" +
+    "Content-Type: text/plain\r\n" +
+    "Content-Length: 14\r\n" +
+    "\r\n" +
+    "This is a test");
 
-                handler.HttpRequestResponse.Body.Position = 0;
-                var reader = new StreamReader(handler.HttpRequestResponse.Body);
-                var body = reader.ReadToEnd();
-            }
+using var handler = new HttpParserDelegate();
+using var parser = new HttpCombinedParser(handler);
 
-            Console.WriteLine("\r\n\r\n");
+if (parser.Execute(data) != data.Length)
+{
+    Console.WriteLine("Parse failed.");
+    return;
+}
 
-            using (var handler = new HttpParserDelegate())
-            using (var parser = new HttpCombinedParser(handler))
-            {
-                bArray = TestChunkedResponse();
-                Console.WriteLine(parser.Execute(bArray) == bArray.Length
-                    ? $"Chunked Response test succeed. Type identified is; {handler.HttpRequestResponse.MessageType}." +
-                    $"Headers: \r\n" +
-                    $"{string.Join("\r\n", handler.HttpRequestResponse.Headers.Select(h => $"{h.Key}: {string.Join(",", h.Value)} "))}"
-                    : $"Chunked Response test failed");
+var result = handler.HttpRequestResponse;
 
-                handler.HttpRequestResponse.Body.Position = 0;
-                var reader = new StreamReader(handler.HttpRequestResponse.Body);
-                var body = reader.ReadToEnd();
-            }
-        }
-        
-        // Test Response
-        private static string TestReponse()
-        {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append("HTTP/1.1 200 OK\r\n");
-            stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
-            stringBuilder.Append("ST: upnp:rootdevice\r\n");
-            stringBuilder.Append("ST: upnp:rootdevice\r\n");
-            stringBuilder.Append("USN: uuid:73796E6F-6473-6D00-0000-0011322fe5f0::upnp:rootdevice\r\n");
-            stringBuilder.Append("EXT:\r\n");
-            stringBuilder.Append("SERVER: Synology/DSM/200.200.200.200\r\n");
-            stringBuilder.Append("LOCATION: http://200.200.200.101:5000/ssdp/desc-DSM-eth1.xml\r\n");
-            stringBuilder.Append("OPT: \"http://schemas.upnp.org/upnp/1/0/\"; ns=01\r\n");
-            stringBuilder.Append("01-NLS: 1\r\n");
-            stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
-            stringBuilder.Append("CONFIGID.UPNP.ORG: 1337\r\n");
-            stringBuilder.Append("\r\n");
-            return stringBuilder.ToString();
-        }
-        
-        // Test request
-        private static string TestRequest()
-        {
-            var stringBuilder = new StringBuilder();
-            stringBuilder.Append("NOTIFY * HTTP/1.1\r\n");
-            stringBuilder.Append("HOST: 239.255.255.250:1900\r\n");
-            stringBuilder.Append("CACHE-CONTROL: max-age = 10\r\n");
-            stringBuilder.Append("LOCATION: http://www.bing.com\r\n");
-            stringBuilder.Append("NT: \"upnp:rootdevice\"\r\n");
-            stringBuilder.Append("NTS: ssdp:alive\r\n");
-            stringBuilder.Append("EXT:\r\n");
-            stringBuilder.Append("SERVER: Synology/DSM/200.200.200.100 UPnP/2.0 Test/1.0\r\n");
-            stringBuilder.Append("BOOTID.UPNP.ORG: 1\r\n");
-            stringBuilder.Append("CONFIGID.UPNP.ORG: 121212\r\n");
-            stringBuilder.Append("\r\n");
-            return stringBuilder.ToString();
-        }
-    }
+Console.WriteLine($"Type: {result.MessageType}");     // Response
+Console.WriteLine($"Status: {result.StatusCode}");    // 200
+Console.WriteLine($"Keep-alive: {result.ShouldKeepAlive}");
+
+foreach (var header in result.Headers)
+{
+    Console.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
+}
+
+result.Body.Position = 0;
+Console.WriteLine($"Body: {new StreamReader(result.Body).ReadToEnd()}");
 ```
 
+See [the console test project](src/tests/Console.NETCore.Test/Program.cs) for a complete example including chunked transfer encoding, and [the test suite](src/tests/HttpMachine.Tests) for more usage patterns.
+
+### Things worth knowing
+
+- **Return value of `Execute`:** the number of bytes consumed. If it is less than the length you passed in, the parser hit a parse error at that position.
+- **Feeding data incrementally:** call `Execute` repeatedly as data arrives; messages may be split across buffers at any point.
+- **Span support:** `Execute(ReadOnlySpan<byte>)` parses without requiring an array — useful with pooled buffers or `PipeReader` slices. Body callbacks mirror the input: array-based `Execute` overloads deliver `OnBody(ArraySegment<byte>)` over your buffer (as in 5.x); the span overload delivers `OnBody(ReadOnlySpan<byte>)` to delegates implementing `IHttpParserSpanDelegate` (which `HttpParserDelegate` does), or a pooled copy to plain `IHttpParserDelegate` implementors. Either way the buffer is only valid during the callback — copy it if you keep it.
+- **End of stream:** when a message has no `Content-Length` and is not chunked, the body runs until the connection closes. Signal this to the parser by calling `Execute` with an empty buffer.
+- **Header keys:** stored uppercased; the `Headers` dictionary uses a case-insensitive comparer, so `headers["content-type"]` works too.
+- **Delegate results:** `handler.HttpRequestResponse` is the snapshot of the most recently *completed* message. It is `null` until the first message has been fully parsed. When parsing pipelined messages, read it from `OnMessageEnd` (override it) if you need every message.
+- **Customizing:** subclass `HttpParserDelegate` and override the `On...` methods you care about, or implement `IHttpParserCombinedDelegate` from scratch.
+- The HTTP method accepts these additional four characters: `$ - , .`
+- When both `Content-Length` and `Transfer-Encoding: chunked` are present, chunked wins (RFC 9112 6.3).
+
+## Working on the parser (Ragel)
+
+`src/main/HttpMachine.netstandard/HttpCombinedParser.cs` is **generated code** — do not edit it by hand. The sources are:
+
+- [HttpParser2-chunked.cs.rl](src/main/HttpMachine.netstandard/rl/HttpParser2-chunked.cs.rl) — C# host file with the parser actions
+- [http-chunked.rl](src/main/HttpMachine.netstandard/rl/http-chunked.rl) — the HTTP grammar
+- [uri.rl](src/main/HttpMachine.netstandard/rl/uri.rl) — the URI grammar
+
+To regenerate, install Ragel 6.x (`apt install ragel` on Debian/Ubuntu, available via Homebrew and Cygwin elsewhere) and run [generate.sh](src/main/HttpMachine.netstandard/rl/generate.sh) from the `rl` directory. The script also widens a few generated `sbyte[]` tables to `byte[]` — Ragel 6.x picks the element type by table length, not value range, and some tables contain values above 127.
+
+Run the tests after regenerating:
+
+```sh
+cd src/tests/HttpMachine.Tests
+dotnet test
+```
+
+## Version history
+
+### 6.0
+- **Breaking:** removed the unused `ParserStatus` enum.
+- Added `Execute(ReadOnlySpan<byte>)` and the optional `IHttpParserSpanDelegate` interface for zero-copy body delivery; `IHttpParserDelegate` is unchanged, so existing delegates keep working.
+- Targets .NET 10 instead of .NET 9 (C# 14); .NET Standard 2.0/2.1, .NET 6 and .NET 8 unchanged (`System.Memory` dependency added for .NET Standard 2.0).
+- Performance: `Execute(MemoryStream)` no longer copies the stream when its buffer is exposable; chunk sizes and status codes are parsed without intermediate string allocations.
+- Fixed `ShouldKeepAlive` for HTTP/1.0 messages (`Connection: keep-alive`/`close` were inverted).
+- Fixed bodies delimited by connection close (no `Content-Length`, not chunked); signal EOF with an empty `Execute` call.
+- Fixed repeated headers separated by other headers (previously failed the whole parse).
+- The same `HttpParserDelegate` now works for pipelined/keep-alive message sequences.
+- `Transfer-Encoding: chunked` now takes precedence over `Content-Length` per RFC 9112.
+- Header dictionary lookups are now case-insensitive.
+- Added an xunit test suite and CI; repository cleanup (removed bundled `ragel.exe` and stale build scripts).
+
+### 4.0+
+- .NET Standard 2.0 is now the required minimum version.
+- Refactoring and simplification of use has caused some namespaces to change.
+- It is no longer necessary to implement the interface `IHttpCombinedParser`; instead simply new up `HttpParserDelegate`. Methods can be overridden if needed.
+- Header values are collected in an `IEnumerable<string>`.
+
+### 3.1.0
+- The parser handler must implement `IHttpCombinedParser` instead of using `HttpCombinedParser`.
+
+### 1.1.1
+- The parser was combined into one request/response parser. Filter on `MessageType` to see what type was passed.

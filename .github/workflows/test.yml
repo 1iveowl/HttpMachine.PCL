@@ -1,0 +1,33 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+      - "releases/**"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore
+        working-directory: src/main/
+
+      - name: Build
+        run: dotnet build HttpMachine.sln --configuration Release --no-restore
+        working-directory: src/main/
+
+      - name: Test
+        run: dotnet test HttpMachine.sln --configuration Release --no-build --verbosity normal
+        working-directory: src/main/

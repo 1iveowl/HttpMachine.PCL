@@ -16,15 +16,15 @@ on:
 jobs:
   build_and_publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # OIDC token for NuGet.org trusted publishing
+      packages: write # push to GitHub Packages
+      contents: write # create the GitHub release
     steps:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: |
-            6.0.x
-            7.0.x
-            8.0.x
-            9.0.x
+          dotnet-version: 10.0.x
 
       - name: Install gitversion
         uses: gittools/actions/gitversion/setup@v0.11.0
@@ -49,6 +49,17 @@ jobs:
         with:
           useConfigFile: true
 
+      # Branches like releases/6.0.0-beta1 publish a prerelease (6.0.0-beta.1);
+      # plain releases/6.0.0 branches publish a stable 6.0.0.
+      - name: Compute package version
+        id: pkgver
+        run: |
+          if [[ "${GITHUB_REF_NAME#releases/}" == *-* ]]; then
+            echo "version=${{ steps.gitversion.outputs.SemVer }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ steps.gitversion.outputs.MajorMinorPatch }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Restore
         run: dotnet restore
         working-directory: src/main/
@@ -58,11 +69,11 @@ jobs:
         working-directory: src/main/
 
       - name: Pack HttpMachine
-        run: dotnet pack HttpMachine.netstandard.csproj -c Release --no-build /p:Version=${{ steps.gitversion.outputs.MajorMinorPatch }}
+        run: dotnet pack HttpMachine.netstandard.csproj -c Release --no-build /p:Version=${{ steps.pkgver.outputs.version }}
         working-directory: src/main/HttpMachine.netstandard/
 
       - name: Pack IHttpMachine (Interface)
-        run: dotnet pack IHttpMachine.csproj -c Release --no-build /p:Version=${{ steps.gitversion.outputs.MajorMinorPatch }}
+        run: dotnet pack IHttpMachine.csproj -c Release --no-build /p:Version=${{ steps.pkgver.outputs.version }}
         working-directory: src/interface/IHttpMachine/
 
       - name: Prep GitHub Packages
@@ -77,15 +88,25 @@ jobs:
         working-directory: src/interface/IHttpMachine/bin/Release/
 
       - name: Pack HttpMachine for NuGet.org
-        run: dotnet pack HttpMachine.netstandard.csproj -c Release --no-build /p:PackageID="HttpMachine.PCL" /p:Version=${{ steps.gitversion.outputs.MajorMinorPatch }}
+        run: dotnet pack HttpMachine.netstandard.csproj -c Release --no-build /p:PackageID="HttpMachine.PCL" /p:Version=${{ steps.pkgver.outputs.version }}
         working-directory: src/main/HttpMachine.netstandard/
 
+      # Trusted publishing: exchange a GitHub OIDC token for a temporary NuGet.org
+      # API key. The key is valid for one hour, so this runs just before the pushes.
+      # Requires a trusted publishing policy on nuget.org for this repository and
+      # this workflow file name (build.yml).
+      - name: NuGet login
+        uses: NuGet/login@v1
+        id: nuget_login
+        with:
+          user: 1iveowl # nuget.org username (profile name), not an email address
+
       - name: Publish HttpMachine to Nuget.Org
-        run: dotnet nuget push HttpMachine.PCL.*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push HttpMachine.PCL.*.nupkg --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
         working-directory: src/main/HttpMachine.netstandard/bin/Release/
 
       - name: Publish IHttpMachine (interface) to Nuget.Org
-        run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "*.nupkg" --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
         working-directory: src/interface/IHttpMachine/bin/Release/
 
       - name: Create Release

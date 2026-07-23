@@ -34,7 +34,7 @@ http_request_uri = ("*" | absolute_uri | abs_path_query_fragment | authority) >c
 
 http_version = "HTTP/" (digit{1} $version_major) "." (digit{1} $version_minor);
 
-http_response_code = ( digit+ ) >clear $buf %status_code ;
+http_response_code = ( digit+ ) >status_code_clear $status_code_digit;
 http_response_phrase = ( ascii -- ("\r" | "\n") )+ >clear $buf %status_reason;
 
 
@@ -70,7 +70,7 @@ http_request_headers = (http_request_line | http_response_line) (http_header)* h
 main := http_request_headers >message_begin;
 
 body_identity := any+ @body_identity;
-body_identity_eof := any* @body_identity_eof;
+body_identity_eof := any* @body_identity_eof $/body_identity_eof;
 
 chunk_length = (zlen | http_crlf) (xdigit+) >chunked_hex_clear $chunked_hex_buf %on_chunck_len_hex http_crlf;
 
