@@ -368,4 +368,108 @@ public class HttpCombinedParserTests
         Assert.Equal(length, parsed);
         Assert.Equal("longer than content length!!", BodyOf(handler));
     }
+
+    // Counts completed messages and records every byte delivered as body data, so a
+    // phantom close-delimited body shows up even when it is never exposed on a snapshot.
+    private sealed class MessageCountingDelegate : HttpParserDelegate
+    {
+        public int MessagesEnded { get; private set; }
+        public readonly MemoryStream AllBodyBytes = new();
+
+        public override void OnMessageEnd(IHttpCombinedParser combinedParser)
+        {
+            MessagesEnded++;
+            base.OnMessageEnd(combinedParser);
+        }
+
+        public override void OnBody(IHttpCombinedParser combinedParser, ArraySegment<byte> data)
+        {
+            AllBodyBytes.Write(data.Array, data.Offset, data.Count);
+            base.OnBody(combinedParser, data);
+        }
+
+        public override void OnBody(IHttpCombinedParser combinedParser, ReadOnlySpan<byte> data)
+        {
+            AllBodyBytes.Write(data);
+            base.OnBody(combinedParser, data);
+        }
+    }
+
+    // RFC 9112 6.3 rule 6: a request with no Transfer-Encoding and no Content-Length has a
+    // body length of zero. The close-delimited "read until EOF" rule applies to responses only.
+
+    [Fact]
+    public void Http10RequestWithoutContentLengthCompletesAtEndOfHeaders()
+    {
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler);
+        var data = Bytes("GET / HTTP/1.0\r\nHost: a\r\n\r\n");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+
+        Assert.Equal(1, handler.MessagesEnded);
+        Assert.NotNull(handler.HttpRequestResponse);
+        Assert.True(handler.HttpRequestResponse.IsEndOfMessage);
+        Assert.Empty(handler.AllBodyBytes.ToArray());
+    }
+
+    [Fact]
+    public void RequestWithConnectionCloseAndNoContentLengthCompletesAtEndOfHeaders()
+    {
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler);
+        var data = Bytes("GET / HTTP/1.1\r\nHost: a\r\nConnection: close\r\n\r\n");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+
+        Assert.Equal(1, handler.MessagesEnded);
+        Assert.True(handler.HttpRequestResponse.IsEndOfMessage);
+        Assert.Empty(handler.AllBodyBytes.ToArray());
+    }
+
+    [Fact]
+    public void BodylessRequestDoesNotSwallowFollowingRequest()
+    {
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler);
+        var data = Bytes(
+            "GET /1 HTTP/1.1\r\nHost: a\r\nConnection: close\r\n\r\n" +
+            "GET /2 HTTP/1.1\r\nHost: a\r\n\r\n");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+
+        Assert.Equal(2, handler.MessagesEnded);
+        Assert.Equal("/2", handler.HttpRequestResponse.Path);
+        Assert.Empty(handler.AllBodyBytes.ToArray());
+    }
+
+    [Fact]
+    public void RequestWithContentLengthAndConnectionCloseStillReadsBody()
+    {
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler);
+        var data = Bytes(
+            "POST / HTTP/1.1\r\nHost: a\r\nConnection: close\r\nContent-Length: 5\r\n\r\nHello");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+
+        Assert.Equal(1, handler.MessagesEnded);
+        Assert.Equal("Hello", Encoding.UTF8.GetString(handler.AllBodyBytes.ToArray()));
+    }
+
+    [Fact]
+    public void Http10ResponseWithoutContentLengthIsStillEofDelimited()
+    {
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler);
+        var data = Bytes("HTTP/1.0 200 OK\r\nConnection: close\r\n\r\nbody until close");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.Equal(0, handler.MessagesEnded); // not complete until EOF is signalled
+
+        parser.Execute(Array.Empty<byte>());
+
+        Assert.Equal(1, handler.MessagesEnded);
+        Assert.Equal("body until close", Encoding.UTF8.GetString(handler.AllBodyBytes.ToArray()));
+    }
 }

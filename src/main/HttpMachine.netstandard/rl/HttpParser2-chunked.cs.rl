@@ -43,6 +43,7 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 		private bool gotConnectionClose;
 		private bool gotConnectionKeepAlive;
 		private bool gotTransferEncodingChunked;
+		private bool _isRequest;
 
     private int cs;
     // int mark;
@@ -99,6 +100,7 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 			gotConnectionClose = false;
 			gotConnectionKeepAlive = false;
 			gotTransferEncodingChunked = false;
+			_isRequest = false;
 			parserDelegate.OnMessageBegin(this);
 		}
         
@@ -168,11 +170,13 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 		
 		action on_request_message
 		{
+			_isRequest = true;
 			parserDelegate.OnRequestType(this);
 		}
 
 		action on_response_message
 		{
+			_isRequest = false;
 			parserDelegate.OnResponseType(this);
 			parserDelegate.OnResponseCode(this, statusCode, statusReason);
 			statusReason = null;
@@ -282,7 +286,8 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 				// if content length given but zero, read next request
 				// if content length is given and non-zero, we should read that many bytes
 				// if content length is not given
-				//   if should keep alive, assume next request is coming and read it
+				//   if this is a request, the body length is zero
+				//   else if should keep alive, assume next response is coming and read it
 				//   else read the body until the connection closes (EOF)
 
 				if (gotTransferEncodingChunked)
@@ -300,6 +305,14 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 				{
 					// Handle Body based on Content Length
 					fgoto body_identity;
+				}
+				else if (_isRequest)
+				{
+					// RFC 9112 6.3 rule 6: a request with neither Transfer-Encoding nor
+					// Content-Length has a body length of zero. Close-delimited bodies
+					// are a response-only rule.
+					parserDelegate.OnMessageEnd(this);
+					fgoto main;
 				}
 				else
 				{

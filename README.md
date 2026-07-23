@@ -137,6 +137,20 @@ dotnet test
 
 ## Version history
 
+### 6.0.1
+- Fixed: a request with neither `Content-Length` nor `Transfer-Encoding` is now treated as having
+  no body, per [RFC 9112 6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3) rule 6
+  ("If this is a request message and none of the above are true, then the message body length is
+  zero"). The close-delimited "read until the connection closes" rule applies to responses only.
+  Previously such requests — for example `GET / HTTP/1.0` or any request with `Connection: close` —
+  never completed until `Execute` was called with an empty buffer, which could hang a server built
+  on the parser, and any following pipelined request was silently consumed as body data.
+- Known issue, unchanged in this release: a *response* with keep-alive but no framing headers is
+  treated as an immediately complete zero-length message, where
+  [RFC 9112 6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3) rule 8 says it should be
+  close-delimited. Correcting this changes behaviour for existing consumers, so it is deferred out
+  of this patch release.
+
 ### 6.0
 - **Breaking:** removed the unused `ParserStatus` enum.
 - Added `Execute(ReadOnlySpan<byte>)` and the optional `IHttpParserSpanDelegate` interface for zero-copy body delivery; `IHttpParserDelegate` is unchanged, so existing delegates keep working.
