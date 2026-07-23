@@ -49,6 +49,17 @@ jobs:
         with:
           useConfigFile: true
 
+      # Branches like releases/6.0.0-beta1 publish a prerelease (6.0.0-beta.1);
+      # plain releases/6.0.0 branches publish a stable 6.0.0.
+      - name: Compute package version
+        id: pkgver
+        run: |
+          if [[ "${GITHUB_REF_NAME#releases/}" == *-* ]]; then
+            echo "version=${{ steps.gitversion.outputs.SemVer }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ steps.gitversion.outputs.MajorMinorPatch }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Restore
         run: dotnet restore
         working-directory: src/main/
@@ -58,11 +69,11 @@ jobs:
         working-directory: src/main/
 
       - name: Pack HttpMachine
-        run: dotnet pack HttpMachine.netstandard.csproj -c Release --no-build /p:Version=${{ steps.gitversion.outputs.MajorMinorPatch }}
+        run: dotnet pack HttpMachine.netstandard.csproj -c Release --no-build /p:Version=${{ steps.pkgver.outputs.version }}
         working-directory: src/main/HttpMachine.netstandard/
 
       - name: Pack IHttpMachine (Interface)
-        run: dotnet pack IHttpMachine.csproj -c Release --no-build /p:Version=${{ steps.gitversion.outputs.MajorMinorPatch }}
+        run: dotnet pack IHttpMachine.csproj -c Release --no-build /p:Version=${{ steps.pkgver.outputs.version }}
         working-directory: src/interface/IHttpMachine/
 
       - name: Prep GitHub Packages
@@ -77,7 +88,7 @@ jobs:
         working-directory: src/interface/IHttpMachine/bin/Release/
 
       - name: Pack HttpMachine for NuGet.org
-        run: dotnet pack HttpMachine.netstandard.csproj -c Release --no-build /p:PackageID="HttpMachine.PCL" /p:Version=${{ steps.gitversion.outputs.MajorMinorPatch }}
+        run: dotnet pack HttpMachine.netstandard.csproj -c Release --no-build /p:PackageID="HttpMachine.PCL" /p:Version=${{ steps.pkgver.outputs.version }}
         working-directory: src/main/HttpMachine.netstandard/
 
       - name: Publish HttpMachine to Nuget.Org
