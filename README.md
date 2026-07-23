@@ -15,6 +15,32 @@ A combined C# HTTP request/response parser, implemented as a state machine built
 
 *Please star this project if you find it useful. Thank you.*
 
+## When is this library useful?
+
+Most .NET code should reach for
+[`HttpClient`](https://learn.microsoft.com/dotnet/api/system.net.http.httpclient) or
+[Kestrel](https://learn.microsoft.com/aspnet/core/fundamentals/servers/kestrel) — they manage
+connections, TLS and newer protocol versions for you. HttpMachine solves a different problem: it
+parses HTTP messages from **raw bytes**, with no socket, connection or transport attached. You hand
+it a buffer, it hands you back the parsed message.
+
+That makes it a good fit when:
+
+- **The HTTP message doesn't arrive over an HTTP connection.** SSDP/UPnP discovery is the classic
+  case — `NOTIFY` and `M-SEARCH` messages multicast over UDP, which no HTTP client will parse for you.
+- **You need the handshake, not the protocol.** Reading a WebSocket upgrade request or response.
+- **You are implementing the endpoint yourself** — a custom or embedded server, a proxy or gateway,
+  or a device speaking HTTP over an unusual transport.
+- **You are inspecting or testing traffic** — sniffers, protocol test harnesses, fuzzing, or
+  replaying captured bytes.
+- **Data arrives in fragments.** Messages may be split across buffers at any byte, and
+  `Execute(ReadOnlySpan<byte>)` reads pooled or sliced buffers without copying.
+
+Targeting .NET Standard 2.0 also means it runs where modern HTTP stacks don't — older runtimes,
+Xamarin, Unity and constrained devices.
+
+If you need HTTP/2 or HTTP/3, see [Why HTTP/1.x only?](#why-http1x-only) at the end.
+
 ## Background
 
 This project began in May 2016 as a fork of the great work done by Benjamin van der Veen,
