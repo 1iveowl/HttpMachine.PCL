@@ -1,5 +1,5 @@
 
-#line 1 "httpparser2-chunked.cs.rl"
+#line 1 "HttpParser2-chunked.cs.rl"
 ﻿using System;
 using System.Text;
 using System.Diagnostics;
@@ -13,20 +13,18 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
     public int MajorVersion {get; private set;}
     public int MinorVersion {get; private set;}
 
-    public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0) 
-			? !gotConnectionClose 
-			: gotConnectionClose;
-    
+    public bool ShouldKeepAlive => (MajorVersion > 0 && MinorVersion > 0)
+			? !gotConnectionClose
+			: gotConnectionKeepAlive;
+
     private readonly IHttpParserCombinedDelegate parserDelegate;
 
 		private readonly StringBuilder _stringBuilder;
 		private StringBuilder _stringBuilder2;
-		private StringBuilder _chunkedBufferBuilder;
 		private StringBuilder _chunkedHexBufferBuilder;
-		
+
     private int _contentLength;
     private int _chunkLength;
-		private int _chunkPos;
 
 		// TODO make flags or something, dang
 		private bool inContentLengthHeader;
@@ -36,7 +34,6 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 		private bool gotConnectionClose;
 		private bool gotConnectionKeepAlive;
 		private bool gotTransferEncodingChunked;
-		private bool gotUpgradeValue;
 
     private int cs;
     // int mark;
@@ -49,11 +46,11 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 		}
 
     
-#line 434 "httpparser2-chunked.cs.rl"
+#line 423 "HttpParser2-chunked.cs.rl"
+
 
     
-    
-#line 53 "..\\HttpCombinedParser.cs"
+#line 49 "../HttpCombinedParser.cs"
 static readonly sbyte[] _http_parser_actions =  new sbyte [] {
 	0, 1, 0, 1, 4, 1, 10, 1, 
 	12, 1, 13, 1, 15, 1, 18, 1, 
@@ -614,7 +611,7 @@ static readonly byte[] _http_parser_eof_actions =  new byte [] {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 7, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 33, 0, 0, 0
+	37, 33, 0, 0, 0
 };
 
 const int http_parser_start = 1;
@@ -630,20 +627,19 @@ const int http_parser_en_read_chunk_stop = 155;
 const int http_parser_en_dead = 149;
 
 
-#line 437 "httpparser2-chunked.cs.rl"
-    
+#line 426 "HttpParser2-chunked.cs.rl"
+
     protected HttpCombinedParser()
     {
 			_stringBuilder = new StringBuilder();
-			_chunkedBufferBuilder = new StringBuilder();
 			_chunkedHexBufferBuilder = new StringBuilder();
         
-#line 638 "..\\HttpCombinedParser.cs"
+#line 629 "../HttpCombinedParser.cs"
 	{
 	cs = http_parser_start;
 	}
 
-#line 444 "httpparser2-chunked.cs.rl"
+#line 432 "HttpParser2-chunked.cs.rl"
     }
 
     public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
@@ -665,7 +661,7 @@ const int http_parser_en_dead = 149;
 			try
 			{
 				
-#line 661 "..\\HttpCombinedParser.cs"
+#line 652 "../HttpCombinedParser.cs"
 	{
 	sbyte _klen;
 	short _trans;
@@ -683,12 +679,12 @@ _resume:
 	while ( _nacts-- > 0 ) {
 		switch ( _http_parser_actions[_acts++] ) {
 	case 40:
-#line 428 "httpparser2-chunked.cs.rl"
+#line 417 "HttpParser2-chunked.cs.rl"
 	{
 			throw new Exception("Parser is dead; there shouldn't be more data. Client is bogus? fpc =" + p);
 		}
 	break;
-#line 684 "..\\HttpCombinedParser.cs"
+#line 673 "../HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -755,25 +751,25 @@ _match:
 		switch ( _http_parser_actions[_acts++] )
 		{
 	case 0:
-#line 50 "httpparser2-chunked.cs.rl"
+#line 51 "HttpParser2-chunked.cs.rl"
 	{
 			_stringBuilder.Append((char)data[p]);
 		}
 	break;
 	case 1:
-#line 54 "httpparser2-chunked.cs.rl"
+#line 55 "HttpParser2-chunked.cs.rl"
 	{
 			_stringBuilder.Length = 0;
 		}
 	break;
 	case 2:
-#line 58 "httpparser2-chunked.cs.rl"
+#line 59 "HttpParser2-chunked.cs.rl"
 	{
 			_stringBuilder2.Append((char)data[p]);
 		}
 	break;
 	case 3:
-#line 62 "httpparser2-chunked.cs.rl"
+#line 63 "HttpParser2-chunked.cs.rl"
 	{
 			if (_stringBuilder2 == null)
 				_stringBuilder2 = new StringBuilder();
@@ -781,19 +777,19 @@ _match:
 		}
 	break;
 	case 4:
-#line 72 "httpparser2-chunked.cs.rl"
+#line 69 "HttpParser2-chunked.cs.rl"
 	{
 			_chunkedHexBufferBuilder.Append((char)data[p]);
 		}
 	break;
 	case 5:
-#line 76 "httpparser2-chunked.cs.rl"
+#line 73 "HttpParser2-chunked.cs.rl"
 	{
 			_chunkedHexBufferBuilder.Clear();
 		}
 	break;
 	case 6:
-#line 80 "httpparser2-chunked.cs.rl"
+#line 77 "HttpParser2-chunked.cs.rl"
 	{
 			//Console.WriteLine("message_begin");
 			MajorVersion = 0;
@@ -807,90 +803,89 @@ _match:
 			gotConnectionClose = false;
 			gotConnectionKeepAlive = false;
 			gotTransferEncodingChunked = false;
-			gotUpgradeValue = false;
 			parserDelegate.OnMessageBegin(this);
 		}
 	break;
 	case 7:
-#line 97 "httpparser2-chunked.cs.rl"
+#line 93 "HttpParser2-chunked.cs.rl"
 	{
-       //Console.WriteLine("matched absolute_uri");
-    }
+           //Console.WriteLine("matched absolute_uri");
+        }
 	break;
 	case 8:
-#line 100 "httpparser2-chunked.cs.rl"
+#line 96 "HttpParser2-chunked.cs.rl"
 	{
-        //Console.WriteLine("matched abs_path");
-    }
+            //Console.WriteLine("matched abs_path");
+        }
 	break;
 	case 9:
-#line 103 "httpparser2-chunked.cs.rl"
+#line 99 "HttpParser2-chunked.cs.rl"
 	{
-        //Console.WriteLine("matched authority");
-    }
+            //Console.WriteLine("matched authority");
+        }
 	break;
 	case 10:
-#line 106 "httpparser2-chunked.cs.rl"
+#line 102 "HttpParser2-chunked.cs.rl"
 	{
-        //Console.WriteLine("matched first space");
-    }
+            //Console.WriteLine("matched first space");
+        }
 	break;
 	case 11:
-#line 109 "httpparser2-chunked.cs.rl"
+#line 105 "HttpParser2-chunked.cs.rl"
 	{
-        //Console.WriteLine("leave_first_space");
-    }
+            //Console.WriteLine("leave_first_space");
+        }
 	break;
 	case 13:
-#line 118 "httpparser2-chunked.cs.rl"
+#line 114 "HttpParser2-chunked.cs.rl"
 	{
 			//Console.WriteLine("matched_leading_crlf");
 		}
 	break;
 	case 14:
-#line 128 "httpparser2-chunked.cs.rl"
+#line 124 "HttpParser2-chunked.cs.rl"
 	{
 			parserDelegate.OnMethod(this, _stringBuilder.ToString());
 		}
 	break;
 	case 15:
-#line 132 "httpparser2-chunked.cs.rl"
+#line 128 "HttpParser2-chunked.cs.rl"
 	{
 			parserDelegate.OnRequestUri(this, _stringBuilder.ToString());
 		}
 	break;
 	case 16:
-#line 137 "httpparser2-chunked.cs.rl"
+#line 133 "HttpParser2-chunked.cs.rl"
 	{
 			parserDelegate.OnPath(this, _stringBuilder2.ToString());
 		}
 	break;
 	case 17:
-#line 142 "httpparser2-chunked.cs.rl"
+#line 138 "HttpParser2-chunked.cs.rl"
 	{
 			parserDelegate.OnQueryString(this, _stringBuilder2.ToString());
 		}
 	break;
 	case 18:
-#line 147 "httpparser2-chunked.cs.rl"
+#line 143 "HttpParser2-chunked.cs.rl"
 	{
 			statusCode = int.Parse(_stringBuilder.ToString());
 		}
 	break;
 	case 19:
-#line 152 "httpparser2-chunked.cs.rl"
+#line 148 "HttpParser2-chunked.cs.rl"
 	{
 			statusReason = _stringBuilder.ToString();
 		}
 	break;
 	case 20:
-#line 157 "httpparser2-chunked.cs.rl"
+#line 153 "HttpParser2-chunked.cs.rl"
 	{
 			parserDelegate.OnRequestType(this);
 		}
 	break;
 	case 21:
-#line 162 "httpparser2-chunked.cs.rl"
+#line 158 "HttpParser2-chunked.cs.rl"
 	{
 			parserDelegate.OnResponseType(this);
 			parserDelegate.OnResponseCode(this, statusCode, statusReason);
@@ -899,41 +894,41 @@ _match:
 		}
 	break;
 	case 22:
-#line 179 "httpparser2-chunked.cs.rl"
+#line 175 "HttpParser2-chunked.cs.rl"
 	{
 			parserDelegate.OnFragment(this, _stringBuilder2.ToString());
 		}
 	break;
 	case 23:
-#line 192 "httpparser2-chunked.cs.rl"
+#line 188 "HttpParser2-chunked.cs.rl"
 	{
 			MajorVersion = (char)data[p] - '0';
 		}
 	break;
 	case 24:
-#line 196 "httpparser2-chunked.cs.rl"
+#line 192 "HttpParser2-chunked.cs.rl"
 	{
 			MinorVersion = (char)data[p] - '0';
 		}
 	break;
 	case 25:
-#line 200 "httpparser2-chunked.cs.rl"
+#line 196 "HttpParser2-chunked.cs.rl"
 	{
-        if (_contentLength != -1) throw new Exception("Already got Content-Length. Possible attack?");
+            if (_contentLength != -1) throw new Exception("Already got Content-Length. Possible attack?");
 			//Console.WriteLine("Saw content length");
 			_contentLength = 0;
 			inContentLengthHeader = true;
-    }
+        }
 	break;
 	case 26:
-#line 207 "httpparser2-chunked.cs.rl"
+#line 203 "HttpParser2-chunked.cs.rl"
 	{
 			//Console.WriteLine("header_connection");
 			inConnectionHeader = true;
 		}
 	break;
 	case 27:
-#line 212 "httpparser2-chunked.cs.rl"
+#line 208 "HttpParser2-chunked.cs.rl"
 	{
 			//Console.WriteLine("header_connection_close");
 			if (inConnectionHeader)
@@ -941,7 +936,7 @@ _match:
 		}
 	break;
 	case 28:
-#line 218 "httpparser2-chunked.cs.rl"
+#line 214 "HttpParser2-chunked.cs.rl"
 	{
 			//Console.WriteLine("header_connection_keepalive");
 			if (inConnectionHeader)
@@ -949,35 +944,35 @@ _match:
 		}
 	break;
 	case 29:
-#line 224 "httpparser2-chunked.cs.rl"
+#line 220 "HttpParser2-chunked.cs.rl"
 	{
 			//Console.WriteLine("Saw transfer encoding");
 			inTransferEncodingHeader = true;
 		}
 	break;
 	case 30:
-#line 229 "httpparser2-chunked.cs.rl"
+#line 225 "HttpParser2-chunked.cs.rl"
 	{
 			if (inTransferEncodingHeader)
 				gotTransferEncodingChunked = true;
-        parserDelegate.OnTransferEncodingChunked(this, true);
+            parserDelegate.OnTransferEncodingChunked(this, true);
 			Debug.WriteLine($"Transfer Encoding Chunked: {gotTransferEncodingChunked}");
 		}
 	break;
 	case 31:
-#line 236 "httpparser2-chunked.cs.rl"
+#line 232 "HttpParser2-chunked.cs.rl"
 	{
 			inUpgradeHeader = true;
 		}
 	break;
 	case 32:
-#line 240 "httpparser2-chunked.cs.rl"
+#line 236 "HttpParser2-chunked.cs.rl"
 	{
 			parserDelegate.OnHeaderName(this, _stringBuilder.ToString());
 		}
 	break;
 	case 33:
-#line 244 "httpparser2-chunked.cs.rl"
+#line 240 "HttpParser2-chunked.cs.rl"
 	{
 			var str = _stringBuilder.ToString();
 			//Console.WriteLine("on_header_value '" + str + "'");
@@ -991,17 +986,16 @@ _match:
 		}
 	break;
 	case 34:
-#line 256 "httpparser2-chunked.cs.rl"
+#line 252 "HttpParser2-chunked.cs.rl"
 	{
-        _chunkLength = Convert.ToInt32(_chunkedHexBufferBuilder.ToString(), 16);
-			_chunkPos = _chunkLength;
-			Debug.WriteLine($"Chunk Length: {_chunkLength}");	
-			parserDelegate.OnChunkedLength(this, _chunkLength);	
-			
-    }
+            _chunkLength = Convert.ToInt32(_chunkedHexBufferBuilder.ToString(), 16);
+			Debug.WriteLine($"Chunk Length: {_chunkLength}");
+			parserDelegate.OnChunkedLength(this, _chunkLength);
+
+        }
 	break;
 	case 35:
-#line 264 "httpparser2-chunked.cs.rl"
+#line 259 "HttpParser2-chunked.cs.rl"
 	{
 			
 			if (data[p] == 10)
@@ -1009,44 +1003,48 @@ _match:
 				//Console.WriteLine("leave_headers contentLength = " + contentLength);
 				parserDelegate.OnHeadersEnd(this);
 
-				// if chunked transfer, ignore content length and parse chunked (but we can't yet so bail)
+				// if chunked transfer, ignore content length and parse chunked
 				// if content length given but zero, read next request
 				// if content length is given and non-zero, we should read that many bytes
 				// if content length is not given
 				//   if should keep alive, assume next request is coming and read it
-				//   else 
-				//		if chunked transfer read body until EOF
-				//   	else read next request
+				//   else read the body until the connection closes (EOF)
 
-				if (_contentLength == 0)
+				if (gotTransferEncodingChunked)
 				{
-					// No Content. Get ready for new incoming request 
+					// RFC 9112 6.3: Transfer-Encoding takes precedence over Content-Length
+					{cs = 144;if (true) goto _again;}
+				}
+				else if (_contentLength == 0)
+				{
+					// No Content. Get ready for new incoming request
 					parserDelegate.OnMessageEnd(this);
-					{cs = 1; if (true) goto _again;}
+					{cs = 1;if (true) goto _again;}
 				}
 				else if (_contentLength > 0)
 				{
 					// Handle Body based on Content Length
-					{cs = 143; if (true) goto _again;}
-				}
-				else if (gotTransferEncodingChunked)
-				{
-					// Handle Body based on Transfer-Encoding Chunked Length
-					{cs = 144; if (true) goto _again;}
+					{cs = 143;if (true) goto _again;}
 				}
 				else
 				{
 					if (ShouldKeepAlive)
 					{
 						parserDelegate.OnMessageEnd(this);
-						{cs = 1; if (true) goto _again;}
+						{cs = 1;if (true) goto _again;}
+					}
+					else
+					{
+						// No framing information: the body runs until the connection closes.
+						// Signal EOF by calling Execute with an empty buffer.
+						{cs = 152;if (true) goto _again;}
 					}
 				}
 			}
-    }
+        }
 	break;
 	case 36:
-#line 307 "httpparser2-chunked.cs.rl"
+#line 306 "HttpParser2-chunked.cs.rl"
 	{
 			var toRead = Math.Min(pe - p, _contentLength);
 			//Console.WriteLine("body_identity: reading " + toRead + " bytes from body.");
@@ -1065,12 +1063,12 @@ _match:
 					{
 						//Console.WriteLine("Transitioning from identity body to next message.");
 						//fhold;
-						{cs = 1; if (true) goto _again;}
+						{cs = 1;if (true) goto _again;}
 					}
 					else
 					{
 						//fhold;
-						{cs = 149; if (true) goto _again;}
+						{cs = 149;if (true) goto _again;}
 					}
 				}
 				else
@@ -1081,7 +1079,7 @@ _match:
 		}
 	break;
 	case 37:
-#line 340 "httpparser2-chunked.cs.rl"
+#line 339 "HttpParser2-chunked.cs.rl"
 	{
 			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");
 			var toRead = Math.Min(pe - p, _chunkLength);
@@ -1096,18 +1094,18 @@ _match:
 				if (_chunkLength == 0)
 				{
 					// Finished reading the current chunk. Go to the next one.
-					{cs = 144; if (true) goto _again;}
+					{cs = 144;if (true) goto _again;}
 				}
 				else
 				{
 					// Additional chunk data will be present in the next buffer. Stay in the same sate.
-					{cs = 153; if (true) goto _again;}
+					{cs = 153;if (true) goto _again;}
 				}
 			}
 
 			if (_chunkLength == 0)
 			{
-				{cs = 155; if (true) goto _again;}
+				{cs = 155;if (true) goto _again;}
 			}
 			else
 			{
@@ -1116,7 +1114,7 @@ _match:
 		}
 	break;
 	case 38:
-#line 373 "httpparser2-chunked.cs.rl"
+#line 372 "HttpParser2-chunked.cs.rl"
 	{
 			//Debug.WriteLine($"End of chunks");
 
@@ -1124,55 +1122,45 @@ _match:
 			
 			if (ShouldKeepAlive)
 			{
-				{cs = 1; if (true) goto _again;}
+				{cs = 1;if (true) goto _again;}
 			}
 			else
 			{
 				p--;
-				{cs = 149; if (true) goto _again;}
+				{cs = 149;if (true) goto _again;}
 			}
 		}
 	break;
 	case 39:
-#line 389 "httpparser2-chunked.cs.rl"
+#line 388 "HttpParser2-chunked.cs.rl"
 	{
 			var toRead = pe - p;
 			Debug.WriteLine($"Eof To Read: {toRead}");
-			//Console.WriteLine("body_identity_eof: reading " + toRead + " bytes from body.");
 			if (toRead > 0)
 			{
-				if (gotTransferEncodingChunked)
-				{
-					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
-					p += toRead - 1;
-					{p++; if (true) goto _out; }
-				}
-				else
-				{
-					parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
-					p += toRead - 1;
-					{p++; if (true) goto _out; }
-				}
 				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
 				p += toRead - 1;
 				{p++; if (true) goto _out; }
 			}
 			else
 			{
+				// Reached only from the EOF action (empty Execute call).
 				parserDelegate.OnMessageEnd(this);
-				
+
 				if (ShouldKeepAlive)
-					{cs = 1; if (true) goto _again;}
+				{
+					p--;
+					{cs = 1;if (true) goto _again;}
+				}
 				else
 				{
-					//Console.WriteLine("body_identity_eof: going to dead");
 					p--;
-					{cs = 149; if (true) goto _again;}
+					{cs = 149;if (true) goto _again;}
 				}
 			}
 		}
 	break;
-#line 1168 "..\\HttpCombinedParser.cs"
+#line 1109 "../HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -1190,13 +1178,13 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( _http_parser_actions[__acts++] ) {
 	case 12:
-#line 112 "httpparser2-chunked.cs.rl"
+#line 108 "HttpParser2-chunked.cs.rl"
 	{
-        //Console.WriteLine("eof_leave_first_space");
-    }
+            //Console.WriteLine("eof_leave_first_space");
+        }
 	break;
 	case 37:
-#line 340 "httpparser2-chunked.cs.rl"
+#line 339 "HttpParser2-chunked.cs.rl"
 	{
 			Debug.WriteLine($"Reading chunk size: {_chunkLength}.");
 			var toRead = Math.Min(pe - p, _chunkLength);
@@ -1211,18 +1199,18 @@ _again:
 				if (_chunkLength == 0)
 				{
 					// Finished reading the current chunk. Go to the next one.
-					{cs = 144; if (true) goto _again;}
+					{cs = 144;if (true) goto _again;}
 				}
 				else
 				{
 					// Additional chunk data will be present in the next buffer. Stay in the same sate.
-					{cs = 153; if (true) goto _again;}
+					{cs = 153;if (true) goto _again;}
 				}
 			}
 
 			if (_chunkLength == 0)
 			{
-				{cs = 155; if (true) goto _again;}
+				{cs = 155;if (true) goto _again;}
 			}
 			else
 			{
@@ -1230,7 +1218,36 @@ _again:
 			}
 		}
 	break;
-#line 1226 "..\\HttpCombinedParser.cs"
+	case 39:
+#line 388 "HttpParser2-chunked.cs.rl"
+	{
+			var toRead = pe - p;
+			Debug.WriteLine($"Eof To Read: {toRead}");
+			if (toRead > 0)
+			{
+				parserDelegate.OnBody(this, new ArraySegment<byte>(data, p, toRead));
+				p += toRead - 1;
+				{p++; if (true) goto _out; }
+			}
+			else
+			{
+				// Reached only from the EOF action (empty Execute call).
+				parserDelegate.OnMessageEnd(this);
+
+				if (ShouldKeepAlive)
+				{
+					p--;
+					{cs = 1;if (true) goto _again;}
+				}
+				else
+				{
+					p--;
+					{cs = 149;if (true) goto _again;}
+				}
+			}
+		}
+	break;
+#line 1192 "../HttpCombinedParser.cs"
 		default: break;
 		}
 	}
@@ -1239,13 +1256,13 @@ _again:
 	_out: {}
 	}
 
-#line 461 "httpparser2-chunked.cs.rl"
+#line 453 "HttpParser2-chunked.cs.rl"
 			}
 			catch (Exception)
 			{
             parserDelegate.OnParserError();
-			}			
-							
+			}
+
 			var result = p - buf.Offset;
 
 			if (result != buf.Count)
@@ -1254,7 +1271,7 @@ _again:
 				Debug.WriteLine("('" + buf.Array[p] + "')");
 				Debug.WriteLine("('" + (char)buf.Array[p] + "')");
 			}
-			
-			return p - buf.Offset;            
+
+			return p - buf.Offset;
     }
 }

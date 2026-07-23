@@ -44,8 +44,6 @@ class Program
             var body = reader.ReadToEnd();
             Console.WriteLine($"Body: {body}");
         }
-
-        Console.ReadKey();
     }
 
     private static byte[] TestReponse()

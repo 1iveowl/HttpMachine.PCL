@@ -9,7 +9,7 @@ namespace HttpMachine;
 
 public class HttpParserDelegate : IHttpParserCombinedDelegate
 {
-    private readonly InternalHttpRequestResponse _httpRequestResponse;
+    private InternalHttpRequestResponse _httpRequestResponse;
     private string _readingHeader;
     private readonly Dictionary<string, IList<string>> _headers;
 
@@ -18,12 +18,15 @@ public class HttpParserDelegate : IHttpParserCombinedDelegate
     public HttpParserDelegate()
     {
         _httpRequestResponse = new InternalHttpRequestResponse();
-        _headers = [];
+        _headers = new Dictionary<string, IList<string>>(StringComparer.OrdinalIgnoreCase);
     }
-           
+
     public virtual void OnMessageBegin(IHttpCombinedParser combinedParser)
     {
-
+        // Reset per-message state so the same delegate can parse pipelined/keep-alive messages.
+        _httpRequestResponse = new InternalHttpRequestResponse();
+        _headers.Clear();
+        _readingHeader = null;
     }
 
     public virtual void OnHeaderName(IHttpCombinedParser combinedParser, string headerName)
@@ -32,7 +35,12 @@ public class HttpParserDelegate : IHttpParserCombinedDelegate
         if (!string.Equals(_readingHeader, headerName, StringComparison.OrdinalIgnoreCase))
         {
             // Header Field Names are case-insensitive http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
-            _readingHeader = headerName.ToUpper();
+            _readingHeader = headerName.ToUpperInvariant();
+        }
+
+        // The same header may reappear later in the message; append to the existing list.
+        if (!_headers.ContainsKey(_readingHeader))
+        {
             _headers.Add(_readingHeader, []);
         }
     }
@@ -51,9 +59,10 @@ public class HttpParserDelegate : IHttpParserCombinedDelegate
 
     public virtual void OnHeadersEnd(IHttpCombinedParser combinedParser)
     {
-        _httpRequestResponse.Headers = _headers
-            .Select(d => new { d.Key, enumerable = d.Value.AsEnumerable() } )
-            .ToDictionary(d => d.Key, d => d.enumerable);
+        _httpRequestResponse.Headers = _headers.ToDictionary(
+            d => d.Key,
+            d => d.Value.AsEnumerable(),
+            StringComparer.OrdinalIgnoreCase);
     }
 
     public virtual void OnTransferEncodingChunked(IHttpCombinedParser combinedParser, bool isChunked)

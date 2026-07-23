@@ -4,20 +4,20 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net9.0</TargetFrameworks>
     <AssemblyName>HttpMachine</AssemblyName>
     <RootNamespace>HttpMachine</RootNamespace>
-    <AssemblyVersion>5.0.1.0</AssemblyVersion>
-    <FileVersion>5.0.1.0</FileVersion>
+    <AssemblyVersion>6.0.0.0</AssemblyVersion>
+    <FileVersion>6.0.0.0</FileVersion>
 	  <LangVersion>13.0</LangVersion>
 
     <PackageIcon>images\1iveowl-logo.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>5.0.1</Version>
+    <Version>6.0.0</Version>
     <Authors>Jasper Hedegaard Bojsen</Authors>
     <Copyright>1iveowl Development 2025</Copyright>
     <PackageProjectUrl>https://github.com/1iveowl/HttpMachine.PCL</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/1iveowl/HttpMachine.PCL</RepositoryUrl>
     <Description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</Description>
-    <PackageReleaseNotes>Updated to .NET Standard v2.0, 2.1,.Net 6,.Net 8,.Net 9</PackageReleaseNotes>
+    <PackageReleaseNotes>HTTP/1.0 keep-alive fix, close-delimited body support, chunked precedence per RFC 9112, pipelining fixes, case-insensitive header lookup. Breaking: removed unused ParserStatus enum. See README version history.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,11 +29,6 @@
       <Pack>True</Pack>
       <PackagePath>\images</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="rl\httpparser.cs" />
-    <Compile Remove="rl\httpparser2.cs" />
   </ItemGroup>
 
   <ItemGroup>

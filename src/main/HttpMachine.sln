@@ -8,17 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{31AE5DCC-8EC2-46D4-9039-525579AF5E40}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\.github\workflows\build.yml = ..\..\.github\workflows\build.yml
+		..\..\.github\workflows\test.yml = ..\..\.github\workflows\test.yml
 		..\..\GitVersion.yml = ..\..\GitVersion.yml
 		..\..\LICENCE.md = ..\..\LICENCE.md
 		..\..\README.md = ..\..\README.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{8D3A9272-DBD0-4028-AB3C-31A8446501DA}"
-	ProjectSection(SolutionItems) = preProject
-		..\build\build.ps1 = ..\build\build.ps1
-		..\build\HttpMachine.nuspec = ..\build\HttpMachine.nuspec
-		..\build\publish.ps1 = ..\build\publish.ps1
-		..\build\publishLocal.ps1 = ..\build\publishLocal.ps1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Console.NETCore.Test", "..\tests\Console.NETCore.Test\Console.NETCore.Test.csproj", "{3E74E9E1-5955-408B-930C-882F7D3083B5}"
@@ -30,6 +23,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IHttpMachine", "..\interface\IHttpMachine\IHttpMachine.csproj", "{019B8506-59B3-476A-B6D2-187886B166B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpMachine.netstandard", "HttpMachine.netstandard\HttpMachine.netstandard.csproj", "{30773F59-7442-4987-BD8C-40BFF8C1DD4C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpMachine.Tests", "..\tests\HttpMachine.Tests\HttpMachine.Tests.csproj", "{B80AE8F2-3F35-46DF-9471-A6B23B39C841}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +72,18 @@ Global
 		{30773F59-7442-4987-BD8C-40BFF8C1DD4C}.Release|x64.Build.0 = Release|Any CPU
 		{30773F59-7442-4987-BD8C-40BFF8C1DD4C}.Release|x86.ActiveCfg = Release|Any CPU
 		{30773F59-7442-4987-BD8C-40BFF8C1DD4C}.Release|x86.Build.0 = Release|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Debug|x64.Build.0 = Debug|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Debug|x86.Build.0 = Debug|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Release|x64.ActiveCfg = Release|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Release|x64.Build.0 = Release|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Release|x86.ActiveCfg = Release|Any CPU
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +92,7 @@ Global
 		{3E74E9E1-5955-408B-930C-882F7D3083B5} = {C16837FC-9B53-481E-BF48-95C6B17F1D79}
 		{019B8506-59B3-476A-B6D2-187886B166B1} = {FFED1987-72CB-49F8-BBF9-74421D0009F0}
 		{30773F59-7442-4987-BD8C-40BFF8C1DD4C} = {3012146F-178B-4E96-9592-9132D265E59E}
+		{B80AE8F2-3F35-46DF-9471-A6B23B39C841} = {C16837FC-9B53-481E-BF48-95C6B17F1D79}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6E8E1F5B-BD01-4E55-9A0E-D5161D0A0AC7}
