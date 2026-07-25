@@ -109,18 +109,14 @@ jobs:
         run: dotnet nuget push "*.nupkg" --api-key ${{ steps.nuget_login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
         working-directory: src/interface/IHttpMachine/bin/Release/
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1 # Note: This is deprecated but retained for compatibility
+      - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.gitversion.outputs.AssemblySemVer }}
-          release_name: Release ${{ steps.gitversion.outputs.AssemblySemVer }}
-          body: |
-            Changes in this Release
-            - Multi-framework targeting (.NET Standard 2.0, .NET Standard 2.1, .NET 6+)
-            - Split interface package from implementation package
-            - DevOps improvements
-          draft: true
-          prerelease: true
+        run: |
+          gh release create "v${{ steps.pkgver.outputs.version }}" \
+            src/main/HttpMachine.netstandard/bin/Release/*.nupkg \
+            src/interface/IHttpMachine/bin/Release/*.nupkg \
+            --repo "${{ github.repository }}" \
+            --title "v${{ steps.pkgver.outputs.version }}" \
+            --generate-notes \
+            --verify-tag
