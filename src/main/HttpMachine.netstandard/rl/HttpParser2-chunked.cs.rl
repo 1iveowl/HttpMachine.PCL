@@ -28,6 +28,7 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 
     private readonly IHttpParserCombinedDelegate parserDelegate;
     private readonly IHttpParserSpanDelegate spanDelegate;
+    private readonly UnframedResponseMode _unframedResponseMode;
 
 		private readonly StringBuilder _stringBuilder;
 		private StringBuilder _stringBuilder2;
@@ -286,9 +287,10 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 				// if content length given but zero, read next request
 				// if content length is given and non-zero, we should read that many bytes
 				// if content length is not given
-				//   if this is a request, the body length is zero
-				//   else if should keep alive, assume next response is coming and read it
-				//   else read the body until the connection closes (EOF)
+				//   if this is a request, the body length is zero (RFC 9112 6.3 rule 6)
+				//   else (response, unframed) it depends on UnframedResponseMode:
+				//     CompleteAtHeaders + keep-alive -> complete now (HTTPU/SSDP)
+				//     otherwise                       -> close-delimited, read until EOF
 
 				if (gotTransferEncodingChunked)
 				{
@@ -314,19 +316,20 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 					parserDelegate.OnMessageEnd(this);
 					fgoto main;
 				}
+				else if (_unframedResponseMode == UnframedResponseMode.CompleteAtHeaders && ShouldKeepAlive)
+				{
+					// A bodyless keep-alive response is treated as complete at the end of its
+					// headers (HTTPU/SSDP semantics). See UnframedResponseMode / the README.
+					parserDelegate.OnMessageEnd(this);
+					fgoto main;
+				}
 				else
 				{
-					if (ShouldKeepAlive)
-					{
-						parserDelegate.OnMessageEnd(this);
-						fgoto main;
-					}
-					else
-					{
-						// No framing information: the body runs until the connection closes.
-						// Signal EOF by calling Execute with an empty buffer.
-						fgoto body_identity_eof;
-					}
+					// No framing information: the body runs until the connection closes
+					// (RFC 9112 6.3). Signal EOF by calling Execute with an empty buffer.
+					// Reached for Connection: close, or for any unframed response when
+					// UnframedResponseMode.CloseDelimited was selected.
+					fgoto body_identity_eof;
 				}
 			}
         }
@@ -462,12 +465,24 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
     /// <summary>
     /// Creates a parser that reports its results to <paramref name="del"/>. When the delegate
     /// also implements <see cref="IHttpParserSpanDelegate"/>, body data from span input is
+    /// delivered without copying. Uses <see cref="UnframedResponseMode.CompleteAtHeaders"/>.
+    /// </summary>
+    public HttpCombinedParser(IHttpParserCombinedDelegate del)
+        : this(del, UnframedResponseMode.CompleteAtHeaders)
+    {
+    }
+
+    /// <summary>
+    /// Creates a parser that reports its results to <paramref name="del"/>, choosing how responses
+    /// with no framing headers are delimited via <paramref name="unframedResponseMode"/>. When the
+    /// delegate also implements <see cref="IHttpParserSpanDelegate"/>, body data from span input is
     /// delivered without copying.
     /// </summary>
-    public HttpCombinedParser(IHttpParserCombinedDelegate del) : this()
+    public HttpCombinedParser(IHttpParserCombinedDelegate del, UnframedResponseMode unframedResponseMode) : this()
     {
         this.parserDelegate = del;
         this.spanDelegate = del as IHttpParserSpanDelegate;
+        this._unframedResponseMode = unframedResponseMode;
     }
 
 		private static int HexValue(char c) => c <= '9' ? c - '0' : (c | 0x20) - 'a' + 10;

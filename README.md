@@ -111,12 +111,58 @@ See [the console test project](src/tests/Console.NETCore.Test/Program.cs) for a 
 - **Return value of `Execute`:** the number of bytes consumed. If it is less than the length you passed in, the parser hit a parse error at that position.
 - **Feeding data incrementally:** call `Execute` repeatedly as data arrives; messages may be split across buffers at any point.
 - **Span support:** `Execute(ReadOnlySpan<byte>)` parses without requiring an array — useful with pooled buffers or `PipeReader` slices. Body callbacks mirror the input: array-based `Execute` overloads deliver `OnBody(ArraySegment<byte>)` over your buffer (as in 5.x); the span overload delivers `OnBody(ReadOnlySpan<byte>)` to delegates implementing `IHttpParserSpanDelegate` (which `HttpParserDelegate` does), or a pooled copy to plain `IHttpParserDelegate` implementors. Either way the buffer is only valid during the callback — copy it if you keep it.
-- **End of stream:** when a message has no `Content-Length` and is not chunked, the body runs until the connection closes. Signal this to the parser by calling `Execute` with an empty buffer.
+- **End of stream:** when a message has no `Content-Length` and is not chunked, the body runs until the connection closes. Signal this to the parser by calling `Execute` with an empty buffer. See [Message framing](#message-framing-and-the-one-deliberate-deviation) for how bodyless responses are handled and the `UnframedResponseMode` option.
 - **Header keys:** stored uppercased; the `Headers` dictionary uses a case-insensitive comparer, so `headers["content-type"]` works too.
 - **Delegate results:** `handler.HttpRequestResponse` is the snapshot of the most recently *completed* message. It is `null` until the first message has been fully parsed. When parsing pipelined messages, read it from `OnMessageEnd` (override it) if you need every message.
 - **Customizing:** subclass `HttpParserDelegate` and override the `On...` methods you care about, or implement `IHttpParserCombinedDelegate` from scratch.
 - The HTTP method accepts these additional four characters: `$ - , .`
 - When both `Content-Length` and `Transfer-Encoding: chunked` are present, chunked wins (RFC 9112 6.3).
+
+## Message framing (and the one deliberate deviation)
+
+This is a **pure byte parser with no connection model** — it sees bytes, not sockets. That single
+fact explains most of its framing behaviour. Following
+[RFC 9112 6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3), the length of a message body is
+determined, in order, by:
+
+1. `Transfer-Encoding: chunked` — the body is delimited by the chunk framing.
+2. `Content-Length` — exactly that many bytes.
+3. Neither header present:
+   - **A request has no body** (RFC 9112 6.3 rule 6).
+   - **A response is delimited by connection close** — the body runs until the connection ends.
+
+Rule 3 for responses is where "no connection model" bites: the parser can't observe a socket
+closing. So closing is expressed *in bytes* — **you signal end of stream by calling `Execute` with
+an empty buffer.** That is the parser's definition of "the connection closed", and it's what makes
+close-delimited bodies work without the parser knowing anything about transports.
+
+### Why bodyless responses have a mode
+
+There is one case where strict HTTP and this library's main use case genuinely disagree: a
+**response with no `Content-Length`, no `Transfer-Encoding`, and keep-alive** (e.g. a default
+HTTP/1.1 response). Strict RFC 9112 says such a response is close-delimited. But the traffic this
+library is most used for — **SSDP / UPnP discovery** (see the examples above) — is HTTPU: HTTP-shaped
+messages carried one-per-datagram over UDP, with no body and no connection to close. There, the
+message is simply *complete at the blank line*. The same bytes, two correct-but-opposite meanings.
+
+Because no single behaviour serves both, the framing of that specific case is a choice:
+
+| `UnframedResponseMode` | A keep-alive response with no framing headers… | Good for |
+| --- | --- | --- |
+| `CompleteAtHeaders` *(default)* | is complete at the end of its headers, with no body | HTTPU/SSDP, UPnP, datagram-style messages |
+| `CloseDelimited` | is read until you signal EOF with an empty `Execute` (RFC 9112 6.3) | HTTP/1.x responses over a stream |
+
+The default preserves the datagram-friendly behaviour the library has always had. Opt into strict
+behaviour when you parse streamed responses that may omit `Content-Length`:
+
+```cs
+using var parser = new HttpCombinedParser(handler, UnframedResponseMode.CloseDelimited);
+parser.Execute(buffer);         // consumes the response headers and any body bytes so far
+parser.Execute(Array.Empty<byte>()); // signal connection close -> completes the message
+```
+
+Both modes are identical when the response *is* framed (Content-Length or chunked) or explicitly
+carries `Connection: close`; the mode only affects the ambiguous keep-alive-without-framing case.
 
 ## Working on the parser (Ragel)
 
@@ -136,6 +182,16 @@ dotnet test
 ```
 
 ## Version history
+
+### 6.1.0
+- Added `UnframedResponseMode` and a new `HttpCombinedParser(delegate, UnframedResponseMode)`
+  constructor overload. `CloseDelimited` opts into strict
+  [RFC 9112 6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3) framing for a response with no
+  `Content-Length` and no `Transfer-Encoding`, reading its body until end of stream (signalled by an
+  empty `Execute`). The default, `CompleteAtHeaders`, is unchanged and keeps the HTTPU/SSDP behaviour
+  where such a response is complete at the blank line — so existing code is unaffected. See
+  [Message framing](#message-framing-and-the-one-deliberate-deviation) for the rationale. Addresses the
+  scenario in issue #11.
 
 ### 6.0.1
 - Fixed: a request with neither `Content-Length` nor `Transfer-Encoding` is now treated as having

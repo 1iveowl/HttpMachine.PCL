@@ -472,4 +472,64 @@ public class HttpCombinedParserTests
         Assert.Equal(1, handler.MessagesEnded);
         Assert.Equal("body until close", Encoding.UTF8.GetString(handler.AllBodyBytes.ToArray()));
     }
+
+    // UnframedResponseMode: a keep-alive response with no Content-Length and no chunked encoding.
+
+    [Fact]
+    public void DefaultMode_BodylessKeepAliveResponse_CompletesAtHeaders()
+    {
+        // Default (CompleteAtHeaders) preserves HTTPU/SSDP behaviour: the message is
+        // complete at the blank line, with no body, in a single Execute call.
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler);
+        var data = Bytes("HTTP/1.1 200 OK\r\nEXT:\r\nST: upnp:rootdevice\r\n\r\n");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.Equal(1, handler.MessagesEnded);
+        Assert.NotNull(handler.HttpRequestResponse);
+        Assert.Empty(handler.AllBodyBytes.ToArray());
+    }
+
+    [Fact]
+    public void CloseDelimitedMode_UnframedKeepAliveResponse_ReadsBodyUntilEof()
+    {
+        // Marcel's case (issue #11): HTTP/1.1 response, keep-alive, no Content-Length, a body.
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler, UnframedResponseMode.CloseDelimited);
+        var data = Bytes("HTTP/1.1 200 OK\r\nSERVER: x\r\n\r\nThis is the body");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.Equal(0, handler.MessagesEnded); // waits for EOF
+
+        parser.Execute(Array.Empty<byte>());
+
+        Assert.Equal(1, handler.MessagesEnded);
+        Assert.Equal("This is the body", Encoding.UTF8.GetString(handler.AllBodyBytes.ToArray()));
+    }
+
+    [Fact]
+    public void CloseDelimitedMode_StillHonoursContentLength()
+    {
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler, UnframedResponseMode.CloseDelimited);
+        var data = Bytes("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nHello");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.Equal(1, handler.MessagesEnded); // complete without needing an EOF signal
+        Assert.Equal("Hello", Encoding.UTF8.GetString(handler.AllBodyBytes.ToArray()));
+    }
+
+    [Fact]
+    public void CloseDelimitedMode_StillHonoursChunked()
+    {
+        var handler = new MessageCountingDelegate();
+        var parser = new HttpCombinedParser(handler, UnframedResponseMode.CloseDelimited);
+        var data = Bytes(
+            "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n" +
+            "4\r\nWiki\r\n0\r\n\r\n");
+
+        Assert.Equal(data.Length, parser.Execute(data));
+        Assert.Equal(1, handler.MessagesEnded);
+        Assert.Equal("Wiki", Encoding.UTF8.GetString(handler.AllBodyBytes.ToArray()));
+    }
 }
