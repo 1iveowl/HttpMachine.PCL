@@ -40,4 +40,15 @@
     <PackageReference Include="System.Memory" Version="4.6.3" />
   </ItemGroup>
 
+  <!--
+    Turns on the trimming and Native AOT analyzers for the frameworks that support them, so any
+    future use of reflection, dynamic code or an unannotated trim hazard fails this build rather
+    than a consumer's `dotnet publish`. The parser has no such hazards today - it is a state machine
+    over spans - and this keeps it that way. Only supported from net8.0 onwards; the netstandard and
+    net6.0 targets are unaffected.
+  -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net10.0'">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
 </Project>

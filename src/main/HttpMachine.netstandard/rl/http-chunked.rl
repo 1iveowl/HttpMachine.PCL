@@ -47,12 +47,11 @@ http_response_line = (http_crlf $matched_leading_crlf)? http_version " " $matche
 http_header_value_text = ((any | zlen) -- ("\r" | "\n"))+;
 #http_header_value_text = ((any | zlen) -- ("\r" | "\n"));
 
-http_header_content_length = "content-length"i %header_content_length;
-http_header_transfer_encoding = "transfer-encoding"i %header_transfer_encoding;
-http_header_connection = "connection"i %header_connection;
-http_header_upgrade = "upgrade"i %header_upgrade;
-
-http_interesting_headers = (http_header_content_length | http_header_transfer_encoding | http_header_connection | http_header_upgrade);
+# Header *names* are no longer recognised here. The four framing headers used to appear as an
+# alternation alongside http_token purely so actions could be hung off them; http_token already
+# accepted every one of those names, so removing them leaves the accepted language unchanged and
+# only moves where the recognition happens. It now happens in the on_header_name action, against
+# the generated matcher in ../Generated/KnownHeaders.g.cs. Header *values* are unaffected.
 
 chunked = "chunked"i %header_transfer_encoding_chunked;
 close = "close"i %header_connection_close;
@@ -60,7 +59,7 @@ keepalive = "keep-alive"i %header_connection_keepalive;
 
 http_interesting_header_values = (chunked | close | keepalive);
 
-http_header_name = (http_token | http_interesting_headers) >clear $buf %on_header_name;
+http_header_name = http_token >clear_header_name $buf_header_name %on_header_name;
 http_header_separator = (":" (" " | "\t" )*);
 http_header_value = (http_header_value_text | http_interesting_header_values) >clear $buf %on_header_value;
 http_header = http_header_name http_header_separator <: http_header_value http_crlf;

@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Text;
 using System.Diagnostics;
+using HttpMachine.Headers;
 using IHttpMachine;
 using System.IO;
 
@@ -11,7 +12,7 @@ namespace HttpMachine;
 /// Combined HTTP request/response parser built on a Ragel-generated state machine.
 /// Feed it data with the <c>Execute</c> overloads; results arrive through the callbacks on
 /// the <see cref="IHttpParserCombinedDelegate"/> supplied to the constructor.
-/// This class is generated from <c>rl/HttpParser2-chunked.cs.rl</c> — edit that file, not the .cs.
+/// This class is generated from <c>rl/HttpParser2-chunked.cs.rl</c> - edit that file, not the .cs.
 /// </summary>
 public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 {
@@ -29,9 +30,18 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
     private readonly IHttpParserCombinedDelegate parserDelegate;
     private readonly IHttpParserSpanDelegate spanDelegate;
     private readonly UnframedResponseMode _unframedResponseMode;
+    private readonly HeaderNameMode _headerNameMode;
 
 		private readonly StringBuilder _stringBuilder;
 		private StringBuilder _stringBuilder2;
+
+		// Header names are accumulated here as raw bytes instead of into _stringBuilder, so the
+		// completed name can be matched as a span without materialising a string first. The char
+		// scratch is only used for names the matcher does not recognise. Both grow together; see
+		// GrowHeaderNameBuffer.
+		private byte[] _headerNameBytes = new byte[64];
+		private char[] _headerNameChars = new char[64];
+		private int _headerNameLength;
 
     private int _contentLength;
     private int _chunkLength;
@@ -215,18 +225,6 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 			MinorVersion = (char)fc - '0';
 		}
 		
-        action header_content_length {
-            if (_contentLength != -1) throw new Exception("Already got Content-Length. Possible attack?");
-			//Console.WriteLine("Saw content length");
-			_contentLength = 0;
-			inContentLengthHeader = true;
-        }
-
-		action header_connection {
-			//Console.WriteLine("header_connection");
-			inConnectionHeader = true;
-		}
-
 		action header_connection_close {
 			//Console.WriteLine("header_connection_close");
 			if (inConnectionHeader)
@@ -239,11 +237,6 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 				gotConnectionKeepAlive = true;
 		}
 		
-		action header_transfer_encoding {
-			//Console.WriteLine("Saw transfer encoding");
-			inTransferEncodingHeader = true;
-		}
-
 		action header_transfer_encoding_chunked {
 			if (inTransferEncodingHeader)
 				gotTransferEncodingChunked = true;
@@ -251,12 +244,25 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
 			Debug.WriteLine($"Transfer Encoding Chunked: {gotTransferEncodingChunked}");
 		}
 
-		action header_upgrade {
-			inUpgradeHeader = true;
+		# Header names accumulate as raw bytes rather than into _stringBuilder, so the completed
+		# name can be handed to the generated matcher as a ReadOnlySpan<byte>. The bytes of a
+		# single name may arrive across several Execute calls, so slicing the input buffer is not
+		# an option - the accumulator is what makes a span available at all.
+		action clear_header_name {
+			_headerNameLength = 0;
+		}
+
+		action buf_header_name {
+			if (_headerNameLength == _headerNameBytes.Length)
+			{
+				GrowHeaderNameBuffer();
+			}
+
+			_headerNameBytes[_headerNameLength++] = fc;
 		}
 
 		action on_header_name {
-			parserDelegate.OnHeaderName(this, _stringBuilder.ToString());
+			parserDelegate.OnHeaderName(this, ResolveHeaderName());
 		}
 
 		action on_header_value {
@@ -465,10 +471,11 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
     /// <summary>
     /// Creates a parser that reports its results to <paramref name="del"/>. When the delegate
     /// also implements <see cref="IHttpParserSpanDelegate"/>, body data from span input is
-    /// delivered without copying. Uses <see cref="UnframedResponseMode.CompleteAtHeaders"/>.
+    /// delivered without copying. Uses <see cref="UnframedResponseMode.CompleteAtHeaders"/> and
+    /// <see cref="HeaderNameMode.AsReceived"/>.
     /// </summary>
     public HttpCombinedParser(IHttpParserCombinedDelegate del)
-        : this(del, UnframedResponseMode.CompleteAtHeaders)
+        : this(del, UnframedResponseMode.CompleteAtHeaders, HeaderNameMode.AsReceived)
     {
     }
 
@@ -476,16 +483,119 @@ public class HttpCombinedParser : IHttpCombinedParser, IDisposable
     /// Creates a parser that reports its results to <paramref name="del"/>, choosing how responses
     /// with no framing headers are delimited via <paramref name="unframedResponseMode"/>. When the
     /// delegate also implements <see cref="IHttpParserSpanDelegate"/>, body data from span input is
-    /// delivered without copying.
+    /// delivered without copying. Uses <see cref="HeaderNameMode.AsReceived"/>.
     /// </summary>
-    public HttpCombinedParser(IHttpParserCombinedDelegate del, UnframedResponseMode unframedResponseMode) : this()
+    public HttpCombinedParser(IHttpParserCombinedDelegate del, UnframedResponseMode unframedResponseMode)
+        : this(del, unframedResponseMode, HeaderNameMode.AsReceived)
+    {
+    }
+
+    /// <summary>
+    /// Creates a parser that reports its results to <paramref name="del"/>, choosing which spelling
+    /// of a recognised header name is reported via <paramref name="headerNameMode"/>. When the
+    /// delegate also implements <see cref="IHttpParserSpanDelegate"/>, body data from span input is
+    /// delivered without copying. Uses <see cref="UnframedResponseMode.CompleteAtHeaders"/>.
+    /// </summary>
+    public HttpCombinedParser(IHttpParserCombinedDelegate del, HeaderNameMode headerNameMode)
+        : this(del, UnframedResponseMode.CompleteAtHeaders, headerNameMode)
+    {
+    }
+
+    // Two independent options already need four constructors. If a third is ever added, replace
+    // these with an options type rather than continuing to double the overload count.
+
+    /// <summary>
+    /// Creates a parser that reports its results to <paramref name="del"/>, choosing both how
+    /// responses with no framing headers are delimited and which spelling of a recognised header
+    /// name is reported. When the delegate also implements <see cref="IHttpParserSpanDelegate"/>,
+    /// body data from span input is delivered without copying.
+    /// </summary>
+    public HttpCombinedParser(
+        IHttpParserCombinedDelegate del,
+        UnframedResponseMode unframedResponseMode,
+        HeaderNameMode headerNameMode) : this()
     {
         this.parserDelegate = del;
         this.spanDelegate = del as IHttpParserSpanDelegate;
         this._unframedResponseMode = unframedResponseMode;
+        this._headerNameMode = headerNameMode;
     }
 
 		private static int HexValue(char c) => c <= '9' ? c - '0' : (c | 0x20) - 'a' + 10;
+
+		private void GrowHeaderNameBuffer()
+		{
+			Array.Resize(ref _headerNameBytes, _headerNameBytes.Length * 2);
+			_headerNameChars = new char[_headerNameBytes.Length];
+		}
+
+		/// <summary>
+		/// Resolves the accumulated header-name bytes to the string reported to the delegate, and
+		/// applies any framing meaning the name carries.
+		/// </summary>
+		private string ResolveHeaderName()
+		{
+			var name = new ReadOnlySpan<byte>(_headerNameBytes, 0, _headerNameLength);
+
+			if (KnownHeaders.TryMatch(name, out var known, out var canonical, out var exactCasing))
+			{
+				ApplyKnownHeader(known);
+
+				// The cached instance stands in for the received bytes when it is byte-identical to
+				// them - the string content is the same either way, so this is not observable - or
+				// when the caller asked for canonical names.
+				if (exactCasing || _headerNameMode == HeaderNameMode.Canonical)
+				{
+					return canonical;
+				}
+			}
+
+			return MaterialiseHeaderName(name);
+		}
+
+		/// <summary>
+		/// Applies the framing headers the parser acts on. This replaces the four case-insensitive
+		/// literals that used to sit in the Ragel grammar as an alternation beside http_token.
+		/// </summary>
+		private void ApplyKnownHeader(KnownHeader header)
+		{
+			switch (header)
+			{
+				case KnownHeader.ContentLength:
+					if (_contentLength != -1) throw new Exception("Already got Content-Length. Possible attack?");
+					_contentLength = 0;
+					inContentLengthHeader = true;
+					break;
+
+				case KnownHeader.Connection:
+					inConnectionHeader = true;
+					break;
+
+				case KnownHeader.TransferEncoding:
+					inTransferEncodingHeader = true;
+					break;
+
+				case KnownHeader.Upgrade:
+					inUpgradeHeader = true;
+					break;
+			}
+		}
+
+		/// <summary>
+		/// Widens the name's bytes to chars one for one, reproducing exactly what the old
+		/// StringBuilder path did with <c>(char)fc</c>. Deliberately not an Encoding call: this
+		/// behaves identically on every target framework with no encoding dependency, and header
+		/// names are restricted to ASCII token bytes by the grammar anyway.
+		/// </summary>
+		private string MaterialiseHeaderName(ReadOnlySpan<byte> name)
+		{
+			for (var i = 0; i < name.Length; i++)
+			{
+				_headerNameChars[i] = (char)name[i];
+			}
+
+			return new string(_headerNameChars, 0, name.Length);
+		}
 
 		// Body callbacks mirror the Execute overload that was used: array-based input is
 		// delivered as an ArraySegment over the caller's buffer (as in 5.x); span-based

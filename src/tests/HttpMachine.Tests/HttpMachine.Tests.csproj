@@ -20,4 +20,14 @@
     <ProjectReference Include="..\..\main\HttpMachine.netstandard\HttpMachine.netstandard.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--
+      The known-header list, so the header-name tests can be driven from the same source the
+      matcher is generated from rather than from a hand-copied subset that would drift.
+    -->
+    <None Include="..\..\main\HttpMachine.netstandard\headers\KnownHeaders.txt"
+          Link="KnownHeaders.txt"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
