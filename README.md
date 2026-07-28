@@ -41,6 +41,20 @@ Xamarin, Unity and constrained devices.
 
 If you need HTTP/2 or HTTP/3, see [Why HTTP/1.x only?](#why-http1x-only) at the end.
 
+## Built with HttpMachine
+
+These libraries build on HttpMachine and are good examples of the "wrap the parser with a
+transport" pattern described above:
+
+- **[SimpleHttpListener.Rx](https://github.com/1iveowl/SimpleHttpListener.Rx)** — a lightweight,
+  reactive (Rx) HTTP and HTTPU/SSDP listener. It feeds incoming bytes to HttpMachine and surfaces
+  parsed requests and responses as an observable stream.
+- **[SSDP.UPnP.PCL](https://github.com/1iveowl/SSDP.UPnP.PCL)** — an SSDP implementation for UPnP 2.0
+  (discovery `NOTIFY` / `M-SEARCH` over UDP multicast), exactly the datagram-style HTTP this parser
+  is built to handle.
+- **[UPnP.rx](https://github.com/1iveowl/UPnP.rx)** — a modern Rx UPnP client for .NET 10:
+  discover → describe → control.
+
 ## Background
 
 This project began in May 2016 as a fork of the great work done by Benjamin van der Veen,
