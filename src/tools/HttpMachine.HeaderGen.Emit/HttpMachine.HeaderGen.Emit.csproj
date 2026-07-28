@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Author-time emitter for src/main/HttpMachine.netstandard/Generated/KnownHeaders.g.cs.
+
+    Running the generator here rather than in HttpMachine.netstandard is what keeps the
+    author-time model honest: the shipping library never references an analyzer, so consumers
+    see no new dependency and no SDK floor. This project builds the generator output; the
+    generate-known-headers.sh script copies it into the source tree.
+
+    The target framework list mirrors HttpMachine.netstandard exactly, and every one of them
+    compiles the generated matcher. That makes this project the portability check as well as the
+    emitter: if the generator ever emits an API or a language feature that netstandard2.0 cannot
+    reach, this build fails rather than the next release. The script additionally asserts that all
+    five frameworks produced a byte-identical file, which is the constraint that there is one
+    matcher implementation rather than one per framework.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net10.0</TargetFrameworks>
+    <LangVersion>14.0</LangVersion>
+    <IsPackable>false</IsPackable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(MSBuildProjectDirectory)/obj/emitted/$(TargetFramework)</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Redundant today - the SDK already excludes obj from the default Compile glob - but the
+      emitted file must never be compiled alongside the generator's in-memory copy, and this
+      keeps that true if the output path ever moves.
+    -->
+    <Compile Remove="obj/emitted/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HttpMachine.HeaderGen\HttpMachine.HeaderGen.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\main\HttpMachine.netstandard\headers\KnownHeaders.txt" />
+  </ItemGroup>
+
+  <!-- Matches HttpMachine.netstandard: BinaryPrimitives and Span come from System.Memory here. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Memory" Version="4.6.3" />
+  </ItemGroup>
+
+</Project>

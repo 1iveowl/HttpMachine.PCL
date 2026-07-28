@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: KnownHeaders.txt: (1,0)-(1,13),
+      Message: Two headers produce the same KnownHeader member name 'ContentLength'; use the 'Name = EnumMember' form to disambiguate,
+      Severity: Error,
+      Descriptor: {
+        Id: HHG005,
+        Title: Duplicate enum member name,
+        MessageFormat: Two headers produce the same KnownHeader member name '{0}'; use the 'Name = EnumMember' form to disambiguate,
+        Category: HttpMachine.HeaderGen,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

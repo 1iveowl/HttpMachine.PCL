@@ -1,0 +1,129 @@
+# Known HTTP header names.
+#
+# This file is the single source of truth for the generated header matcher in
+# ../Generated/KnownHeaders.g.cs. Edit this file, never the generated one, then run
+# ../../../tools/generate-known-headers.sh and commit both.
+#
+# Format
+#   One header per line, in its canonical casing.
+#   Blank lines and lines starting with '#' are ignored.
+#   Trailing '#' comments are not supported - a '#' is only a comment at the start of a line.
+#   "Name = EnumMember" overrides the derived enum member name.
+#
+# The enum member name is derived by stripping '-' and '.' and keeping the casing written
+# here, so "Content-Length" becomes ContentLength and "TE" stays TE. Override only where
+# that reads badly.
+#
+# The canonical casing matters at runtime: in the default HeaderNameMode.AsReceived, a
+# header whose bytes match this spelling exactly is reported using the cached instance
+# below instead of a freshly allocated string. Spell these the way senders actually send
+# them.
+#
+# Every name must be a valid RFC 9110 token. The generator rejects anything else, because
+# the matcher's case-folding is only exact over the token byte set.
+
+# ---------------------------------------------------------------------------
+# Message framing. The parser acts on these four directly; removing one breaks
+# HttpCombinedParser. There is a test asserting they are present.
+# ---------------------------------------------------------------------------
+Content-Length
+Transfer-Encoding
+Connection
+Upgrade
+
+# ---------------------------------------------------------------------------
+# Common request headers
+# ---------------------------------------------------------------------------
+Accept
+Accept-Charset
+Accept-Encoding
+Accept-Language
+Authorization
+Cache-Control
+Cookie
+Date
+Expect
+Forwarded
+From
+Host
+If-Match
+If-Modified-Since
+If-None-Match
+If-Range
+If-Unmodified-Since
+Keep-Alive
+Max-Forwards
+Origin
+Pragma
+Proxy-Authorization
+Range
+Referer
+TE
+Trailer
+User-Agent
+Via
+Warning
+
+# ---------------------------------------------------------------------------
+# Common response headers
+# ---------------------------------------------------------------------------
+Accept-Ranges
+Age
+Allow
+Content-Disposition
+Content-Encoding
+Content-Language
+Content-Location
+Content-Range
+Content-Type
+ETag
+Expires
+Last-Modified
+Location
+Proxy-Authenticate
+Retry-After
+Server
+Set-Cookie
+Strict-Transport-Security
+Vary
+WWW-Authenticate
+
+# ---------------------------------------------------------------------------
+# Widely used non-standard headers
+# ---------------------------------------------------------------------------
+X-Forwarded-For
+X-Forwarded-Host
+X-Forwarded-Proto
+X-Requested-With
+
+# ---------------------------------------------------------------------------
+# WebSocket handshake (RFC 6455)
+# ---------------------------------------------------------------------------
+Sec-WebSocket-Accept
+Sec-WebSocket-Extensions
+Sec-WebSocket-Key
+Sec-WebSocket-Protocol
+Sec-WebSocket-Version
+
+# ---------------------------------------------------------------------------
+# SSDP / UPnP.
+#
+# Upper case is the canonical spelling for these, and it is what UPnP devices
+# actually put on the wire - so the default AsReceived mode gets the cached
+# instance for them without any opt-in.
+#
+# SERVER, LOCATION, CACHE-CONTROL, HOST and DATE are not repeated here: they are
+# the same fields as their HTTP spellings above and matching is case-insensitive,
+# so listing them again would be a duplicate.
+# ---------------------------------------------------------------------------
+EXT
+MAN
+MX
+NT
+NTS
+ST
+USN
+BOOTID.UPNP.ORG = BootIdUpnpOrg
+CONFIGID.UPNP.ORG = ConfigIdUpnpOrg
+SEARCHPORT.UPNP.ORG = SearchPortUpnpOrg
+SECURELOCATION.UPNP.ORG = SecureLocationUpnpOrg

@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: KnownHeaders.txt: (0,0)-(0,12),
+      Message: '1Host' is not a valid C# identifier and cannot be used as a KnownHeader member name,
+      Severity: Error,
+      Descriptor: {
+        Id: HHG006,
+        Title: Enum member name is not a valid C# identifier,
+        MessageFormat: '{0}' is not a valid C# identifier and cannot be used as a KnownHeader member name,
+        Category: HttpMachine.HeaderGen,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

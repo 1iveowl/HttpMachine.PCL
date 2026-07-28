@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Integration tests: unlike HeaderGen.Tests, which drives the generator through a
+    CSharpGeneratorDriver, this project references it as a real analyzer. The matcher is generated
+    into this assembly and executed, so these tests exercise the same path a contributor's build
+    takes - including that the generator actually loads.
+
+    Because the generated types are internal and generated *here*, they are directly visible to
+    the tests without any InternalsVisibleTo.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\tools\HttpMachine.HeaderGen\HttpMachine.HeaderGen.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The production header list, so these tests run against the real thing. -->
+    <AdditionalFiles Include="..\..\main\HttpMachine.netstandard\headers\KnownHeaders.txt" />
+
+    <!-- Also copied to the output so a test can check the generated table against the source. -->
+    <None Include="..\..\main\HttpMachine.netstandard\headers\KnownHeaders.txt"
+          Link="KnownHeaders.txt"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

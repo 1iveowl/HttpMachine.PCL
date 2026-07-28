@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: KnownHeaders.txt: (1,0)-(1,4),
+      Message: Header name 'HOST' is listed more than once; header names are matched case-insensitively, so the spellings collide,
+      Severity: Error,
+      Descriptor: {
+        Id: HHG004,
+        Title: Duplicate header name,
+        MessageFormat: Header name '{0}' is listed more than once; header names are matched case-insensitively, so the spellings collide,
+        Category: HttpMachine.HeaderGen,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

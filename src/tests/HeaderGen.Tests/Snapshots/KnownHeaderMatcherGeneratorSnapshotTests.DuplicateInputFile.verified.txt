@@ -1,0 +1,16 @@
+﻿{
+  Diagnostics: [
+    {
+      Message: More than one KnownHeaders.txt was supplied as an AdditionalFile ('/a/KnownHeaders.txt, /b/KnownHeaders.txt'); exactly one is expected,
+      Severity: Error,
+      Descriptor: {
+        Id: HHG002,
+        Title: More than one KnownHeaders.txt was supplied,
+        MessageFormat: More than one KnownHeaders.txt was supplied as an AdditionalFile ('{0}'); exactly one is expected,
+        Category: HttpMachine.HeaderGen,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

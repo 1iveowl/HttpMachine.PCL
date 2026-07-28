@@ -1,0 +1,16 @@
+﻿{
+  Diagnostics: [
+    {
+      Message: No KnownHeaders.txt was supplied as an AdditionalFile, so no header matcher can be generated,
+      Severity: Error,
+      Descriptor: {
+        Id: HHG001,
+        Title: KnownHeaders.txt was not found,
+        MessageFormat: No KnownHeaders.txt was supplied as an AdditionalFile, so no header matcher can be generated,
+        Category: HttpMachine.HeaderGen,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

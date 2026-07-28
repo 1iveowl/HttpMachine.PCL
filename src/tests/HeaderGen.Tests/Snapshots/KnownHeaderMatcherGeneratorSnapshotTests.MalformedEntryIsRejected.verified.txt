@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: KnownHeaders.txt: (0,0)-(0,12),
+      Message: 'Host = A = B' is not a valid entry; expected 'Header-Name' or 'Header-Name = EnumMember',
+      Severity: Error,
+      Descriptor: {
+        Id: HHG007,
+        Title: Malformed entry,
+        MessageFormat: '{0}' is not a valid entry; expected 'Header-Name' or 'Header-Name = EnumMember',
+        Category: HttpMachine.HeaderGen,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

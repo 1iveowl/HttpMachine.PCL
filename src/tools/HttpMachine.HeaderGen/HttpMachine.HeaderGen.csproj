@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>false</ImplicitUsings>
+
+    <!--
+      Author-time tool only. This assembly is never packed and never referenced by
+      HttpMachine or IHttpMachine - its output is committed to source control instead,
+      exactly like the Ragel-generated parser. See plan/known-header-matcher-generator.md.
+    -->
+    <IsPackable>false</IsPackable>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!--
+      RS2008 wants AnalyzerReleases.Shipped.md / .Unshipped.md, which track diagnostic IDs as
+      public API across releases. This analyzer is never released - it has exactly one consumer,
+      the emit project next door - so there is no compatibility surface to track and the files
+      would be ceremony. Every other extended analyzer rule stays on.
+    -->
+    <NoWarn>$(NoWarn);RS2008</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      4.8.0 is the .NET 8 SDK / VS 17.8 compiler. An analyzer that references a Roslyn
+      newer than the SDK compiler loading it does not fail loudly - it silently does not
+      run - so this deliberately sits well below the repo's .NET 10 SDK. Everything used
+      here (IIncrementalGenerator, AdditionalTextsProvider, WithTrackingName) has existed
+      since Roslyn 4.0/4.1.
+    -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0"
+                      PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

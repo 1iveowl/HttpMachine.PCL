@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: KnownHeaders.txt: (0,0)-(0,14),
+      Message: Header name 'Content Length' is not a valid RFC 9110 token; the generated matcher's case folding is only exact over the token byte set, so non-token names cannot be matched correctly,
+      Severity: Error,
+      Descriptor: {
+        Id: HHG003,
+        Title: Header name is not a valid token,
+        MessageFormat: Header name '{0}' is not a valid RFC 9110 token; the generated matcher's case folding is only exact over the token byte set, so non-token names cannot be matched correctly,
+        Category: HttpMachine.HeaderGen,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}
