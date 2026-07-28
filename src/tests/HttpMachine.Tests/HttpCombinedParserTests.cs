@@ -28,58 +28,8 @@ public class HttpCombinedParserTests
         return (handler, parser, parsed, data.Length);
     }
 
-    [Fact]
-    public void ParsesSimpleResponse()
-    {
-        var (handler, _, parsed, length) = Parse(
-            "HTTP/1.1 200 OK\r\n" +
-            "Content-Type: text/plain\r\n" +
-            "Content-Length: 14\r\n" +
-            "\r\n" +
-            "This is a test");
 
-        Assert.Equal(length, parsed);
-        Assert.Equal(MessageTypeKind.Response, handler.HttpRequestResponse.MessageType);
-        Assert.Equal(200, handler.HttpRequestResponse.StatusCode);
-        Assert.Equal("OK", handler.HttpRequestResponse.ResponseReason);
-        Assert.Equal(1, handler.HttpRequestResponse.MajorVersion);
-        Assert.Equal(1, handler.HttpRequestResponse.MinorVersion);
-        Assert.Equal("text/plain", handler.HttpRequestResponse.Headers["CONTENT-TYPE"].Single());
-        Assert.Equal("This is a test", BodyOf(handler));
-    }
 
-    [Fact]
-    public void ParsesRequest()
-    {
-        var (handler, _, parsed, length) = Parse(
-            "GET /path/file.html?foo=bar HTTP/1.1\r\n" +
-            "Host: example.com\r\n" +
-            "\r\n");
-
-        Assert.Equal(length, parsed);
-        Assert.Equal(MessageTypeKind.Request, handler.HttpRequestResponse.MessageType);
-        Assert.Equal("GET", handler.HttpRequestResponse.Method);
-        Assert.Equal("/path/file.html?foo=bar", handler.HttpRequestResponse.RequestUri);
-        Assert.Equal("/path/file.html", handler.HttpRequestResponse.Path);
-        Assert.Equal("foo=bar", handler.HttpRequestResponse.QueryString);
-    }
-
-    [Fact]
-    public void ParsesChunkedResponse()
-    {
-        var (handler, _, parsed, length) = Parse(
-            "HTTP/1.1 200 OK\r\n" +
-            "Transfer-Encoding: chunked\r\n" +
-            "\r\n" +
-            "4\r\nWiki\r\n" +
-            "6\r\npedia \r\n" +
-            "E\r\nin \r\n\r\nchunks.\r\n" +
-            "0\r\n\r\n");
-
-        Assert.Equal(length, parsed);
-        Assert.True(handler.HttpRequestResponse.IsTransferEncodingChunked);
-        Assert.Equal("Wikipedia in \r\n\r\nchunks.", BodyOf(handler));
-    }
 
     [Fact]
     public void CollectsAdjacentDuplicateHeaders()
@@ -119,17 +69,6 @@ public class HttpCombinedParserTests
         Assert.Equal("text/plain", handler.HttpRequestResponse.Headers["content-type"].Single());
     }
 
-    [Fact]
-    public void ParsesZeroLengthHeaderValue()
-    {
-        var (handler, _, parsed, length) = Parse(
-            "HTTP/1.1 200 OK\r\n" +
-            "EXT:\r\n" +
-            "\r\n");
-
-        Assert.Equal(length, parsed);
-        Assert.True(handler.HttpRequestResponse.Headers.ContainsKey("EXT"));
-    }
 
     [Fact]
     public void ParsesMessageSplitAcrossBuffers()
@@ -146,15 +85,6 @@ public class HttpCombinedParserTests
         Assert.Equal("Hello", BodyOf(handler));
     }
 
-    [Fact]
-    public void ReportsErrorOnGarbage()
-    {
-        var handler = new HttpParserDelegate();
-        var parser = new HttpCombinedParser(handler);
-        var data = Bytes("\0garbage\0garbage\0\r\n\r\n");
-
-        Assert.NotEqual(data.Length, parser.Execute(data));
-    }
 
     [Theory]
     [InlineData("HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n", true)]

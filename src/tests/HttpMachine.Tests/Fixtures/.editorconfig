@@ -1,0 +1,18 @@
+# Fixture files are byte-exact test input. Every byte in them is fed to the parser as-is, and
+# several fixtures exist to pin down line-ending and trailing-byte handling specifically.
+#
+# The repository's devcontainer sets files.insertFinalNewline, which would append a byte on save.
+# After a message's terminating CRLF CRLF that extra byte is fed to the parser as the start of a
+# new message, changing the test without changing the test.
+#
+# Git is held off separately by the rule in the root .gitattributes.
+
+# Scoped to *.http, not [*]: the harness .cs files live in this folder too and must keep the
+# repository's normal formatting conventions.
+[*.http]
+insert_final_newline = false
+trim_trailing_whitespace = false
+end_of_line = unset
+charset = unset
+indent_style = unset
+indent_size = unset

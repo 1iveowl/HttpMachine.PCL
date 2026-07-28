@@ -13,6 +13,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+
+    <!-- Held at 26.x to match HeaderGen.Tests, which is pinned there by Verify.SourceGenerators. -->
+    <PackageReference Include="Verify.Xunit" Version="26.5.0" />
   </ItemGroup>
 
   <ItemGroup>

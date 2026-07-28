@@ -1,6 +1,15 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
+# HTTP parser fixtures are byte-exact test input: the bytes on disk are fed to the parser
+# unmodified, and several fixtures exist precisely to pin down line-ending handling. The rule
+# above would normalise their CRLFs to LF in the object store and convert them back per platform
+# on checkout, silently changing what the tests feed in.
+#
+# -text disables end-of-line conversion while leaving diffs readable, which matters because these
+# files are reviewed. Editors are held off separately by Fixtures/.editorconfig.
+src/tests/HttpMachine.Tests/Fixtures/**/*.http -text
+
 # Custom for Visual Studio
 *.cs     diff=csharp
 

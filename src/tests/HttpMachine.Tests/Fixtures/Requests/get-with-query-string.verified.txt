@@ -1,0 +1,14 @@
+﻿> Execute 59 bytes
+OnMessageBegin
+OnMethod                    "GET"
+OnPath                      "/path/file.html"
+OnQueryString               "foo=bar"
+OnRequestUri                "/path/file.html?foo=bar"
+OnRequestType
+OnHeaderName                "Host"
+OnHeaderValue               "example.com"
+OnHeadersEnd
+OnMessageEnd
+< Execute returned 59
+
+Parser: HTTP/1.1, ShouldKeepAlive=True

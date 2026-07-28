@@ -1,0 +1,22 @@
+﻿> Execute 91 bytes
+OnMessageBegin
+OnResponseType
+OnResponseCode              200 "OK"
+OnHeaderName                "Transfer-Encoding"
+OnTransferEncodingChunked   True
+OnHeaderValue               "chunked"
+OnHeadersEnd
+OnChunkedLength             4
+OnChunkReceived
+OnBody                      4 bytes  "Wiki"
+OnChunkedLength             6
+OnChunkReceived
+OnBody                      6 bytes  "pedia "
+OnChunkedLength             14
+OnChunkReceived
+OnBody                      14 bytes  "in \r\n\r\nchunks."
+OnChunkedLength             0
+OnMessageEnd
+< Execute returned 91
+
+Parser: HTTP/1.1, ShouldKeepAlive=True

@@ -239,6 +239,61 @@ cd src/tests/HttpMachine.Tests
 dotnet test
 ```
 
+## Adding a parser test (fixtures)
+
+Most parser tests are **fixture files**: raw HTTP bytes in
+[src/tests/HttpMachine.Tests/Fixtures](src/tests/HttpMachine.Tests/Fixtures). Each one becomes a test
+case that feeds the bytes to the parser and compares the full sequence of delegate callbacks against
+an approved snapshot.
+
+That sequence is the parser's real contract - the order of `OnHeaderName`, `OnHeaderValue`,
+`OnHeadersEnd` and `OnBody` is what anyone implementing `IHttpParserDelegate` depends on - and a
+snapshot pins all of it, rather than the two or three properties a hand-written assertion usually
+checks.
+
+To add a case:
+
+1. Drop the raw bytes into `Fixtures/Requests/` or `Fixtures/Responses/`, named `something.http`.
+2. Run the tests. The new case fails with a `.received.txt` next to the fixture.
+3. Read it. If it is what the parser should do, rename it to `.verified.txt` and commit both files.
+
+Nothing else is edited - no test list, no registration.
+
+Optional modifiers go between the name and the extension, and an unrecognised one is an error rather
+than being silently ignored:
+
+| Modifier | Effect |
+|---|---|
+| `.invalid` | The parser is expected to reject the input, by stopping short or raising `OnParserError` |
+| `.close-delimited` | Parse with `UnframedResponseMode.CloseDelimited` |
+| `.canonical` | Parse with `HeaderNameMode.Canonical` |
+| `.eof` | Signal end of stream with a final empty `Execute` |
+
+So `Responses/unframed-body.close-delimited.eof.http` reads as what it is.
+
+Alongside the snapshot, two assertions record *intent*: the category folder must match the message
+type the parser reported, and `.invalid` fixtures must actually be rejected. The snapshot says what
+happened; these say what was meant, and they survive a snapshot being approved carelessly.
+
+**Fixtures are byte-exact.** The bytes on disk are fed to the parser unmodified, and some fixtures
+exist to pin down line-ending handling, so nothing may normalise them:
+
+- the root [.gitattributes](.gitattributes) excludes them from git's end-of-line conversion
+- [Fixtures/.editorconfig](src/tests/HttpMachine.Tests/Fixtures/.editorconfig) stops editors
+  appending a final newline or trimming whitespace
+- `FixtureByteExactnessTests` fails loudly if either guard ever stops working
+
+Create fixtures with a tool that writes exact bytes rather than by typing into an editor:
+
+```sh
+printf 'HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nhi' > Fixtures/Responses/my-case.http
+```
+
+Tests about **how** the parser is fed - buffers split mid-message, span versus array versus
+`MemoryStream`, pipelining, when end of stream is signalled - stay hand-written in
+[HttpCombinedParserTests.cs](src/tests/HttpMachine.Tests/HttpCombinedParserTests.cs). Fixtures answer
+"what does this message parse to"; those answer "how does the parser behave when fed unusually".
+
 ## Working on the known-header matcher (source generator)
 
 `src/main/HttpMachine.netstandard/Generated/KnownHeaders.g.cs` is **generated code** - do not edit it

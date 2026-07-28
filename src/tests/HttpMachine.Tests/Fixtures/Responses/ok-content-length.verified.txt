@@ -1,0 +1,14 @@
+﻿> Execute 79 bytes
+OnMessageBegin
+OnResponseType
+OnResponseCode              200 "OK"
+OnHeaderName                "Content-Type"
+OnHeaderValue               "text/plain"
+OnHeaderName                "Content-Length"
+OnHeaderValue               "14"
+OnHeadersEnd
+OnBody                      14 bytes  "This is a test"
+OnMessageEnd
+< Execute returned 79
+
+Parser: HTTP/1.1, ShouldKeepAlive=True
