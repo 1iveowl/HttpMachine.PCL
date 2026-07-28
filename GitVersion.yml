@@ -1,3 +1,7 @@
+# Changing this file on a releases/** branch is what triggers publishing: the Publish Package
+# workflow is filtered on this path. A release branch that merely points at an existing commit
+# publishes nothing, because the push presents no change to the filter. Bump next-version as a
+# commit on the release branch itself.
 next-version: 6.2.0
 branches: {}
 ignore:
