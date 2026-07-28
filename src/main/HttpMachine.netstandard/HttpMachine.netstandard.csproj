@@ -4,21 +4,21 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0;net10.0</TargetFrameworks>
     <AssemblyName>HttpMachine</AssemblyName>
     <RootNamespace>HttpMachine</RootNamespace>
-    <AssemblyVersion>6.1.0.0</AssemblyVersion>
-    <FileVersion>6.1.0.0</FileVersion>
+    <AssemblyVersion>6.2.0.0</AssemblyVersion>
+    <FileVersion>6.2.0.0</FileVersion>
 	  <LangVersion>14.0</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <PackageIcon>images\1iveowl-logo.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>6.1.0</Version>
+    <Version>6.2.0</Version>
     <Authors>Jasper Hedegaard Bojsen</Authors>
     <Copyright>1iveowl Development 2025</Copyright>
     <PackageProjectUrl>https://github.com/1iveowl/HttpMachine.PCL</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/1iveowl/HttpMachine.PCL</RepositoryUrl>
     <Description>An efficient, flexible and simple HTTP parser built with Ragel for speed and consistency</Description>
-    <PackageReleaseNotes>Adds UnframedResponseMode: opt into RFC 9112 6.3 close-delimited framing for responses that have no Content-Length and no Transfer-Encoding, via a new HttpCombinedParser constructor overload. The default (CompleteAtHeaders) is unchanged and keeps HTTPU/SSDP behaviour, so this release is fully backward compatible. See README version history.</PackageReleaseNotes>
+    <PackageReleaseNotes>Known header names are now recognised by generated code that matches the raw UTF-8 bytes, removing 21-37% of the parser's per-message allocations (8-12% including those made by HttpParserDelegate). Parse time is unchanged. Adds HeaderNameMode and constructor overloads taking it: the default, AsReceived, reports header names exactly as the sender wrote them and is unchanged from 6.1.0; Canonical reports one spelling for every recognised header and never allocates. Also marked AOT compatible for .NET 8 and .NET 10. Fully backward compatible. See README version history.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

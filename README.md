@@ -355,7 +355,7 @@ worktree of any earlier revision, for before-and-after comparisons.
 
 ## Version history
 
-### 6.2.0 (unreleased)
+### 6.2.0
 - Known header names are now recognised by generated code rather than by the Ragel grammar, matching
   a UTF-8 name span against 73 known headers without allocating. Recognised header names are
   reported using a cached instance instead of a freshly allocated string, which removes roughly 30%
