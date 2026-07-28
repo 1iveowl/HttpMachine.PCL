@@ -19,7 +19,7 @@ A combined C# HTTP request/response parser, implemented as a state machine built
 
 Most .NET code should reach for
 [`HttpClient`](https://learn.microsoft.com/dotnet/api/system.net.http.httpclient) or
-[Kestrel](https://learn.microsoft.com/aspnet/core/fundamentals/servers/kestrel) — they manage
+[Kestrel](https://learn.microsoft.com/aspnet/core/fundamentals/servers/kestrel) - they manage
 connections, TLS and newer protocol versions for you. HttpMachine solves a different problem: it
 parses HTTP messages from **raw bytes**, with no socket, connection or transport attached. You hand
 it a buffer, it hands you back the parsed message.
@@ -27,16 +27,16 @@ it a buffer, it hands you back the parsed message.
 That makes it a good fit when:
 
 - **The HTTP message doesn't arrive over an HTTP connection.** SSDP/UPnP discovery is the classic
-  case — `NOTIFY` and `M-SEARCH` messages multicast over UDP, which no HTTP client will parse for you.
+  case - `NOTIFY` and `M-SEARCH` messages multicast over UDP, which no HTTP client will parse for you.
 - **You need the handshake, not the protocol.** Reading a WebSocket upgrade request or response.
-- **You are implementing the endpoint yourself** — a custom or embedded server, a proxy or gateway,
+- **You are implementing the endpoint yourself** - a custom or embedded server, a proxy or gateway,
   or a device speaking HTTP over an unusual transport.
-- **You are inspecting or testing traffic** — sniffers, protocol test harnesses, fuzzing, or
+- **You are inspecting or testing traffic** - sniffers, protocol test harnesses, fuzzing, or
   replaying captured bytes.
 - **Data arrives in fragments.** Messages may be split across buffers at any byte, and
   `Execute(ReadOnlySpan<byte>)` reads pooled or sliced buffers without copying.
 
-Targeting .NET Standard 2.0 also means it runs where modern HTTP stacks don't — older runtimes,
+Targeting .NET Standard 2.0 also means it runs where modern HTTP stacks don't - older runtimes,
 Xamarin, Unity and constrained devices.
 
 If you need HTTP/2 or HTTP/3, see [Why HTTP/1.x only?](#why-http1x-only) at the end.
@@ -46,14 +46,14 @@ If you need HTTP/2 or HTTP/3, see [Why HTTP/1.x only?](#why-http1x-only) at the 
 These libraries build on HttpMachine and are good examples of the "wrap the parser with a
 transport" pattern described above:
 
-- **[SimpleHttpListener.Rx](https://github.com/1iveowl/SimpleHttpListener.Rx)** — a lightweight,
+- **[SimpleHttpListener.Rx](https://github.com/1iveowl/SimpleHttpListener.Rx)** - a lightweight,
   reactive (Rx) HTTP and HTTPU/SSDP listener. It feeds incoming bytes to HttpMachine and surfaces
   parsed requests and responses as an observable stream.
-- **[SSDP.UPnP.PCL](https://github.com/1iveowl/SSDP.UPnP.PCL)** — an SSDP implementation for UPnP 2.0
+- **[SSDP.UPnP.PCL](https://github.com/1iveowl/SSDP.UPnP.PCL)** - an SSDP implementation for UPnP 2.0
   (discovery `NOTIFY` / `M-SEARCH` over UDP multicast), exactly the datagram-style HTTP this parser
   is built to handle.
-- **[UPnP.rx](https://github.com/1iveowl/UPnP.rx)** — a modern Rx UPnP client for .NET 10:
-  discover → describe → control.
+- **[UPnP.rx](https://github.com/1iveowl/UPnP.rx)** - a modern Rx UPnP client for .NET 10:
+  discover, describe, control.
 
 ## Background
 
@@ -62,7 +62,7 @@ This project began in May 2016 as a fork of the great work done by Benjamin van 
 being maintained. It has been developed independently ever since, and by now differs
 substantially from its origin: a combined request/response parser, chunked transfer encoding,
 zero-length header support, a span-based parsing API, and continuous modernization of the
-target frameworks — see the [version history](#version-history) below.
+target frameworks - see the [version history](#version-history) below.
 
 The original HttpMachine is Copyright (c) 2011 [Benjamin van der Veen](http://bvanderveen.com)
 and is licensed under the MIT License, as is this fork. See [LICENCE.md](LICENCE.md).
@@ -70,13 +70,15 @@ and is licensed under the MIT License, as is this fork. See [LICENCE.md](LICENCE
 ## Features
 
 - HTTP/1.1 and 1.0
-- Parses requests and responses with one combined parser — filter on `MessageType` to see which one was parsed
+- Parses requests and responses with one combined parser - filter on `MessageType` to see which one was parsed
 - Supports pipelined messages
 - Tells your server if it should keep the connection alive (`ShouldKeepAlive`)
 - Extracts the length of the entity body (`Content-Length`)
 - Supports chunked Transfer-Encoding
 - Handles zero-length headers (for example `EXT:` as used in UPnP)
 - Header values are collected in an `IEnumerable<string>` per header name (repeated headers accumulate)
+- Recognises 73 known header names without allocating, using a generated matcher (see [`HeaderNameMode`](#header-names-and-allocation))
+- No reflection or dynamic code: trim-safe and Native AOT compatible
 
 ## Usage
 
@@ -124,29 +126,71 @@ See [the console test project](src/tests/Console.NETCore.Test/Program.cs) for a 
 
 - **Return value of `Execute`:** the number of bytes consumed. If it is less than the length you passed in, the parser hit a parse error at that position.
 - **Feeding data incrementally:** call `Execute` repeatedly as data arrives; messages may be split across buffers at any point.
-- **Span support:** `Execute(ReadOnlySpan<byte>)` parses without requiring an array — useful with pooled buffers or `PipeReader` slices. Body callbacks mirror the input: array-based `Execute` overloads deliver `OnBody(ArraySegment<byte>)` over your buffer (as in 5.x); the span overload delivers `OnBody(ReadOnlySpan<byte>)` to delegates implementing `IHttpParserSpanDelegate` (which `HttpParserDelegate` does), or a pooled copy to plain `IHttpParserDelegate` implementors. Either way the buffer is only valid during the callback — copy it if you keep it.
+- **Span support:** `Execute(ReadOnlySpan<byte>)` parses without requiring an array - useful with pooled buffers or `PipeReader` slices. Body callbacks mirror the input: array-based `Execute` overloads deliver `OnBody(ArraySegment<byte>)` over your buffer (as in 5.x); the span overload delivers `OnBody(ReadOnlySpan<byte>)` to delegates implementing `IHttpParserSpanDelegate` (which `HttpParserDelegate` does), or a pooled copy to plain `IHttpParserDelegate` implementors. Either way the buffer is only valid during the callback - copy it if you keep it.
 - **End of stream:** when a message has no `Content-Length` and is not chunked, the body runs until the connection closes. Signal this to the parser by calling `Execute` with an empty buffer. See [Message framing](#message-framing-and-the-one-deliberate-deviation) for how bodyless responses are handled and the `UnframedResponseMode` option.
 - **Header keys:** stored uppercased; the `Headers` dictionary uses a case-insensitive comparer, so `headers["content-type"]` works too.
+- **Header names and allocation:** recognised header names are reported to `OnHeaderName` from a cached instance rather than a freshly allocated string. See [Header names and allocation](#header-names-and-allocation).
 - **Delegate results:** `handler.HttpRequestResponse` is the snapshot of the most recently *completed* message. It is `null` until the first message has been fully parsed. When parsing pipelined messages, read it from `OnMessageEnd` (override it) if you need every message.
 - **Customizing:** subclass `HttpParserDelegate` and override the `On...` methods you care about, or implement `IHttpParserCombinedDelegate` from scratch.
 - The HTTP method accepts these additional four characters: `$ - , .`
 - When both `Content-Length` and `Transfer-Encoding: chunked` are present, chunked wins (RFC 9112 6.3).
 
+## Header names and allocation
+
+The parser recognises 73 common header names - the HTTP core set, the WebSocket handshake headers
+and the SSDP/UPnP ones - by matching the raw UTF-8 bytes against generated code, before any string
+exists. When a name is recognised it is reported to `OnHeaderName` from a cached instance instead of
+a freshly allocated string, which removes most of the parser's per-message allocations.
+
+Which spelling you are handed is controlled by `HeaderNameMode`. HTTP field names are
+case-insensitive ([RFC 9110 5.1](https://www.rfc-editor.org/rfc/rfc9110#section-5.1)), so the two
+modes differ only in casing, never in which headers are recognised or how the message is framed:
+
+```csharp
+// Default: names arrive exactly as the sender wrote them, as in every earlier version.
+using var parser = new HttpCombinedParser(handler);
+
+// Opt in: recognised names arrive in one canonical spelling whatever the sender used.
+using var parser = new HttpCombinedParser(handler, HeaderNameMode.Canonical);
+
+// Both options together.
+using var parser = new HttpCombinedParser(handler, UnframedResponseMode.CloseDelimited, HeaderNameMode.Canonical);
+```
+
+- **`AsReceived`** (default) - `CONTENT-LENGTH:` is reported as `"CONTENT-LENGTH"`. A recognised
+  name whose bytes already match the canonical spelling still avoids the allocation, because the
+  cached instance and the string it would have built are identical. Only a name sent in some other
+  casing has to be materialised.
+- **`Canonical`** - both `CONTENT-LENGTH:` and `content-length:` are reported as `"Content-Length"`,
+  and no recognised name allocates whatever casing arrives. Worth selecting for SSDP/UPnP traffic,
+  where devices commonly send `LOCATION:` and `CACHE-CONTROL:` in upper case.
+
+`HttpRequestResponse.Headers` is unaffected either way: keys are uppercased into a case-insensitive
+dictionary, so the mode is only visible to code reading the raw name from `OnHeaderName`.
+
+Unrecognised headers are unchanged in both modes - reported with the sender's casing, exactly as
+before.
+
+Measured against 6.1.0 on a realistic request, response and SSDP `NOTIFY`: **21-37% fewer bytes
+allocated** by the parser itself, or **8-12%** once the allocations made by `HttpParserDelegate` are
+included. Parse time is unchanged. The benchmarks are in
+[src/benchmarks/HeaderMatcher.Benchmarks](src/benchmarks/HeaderMatcher.Benchmarks).
+
 ## Message framing (and the one deliberate deviation)
 
-This is a **pure byte parser with no connection model** — it sees bytes, not sockets. That single
+This is a **pure byte parser with no connection model** - it sees bytes, not sockets. That single
 fact explains most of its framing behaviour. Following
 [RFC 9112 6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3), the length of a message body is
 determined, in order, by:
 
-1. `Transfer-Encoding: chunked` — the body is delimited by the chunk framing.
-2. `Content-Length` — exactly that many bytes.
+1. `Transfer-Encoding: chunked` - the body is delimited by the chunk framing.
+2. `Content-Length` - exactly that many bytes.
 3. Neither header present:
    - **A request has no body** (RFC 9112 6.3 rule 6).
-   - **A response is delimited by connection close** — the body runs until the connection ends.
+   - **A response is delimited by connection close** - the body runs until the connection ends.
 
 Rule 3 for responses is where "no connection model" bites: the parser can't observe a socket
-closing. So closing is expressed *in bytes* — **you signal end of stream by calling `Execute` with
+closing. So closing is expressed *in bytes* - **you signal end of stream by calling `Execute` with
 an empty buffer.** That is the parser's definition of "the connection closed", and it's what makes
 close-delimited bodies work without the parser knowing anything about transports.
 
@@ -155,7 +199,7 @@ close-delimited bodies work without the parser knowing anything about transports
 There is one case where strict HTTP and this library's main use case genuinely disagree: a
 **response with no `Content-Length`, no `Transfer-Encoding`, and keep-alive** (e.g. a default
 HTTP/1.1 response). Strict RFC 9112 says such a response is close-delimited. But the traffic this
-library is most used for — **SSDP / UPnP discovery** (see the examples above) — is HTTPU: HTTP-shaped
+library is most used for - **SSDP / UPnP discovery** (see the examples above) - is HTTPU: HTTP-shaped
 messages carried one-per-datagram over UDP, with no body and no connection to close. There, the
 message is simply *complete at the blank line*. The same bytes, two correct-but-opposite meanings.
 
@@ -180,13 +224,13 @@ carries `Connection: close`; the mode only affects the ambiguous keep-alive-with
 
 ## Working on the parser (Ragel)
 
-`src/main/HttpMachine.netstandard/HttpCombinedParser.cs` is **generated code** — do not edit it by hand. The sources are:
+`src/main/HttpMachine.netstandard/HttpCombinedParser.cs` is **generated code** - do not edit it by hand. The sources are:
 
-- [HttpParser2-chunked.cs.rl](src/main/HttpMachine.netstandard/rl/HttpParser2-chunked.cs.rl) — C# host file with the parser actions
-- [http-chunked.rl](src/main/HttpMachine.netstandard/rl/http-chunked.rl) — the HTTP grammar
-- [uri.rl](src/main/HttpMachine.netstandard/rl/uri.rl) — the URI grammar
+- [HttpParser2-chunked.cs.rl](src/main/HttpMachine.netstandard/rl/HttpParser2-chunked.cs.rl) - C# host file with the parser actions
+- [http-chunked.rl](src/main/HttpMachine.netstandard/rl/http-chunked.rl) - the HTTP grammar
+- [uri.rl](src/main/HttpMachine.netstandard/rl/uri.rl) - the URI grammar
 
-To regenerate, install Ragel 6.x (`apt install ragel` on Debian/Ubuntu, available via Homebrew and Cygwin elsewhere) and run [generate.sh](src/main/HttpMachine.netstandard/rl/generate.sh) from the `rl` directory. The script also widens a few generated `sbyte[]` tables to `byte[]` — Ragel 6.x picks the element type by table length, not value range, and some tables contain values above 127.
+To regenerate, install Ragel 6.x (`apt install ragel` on Debian/Ubuntu, available via Homebrew and Cygwin elsewhere) and run [generate.sh](src/main/HttpMachine.netstandard/rl/generate.sh) from the `rl` directory. The script also widens a few generated `sbyte[]` tables to `byte[]` - Ragel 6.x picks the element type by table length, not value range, and some tables contain values above 127.
 
 Run the tests after regenerating:
 
@@ -195,7 +239,85 @@ cd src/tests/HttpMachine.Tests
 dotnet test
 ```
 
+## Working on the known-header matcher (source generator)
+
+`src/main/HttpMachine.netstandard/Generated/KnownHeaders.g.cs` is **generated code** - do not edit it
+by hand. It maps a UTF-8 header name to a known-header enum value and a cached canonical string by
+switching on the name's byte length, then on its case-folded first byte, then comparing 8 bytes at a
+time. The parser uses it to recognise `Content-Length`, `Transfer-Encoding`, `Connection` and
+`Upgrade` - recognition that used to live in the Ragel grammar - and to avoid allocating a string
+for every recognised header name.
+
+The source is a single declarative file:
+
+- [KnownHeaders.txt](src/main/HttpMachine.netstandard/headers/KnownHeaders.txt) - one header per
+  line, in its canonical casing, with an optional `Name = EnumMember` override
+
+To regenerate, run [generate-known-headers.sh](src/tools/generate-known-headers.sh) from the `tools`
+directory. It needs only the .NET SDK:
+
+```sh
+cd src/tools
+./generate-known-headers.sh
+cd ../tests/HttpMachine.Tests && dotnet test
+```
+
+The generator itself is an **author-time tool, exactly like Ragel**. It runs in this repository's
+build, its output is committed, and it is never packed - so HttpMachine and IHttpMachine gain no
+analyzer, no dependency, no SDK floor and no target-framework change from it, and neither do their
+consumers.
+
+It lives in its own solution so it stays out of the pack and publish path:
+
+```sh
+cd src/tools
+dotnet test HeaderGen.sln
+```
+
+- [HttpMachine.HeaderGen](src/tools/HttpMachine.HeaderGen/) - the incremental source generator
+- [HttpMachine.HeaderGen.Emit](src/tools/HttpMachine.HeaderGen.Emit/) - runs the generator as a real
+  analyzer and is where the committed file comes from. It builds against every framework HttpMachine
+  targets, so it also proves the matcher compiles down to .NET Standard 2.0, and the script checks
+  all five produce a byte-identical file
+- [HeaderGen.Tests](src/tests/HeaderGen.Tests/) - snapshot tests of the generated code, plus a test
+  that the generator's pipeline outputs are cacheable (an incremental generator that is not
+  cacheable still works, it just re-runs on every keystroke in the IDE)
+- [HeaderGen.Integration.Tests](src/tests/HeaderGen.Integration.Tests/) - compiles and executes the
+  real matcher, comparing it against a case-insensitive dictionary over the same header list
+
+CI regenerates the file and fails if the result differs from what is committed, so the checked-in
+code cannot drift from `KnownHeaders.txt`.
+
+Benchmarks live in [HeaderMatcher.Benchmarks](src/benchmarks/HeaderMatcher.Benchmarks/):
+
+```sh
+cd src/benchmarks/HeaderMatcher.Benchmarks
+dotnet run -c Release -- --filter '*'
+```
+
+[benchmark-against-head.sh](src/tools/benchmark-against-head.sh) runs the same corpus against a git
+worktree of any earlier revision, for before-and-after comparisons.
+
 ## Version history
+
+### 6.2.0 (unreleased)
+- Known header names are now recognised by generated code rather than by the Ragel grammar, matching
+  a UTF-8 name span against 73 known headers without allocating. Recognised header names are
+  reported using a cached instance instead of a freshly allocated string, which removes roughly 30%
+  of the parser's per-message allocations for typical HTTP traffic (about 12% once the allocations
+  made by `HttpParserDelegate` itself are included). Parse time is unchanged to slightly slower -
+  see the benchmarks in `src/benchmarks/HeaderMatcher.Benchmarks`.
+- Added `HeaderNameMode` and `HttpCombinedParser` constructor overloads taking it. The default,
+  `AsReceived`, reports header names exactly as the sender wrote them and is unchanged from 6.1.0.
+  `Canonical` reports one canonical spelling for every recognised header regardless of the sender's
+  casing, and is allocation-free for recognised names whatever casing arrives - worth selecting for
+  SSDP/UPnP traffic, where `LOCATION:` and `CACHE-CONTROL:` are commonly sent in upper case.
+- Marked `IsAotCompatible` for .NET 8 and .NET 10, so trimming and Native AOT analysis run as part of
+  the build. The parser has no reflection or dynamic code and compiles with no trim or AOT warnings.
+  Published under Native AOT the library costs about 172 KB, roughly 12 KB more than 6.1.0 - the
+  price of the generated matcher, at about 161 bytes per known header.
+- No change to `IHttpParserDelegate`, to the `Headers` dictionary, or to which headers the parser
+  recognises for message framing. No new dependency and no target-framework change.
 
 ### 6.1.0
 - Added `UnframedResponseMode` and a new `HttpCombinedParser(delegate, UnframedResponseMode)`
@@ -203,7 +325,7 @@ dotnet test
   [RFC 9112 6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3) framing for a response with no
   `Content-Length` and no `Transfer-Encoding`, reading its body until end of stream (signalled by an
   empty `Execute`). The default, `CompleteAtHeaders`, is unchanged and keeps the HTTPU/SSDP behaviour
-  where such a response is complete at the blank line — so existing code is unaffected. See
+  where such a response is complete at the blank line - so existing code is unaffected. See
   [Message framing](#message-framing-and-the-one-deliberate-deviation) for the rationale. Addresses the
   scenario in issue #11.
 
@@ -212,7 +334,7 @@ dotnet test
   no body, per [RFC 9112 6.3](https://www.rfc-editor.org/rfc/rfc9112#section-6.3) rule 6
   ("If this is a request message and none of the above are true, then the message body length is
   zero"). The close-delimited "read until the connection closes" rule applies to responses only.
-  Previously such requests — for example `GET / HTTP/1.0` or any request with `Connection: close` —
+  Previously such requests - for example `GET / HTTP/1.0` or any request with `Connection: close` -
   never completed until `Execute` was called with an empty buffer, which could hang a server built
   on the parser, and any following pipelined request was silently consumed as body data.
 - Known issue, unchanged in this release: a *response* with keep-alive but no framing headers is
@@ -251,7 +373,7 @@ dotnet test
 HttpMachine parses HTTP/1.0 and HTTP/1.1, and there are no plans to support HTTP/2 or HTTP/3.
 
 What makes this library useful is that it parses HTTP messages straight off a byte stream, with no
-connection, socket or transport attached — which is what you need for HTTP-shaped traffic that
+connection, socket or transport attached - which is what you need for HTTP-shaped traffic that
 doesn't arrive over a normal HTTP connection: SSDP/UPnP discovery over UDP multicast, WebSocket
 upgrade handshakes, embedded devices, protocol testing and the like.
 
@@ -259,7 +381,7 @@ HTTP/2 doesn't fit that model. It is a binary, multiplexed protocol that require
 reliable connection (in practice TLS with ALPN), so the scenarios above can't use it in the first
 place. It also can't be handled by a parser alone: an endpoint has to acknowledge SETTINGS and send
 WINDOW_UPDATE frames or the peer stalls, so anything supporting it needs a write path and becomes a
-connection implementation rather than a parser. Beyond that, HTTP/2 shares no grammar with HTTP/1.x —
+connection implementation rather than a parser. Beyond that, HTTP/2 shares no grammar with HTTP/1.x -
 the Ragel state machine buys you nothing, header compression (HPACK) needs connection-wide state, and
 stream multiplexing would mean a stream ID on every delegate callback. That is a separate library,
 not a feature. HTTP/3 adds QUIC on top of all of it.

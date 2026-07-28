@@ -31,3 +31,33 @@ jobs:
       - name: Test
         run: dotnet test HttpMachine.sln --configuration Release --no-build --verbosity normal
         working-directory: src/main/
+
+  # The known-header matcher generator is an author-time tool, like Ragel: it is never packed, and
+  # its output is committed. It therefore lives in its own solution, outside the pack and publish
+  # path, and is built and tested separately.
+  header_generator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build and test the generator
+        run: dotnet test HeaderGen.sln --configuration Release --verbosity normal
+        working-directory: src/tools/
+
+      # Committed generated code is only trustworthy if it is provably reproducible from its input.
+      # This regenerates and fails if the result differs from what is checked in - the guarantee the
+      # Ragel setup does not currently have.
+      - name: Check the committed matcher is up to date
+        run: |
+          ./generate-known-headers.sh
+          if ! git diff --exit-code -- ../main/HttpMachine.netstandard/Generated/; then
+            echo "::error::Generated/KnownHeaders.g.cs is stale. Run src/tools/generate-known-headers.sh and commit the result."
+            exit 1
+          fi
+        working-directory: src/tools/

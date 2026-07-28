@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <Optimize>true</Optimize>
+
+    <!-- BenchmarkDotNet requires a release build and its own server GC / tiering defaults. -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      The end-to-end benchmarks compare the working tree against what consumers actually have
+      today, so the released package is referenced side by side with the local build under the
+      "baseline" alias. Both bind to the local IHttpMachine, which is safe because this change adds
+      no interface members - see ParserBenchmarks for the assertion that both parsers agree.
+    -->
+    <!--
+      Only the local build is referenced here. Loading the released HttpMachine.dll alongside it
+      under an "extern alias" does not work: both assemblies have the identity
+      HttpMachine 6.1.0.0, and MSBuild's conflict resolution drops one of them regardless of the
+      alias. The before/after comparison is therefore run as two passes over the same corpus - see
+      tools/benchmark-against-head.sh - rather than as one table with a ratio column.
+    -->
+    <ProjectReference Include="..\..\main\HttpMachine.netstandard\HttpMachine.netstandard.csproj" />
+    <ProjectReference Include="..\..\interface\IHttpMachine\IHttpMachine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Generates its own copy of the matcher, exactly as the integration tests do. -->
+    <ProjectReference Include="..\..\tools\HttpMachine.HeaderGen\HttpMachine.HeaderGen.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+    <AdditionalFiles Include="..\..\main\HttpMachine.netstandard\headers\KnownHeaders.txt" />
+  </ItemGroup>
+
+</Project>
