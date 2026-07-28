@@ -2,7 +2,7 @@ namespace HttpMachine;
 
 /// <summary>
 /// Controls how the parser delimits a <em>response</em> body when the response carries neither a
-/// <c>Content-Length</c> nor a <c>Transfer-Encoding</c> header — the one case where strict HTTP
+/// <c>Content-Length</c> nor a <c>Transfer-Encoding</c> header - the one case where strict HTTP
 /// framing and datagram-style (HTTPU/SSDP) framing genuinely disagree. See the README section
 /// "Message framing" for the full rationale.
 /// </summary>

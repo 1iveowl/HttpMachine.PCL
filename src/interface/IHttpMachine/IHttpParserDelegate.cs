@@ -43,7 +43,7 @@ public interface IHttpParserDelegate
 
     /// <summary>
     /// Called with body data. The segment points into the buffer passed to <c>Execute</c> (or a
-    /// pooled copy for span input) and is only valid for the duration of the callback — copy the
+    /// pooled copy for span input) and is only valid for the duration of the callback - copy the
     /// bytes if you need to keep them. May be called multiple times per message.
     /// </summary>
     void OnBody(IHttpCombinedParser combinedParser, ArraySegment<byte> data);

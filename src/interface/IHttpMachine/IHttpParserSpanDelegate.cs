@@ -14,7 +14,7 @@ public interface IHttpParserSpanDelegate
 {
     /// <summary>
     /// Called with body data parsed from span input. The span is only valid for the duration
-    /// of the callback — copy the bytes if you need to keep them. May be called multiple
+    /// of the callback - copy the bytes if you need to keep them. May be called multiple
     /// times per message.
     /// </summary>
     void OnBody(IHttpCombinedParser combinedParser, ReadOnlySpan<byte> data);
