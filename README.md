@@ -326,7 +326,7 @@ It lives in its own solution so it stays out of the pack and publish path:
 
 ```sh
 cd src/tools
-dotnet test HeaderGen.sln
+dotnet test Generators.sln
 ```
 
 - [HttpMachine.HeaderGen](src/tools/HttpMachine.HeaderGen/) - the incremental source generator

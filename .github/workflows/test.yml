@@ -47,7 +47,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Build and test the generator
-        run: dotnet test HeaderGen.sln --configuration Release --verbosity normal
+        run: dotnet test Generators.sln --configuration Release --verbosity normal
         working-directory: src/tools/
 
       # Committed generated code is only trustworthy if it is provably reproducible from its input.
