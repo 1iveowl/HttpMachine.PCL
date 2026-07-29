@@ -8,6 +8,7 @@
 
 [![.NET](https://img.shields.io/badge/.NET-6.0%20%7C%208.0%20%7C%2010.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download)
 [![.NET Standard](https://img.shields.io/badge/.NET%20Standard-2.0%20%7C%202.1-5C2D91?logo=dotnet&logoColor=white)](https://learn.microsoft.com/dotnet/standard/net-standard)
+[![Native AOT](https://img.shields.io/badge/Native%20AOT-compatible-success.svg)](#native-aot-and-trimming-760)
 
 A combined C# HTTP request/response parser, implemented as a state machine built with
 [Adrian Thurston](https://www.colm.net/)'s excellent state machine compiler,
